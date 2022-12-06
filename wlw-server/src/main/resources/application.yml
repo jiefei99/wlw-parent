@@ -1,0 +1,91 @@
+server:
+  servlet:
+    application-display-name: wlw-server
+  port: 8010
+  tomcat:
+    uri-encoding: UTF-8
+  error:
+    include-message: always
+    include-exception: true
+service:
+  rest:
+    username: guest
+    password: guest
+endpoints:
+  shutdown:
+    security:
+      user:
+        name: guest
+        password: guest
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  application:
+    name: wlw-server
+  profiles:
+    active: dev
+    druid:
+      initial-size: 1
+      max-active: 20
+      min-idle: 1
+      max-wait: 6000
+      pool-prepared-statements: false
+      max-pool-prepared-statement-per-connection-size: 20
+      max-open-prepared-statements: 50
+      validation-query: SELECT 1
+      validation-query-timeout: 3
+      test-on-borrow: false
+      test-on-return: false
+      test-while-idle: true
+      time-between-eviction-runs-millis: 60000
+      min-evictable-idle-time-millis: 300000
+      max-evictable-idle-time-millis: 900000
+      filters: stat
+      connection-properties: druid.stat.mergeSql=true;druid.stat.logSlowSql=true;druid.stat.slowSqlMillis=1000
+      stat-view-servlet:
+        enabled: true
+        url-pattern: /druid/*
+        reset-enable: false
+        login-username: admin
+        login-password: admin
+      web-stat-filter:
+        enabled: true
+        url-pattern: /*
+        exclusions: "*.js,*.gif,*.jpg,*.png,*.css,*.ico,/druid/*"
+  #  security:
+  #    user:
+  #      name: guest
+  #      password: guest
+  http:
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8
+  messages:
+    encoding: UTF-8
+
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+    enabled: true
+  instance:
+    prefer-ip-address: true
+    non-secure-port: 8210
+    instance-id: wlw-server:${random.value}:${eureka.instance.non-secure-port}
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 10
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "*"

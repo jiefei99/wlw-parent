@@ -1,0 +1,49 @@
+server:
+  port: 8010
+
+spring:
+  profiles:
+    active: dev
+  datasource:
+    url: jdbc:mysql://rm-bp1t93tie621nh88odo.mysql.rds.aliyuncs.com:3306/wlw?useUnicode=yes&characterEncoding=utf-8&useSSL=no&serverTimezone=Asia/Shanghai
+    username: wlw
+    password: wlw
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+  instance:
+    non-secure-port: 8010
+
+# REDIS
+redis:
+  address: r-bp19caa71c7ac8f4pd.redis.rds.aliyuncs.com:6379
+  host: r-bp19caa71c7ac8f4pd.redis.rds.aliyuncs.com
+  port: 6379
+  password: Redis352674802
+  maxIdle: 10
+  maxTotal: 100
+  maxWaitMillis: 1000
+
+# 日志路径
+logging:
+  level:
+    org.springframework.web: info
+    com.jike: info
+  path: /home/deploy/log/wlw-server-dev
+  config: classpath:logback.xml
+
+# RabbitMQ配置
+amqp:
+  prefix: dev
+  host: 47.112.154.205
+  username: dev
+  password: 123456
+  port: 5672
+
+initialization:
+  name: 超级管理员
+  mobile:
+  loginId: admin
+  password: 123456

@@ -1,0 +1,55 @@
+server:
+  servlet:
+    application-display-name: wlw-sys-web
+  port: 8011
+  tomcat:
+    uri-encoding: UTF-8
+wlw-sys-web:
+  rest:
+    username: guest
+    password: guest
+endpoints:
+  shutdown:
+    security:
+      user:
+        name: guest
+        password: guest
+spring:
+  application:
+    name: wlw-sys-web
+  profiles:
+    active: dev
+  http:
+    encoding:
+      force: true
+      enabled: true
+      charset: UTF-8
+  messages:
+    encoding: UTF-8
+  main:
+    allow-bean-definition-overriding: true
+eureka:
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    healthcheck:
+      enabled: true
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+    enabled: true
+  instance:
+    prefer-ip-address: true
+    non-secure-port: 8011
+    instance-id: wlw-sys-web:${random.value}:${eureka.instance.non-secure-port}
+    lease-expiration-duration-in-seconds: 30
+    lease-renewal-interval-in-seconds: 10
+management:
+  endpoint:
+    shutdown:
+      enabled: true
+    health:
+      show-details: ALWAYS
+  endpoints:
+    web:
+      exposure:
+        include: "*"

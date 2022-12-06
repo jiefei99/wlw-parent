@@ -1,0 +1,38 @@
+server:
+  port: 8031
+
+spring:
+  profiles:
+    active: uat
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka/
+  instance:
+    non-secure-port: 8031
+
+# SSO 配置
+login:
+  expiresIn: 31536000
+  refreshIn: 600
+  secret: 123456
+
+# REDIS
+redis:
+  address: r-bp19caa71c7ac8f4pd.redis.rds.aliyuncs.com:6379
+  host: r-bp19caa71c7ac8f4pd.redis.rds.aliyuncs.com
+  port: 6379
+  password: Redis352674802
+  maxIdle: 10
+  maxTotal: 100
+  maxWaitMillis: 1000
+
+  # 日志路径
+logging:
+  level:
+    org.springframework.web: info
+    com.jike: info
+  path: /home/deploy/log/wlw-sys-web-uat
+  config: classpath:logback.xml
+
