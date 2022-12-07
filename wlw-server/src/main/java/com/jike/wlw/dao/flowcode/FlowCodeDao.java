@@ -53,7 +53,7 @@ public class FlowCodeDao extends BaseDao {
         return rows.get(0);
     }
 
-    @Transactional(value = "bw-inspection-server.txManager", propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
+    @Transactional(value = "wlw-server.txManager", propagation = Propagation.REQUIRED, rollbackFor = Throwable.class)
     public void saveCode(String flowName, String code) throws Exception {
         PFlowCode perz = new PFlowCode();
         perz.setFlowName(flowName);

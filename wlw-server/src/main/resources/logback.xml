@@ -9,9 +9,9 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>/logs/bw-inspection-server</file>
+        <file>/logs/wlw-server</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>/logs/bw-inspection-server-%d{yyyyMMddHH}.log.%i</fileNamePattern>
+            <fileNamePattern>/logs/wlw-server-%d{yyyyMMddHH}.log.%i</fileNamePattern>
             <maxFileSize>20MB</maxFileSize>
             <maxHistory>20</maxHistory>
         </rollingPolicy>

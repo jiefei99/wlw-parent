@@ -9,6 +9,7 @@ package com.jike.wlw.sys.web.controller;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.util.StringUtil;
+import com.jike.wlw.sys.web.sso.AppContext;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -87,7 +88,7 @@ public class BaseController {
     }
 
     protected ActionResult dealWithError(Exception e) {
-        log.error(e.getMessage());
+        log.error(e.getMessage(), e);
         if (e instanceof BusinessException) {
             BusinessException businessException = (BusinessException) e;
             return ActionResult.fail(businessException.getCode(),

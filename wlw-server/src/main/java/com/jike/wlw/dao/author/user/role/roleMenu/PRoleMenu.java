@@ -17,7 +17,7 @@ import lombok.Setter;
 public class PRoleMenu extends PEntity implements JdbcEntity {
     private static final long serialVersionUID = 2618630595083527504L;
 
-    public static final String TABLE_NAME = "bwi_role_menu";
+    public static final String TABLE_NAME = "wlw_role_menu";
 
     @ApiModelProperty("角色ID")
     private String roleId;

@@ -28,7 +28,7 @@ public class PFlowCode extends PEntity implements JdbcEntity {
    * 属性 {@link #getFlowName()}最大长度限制。
    */
   public static final int LENGTH_FLOWNAME = 64;
-  public static final String TABLE_NAME = "bwi_flow_code";
+  public static final String TABLE_NAME = "wlw_flow_code";
   private static final long serialVersionUID = -1898157338935333289L;
 
   @ApiModelProperty("流水码序列名")
