@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.jike.wlw</groupId>
@@ -22,11 +23,11 @@
         <!-- 发布资源库 -->
         <repository>
             <id>releases</id>
-            <url>http://repo.iqingyu.com.cn/nexus/content/repositories/releases</url>
+            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/releases</url>
         </repository>
         <snapshotRepository>
             <id>snapshots</id>
-            <url>http://repo.iqingyu.com.cn/nexus/content/repositories/snapshots</url>
+            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/snapshots</url>
         </snapshotRepository>
     </distributionManagement>
 
@@ -35,7 +36,7 @@
         <repository>
             <id>rxrepo</id>
             <name>rxrepo</name>
-            <url>http://repo.iqingyu.com.cn/nexus/content/groups/public/</url>
+            <url>https://repo.iqingyu.com.cn/nexus/content/groups/public/</url>
             <releases>
                 <enabled>true</enabled>
             </releases>
@@ -65,6 +66,8 @@
         <poi.version>5.1.0</poi.version>
         <aliyun-sdk-oss.version>3.14.1</aliyun-sdk-oss.version>
         <log4j.version>1.2.16</log4j.version>
+        <bsc.version>1.0-SNAPSHOT</bsc.version>
+        <nacos.version>2021.1</nacos.version>
     </properties>
 
     <dependencyManagement>
@@ -79,7 +82,7 @@
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter-web</artifactId>
-                <version>2.5.10</version>
+                <version>2.6.4</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
@@ -87,6 +90,23 @@
                 <version>${spring-cloud.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+            <!--配置中心客户端-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
+            <!--注册中心客户端-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                <version>${nacos.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-bootstrap</artifactId>
+                <version>3.1.1</version>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -199,6 +219,13 @@
                 <version>${fasterxml-jackson.version}</version>
             </dependency>
 
+            <!--公共服务-->
+            <dependency>
+                <groupId>com.jike.bsc</groupId>
+                <artifactId>bsc-commons-api</artifactId>
+                <version>${bsc.version}</version>
+            </dependency>
+
             <dependency>
                 <groupId>org.apache.poi</groupId>
                 <artifactId>poi</artifactId>
@@ -210,7 +237,7 @@
                 <version>${poi.version}</version>
             </dependency>
             <dependency>
-                <groupId> org.apache.tomcat.embed</groupId>
+                <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
                 <version>9.0.58</version>
             </dependency>
@@ -248,6 +275,11 @@
                 <groupId>commons-httpclient</groupId>
                 <artifactId>commons-httpclient</artifactId>
                 <version>3.1</version>
+            </dependency>
+            <dependency>
+                <groupId>org.yaml</groupId>
+                <artifactId>snakeyaml</artifactId>
+                <version>1.25</version>
             </dependency>
 
         </dependencies>
@@ -304,6 +336,14 @@
                         </execution>
                     </executions>
                 </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-resources-plugin</artifactId>
+                    <configuration>
+                        <delimiters>@</delimiters>
+                        <useDefaultDelimiters>false</useDefaultDelimiters>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
     </build>
@@ -331,7 +371,8 @@
                                 <configuration>
                                     <dockerDirectory>${project.basedir}/src/main/docker
                                     </dockerDirectory>
-                                    <imageName>${docker.registry}/harbor/${project.artifactId}:${project.version}
+                                    <imageName>
+                                        ${docker.registry}/harbor/${project.artifactId}:${project.version}
                                     </imageName> <!-- 镜像名 -->
                                     <imageTags>
                                         <imageTag>${project.version}
@@ -357,7 +398,8 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <serverId>harbor-dockerhub</serverId> <!-- 对应maven settings.xml的server id -->
+                                    <serverId>harbor-dockerhub
+                                    </serverId> <!-- 对应maven settings.xml的server id -->
                                     <imageName>
                                         ${docker.registry}/harbor/${project.artifactId}:${project.version}
                                     </imageName>

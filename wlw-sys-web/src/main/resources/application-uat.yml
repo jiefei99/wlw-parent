@@ -1,16 +1,9 @@
 server:
-  port: 8031
+  port: 8011
 
 spring:
   profiles:
     active: uat
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka/
-  instance:
-    non-secure-port: 8031
 
 # SSO 配置
 login:

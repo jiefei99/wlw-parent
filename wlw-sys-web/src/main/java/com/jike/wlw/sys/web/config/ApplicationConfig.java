@@ -19,6 +19,7 @@ import com.geeker123.rumba.sso.TokenService;
 import com.geeker123.rumba.sso.WebTokenFilter;
 import com.geeker123.rumba.web.base.servlet.BarcodeServlet;
 import com.geeker123.rumba.web.base.servlet.CaptchaServlet;
+import com.jike.wlw.sys.web.sso.AppCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -106,7 +107,7 @@ public class ApplicationConfig {
         filter.setName("WebTokenFilter");
         // 初始化参数
         filter.addInitParameter("excludes",
-                "*/order/getProductionOrder,*/login/*,*/wall/*,*.css,*.js,*.png,*.jpg*,*swagger-ui.html*,*/webjars*,*/v2/api-docs*,*/swagger-resources*,*/jike/shutdown");
+                "*/org/*,*/order/getProductionOrder,*/login/*,*/wall/*,*.css,*.js,*.png,*.jpg*,*swagger-ui.html*,*/webjars*,*/v2/api-docs*,*/swagger-resources*,*/jike/shutdown");
         // 拦截规则
         filter.addUrlPatterns("/web/*");
         return filter;

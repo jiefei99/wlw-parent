@@ -26,9 +26,14 @@
             <artifactId>spring-cloud-starter-netflix-ribbon</artifactId>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
@@ -76,6 +81,17 @@
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jike</groupId>
+            <artifactId>mall-goods-api</artifactId>
+            <version>1.0.0-SNAPSHOT</version>
+        </dependency>
+
+
     </dependencies>
     <build>
         <plugins>
@@ -87,7 +103,24 @@
                     <mainClass>com.jike.wlw.sys.web.SysWebApplication</mainClass>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <configuration>
+                    <delimiters>@</delimiters>
+                    <useDefaultDelimiters>false</useDefaultDelimiters>
+                </configuration>
+            </plugin>
         </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/**</include>
+                </includes>
+            </resource>
+        </resources>
     </build>
 
     <profiles>
@@ -113,7 +146,9 @@
                                 <configuration>
                                     <dockerDirectory>${project.basedir}/src/main/docker
                                     </dockerDirectory>
-                                    <imageName>${docker.registry}/harbor/wlw/${project.artifactId}:${project.version}</imageName> <!-- 镜像名 -->
+                                    <imageName>
+                                        ${docker.registry}/harbor/wlw/${project.artifactId}:${project.version}
+                                    </imageName> <!-- 镜像名 -->
                                     <imageTags>
                                         <imageTag>${project.version}
                                         </imageTag> <!-- 镜像tag，支持多个tag -->
@@ -139,7 +174,8 @@
                                     <goal>push</goal>
                                 </goals>
                                 <configuration>
-                                    <serverId>harbor-dockerhub</serverId> <!-- 对应maven settings.xml的server id -->
+                                    <serverId>harbor-dockerhub
+                                    </serverId> <!-- 对应maven settings.xml的server id -->
                                     <imageName>
                                         ${docker.registry}/harbor/wlw/${project.artifactId}:${project.version}
                                     </imageName>

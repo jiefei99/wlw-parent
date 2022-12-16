@@ -14,7 +14,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 /**
  * 平台小程序应用程序服务启动入口
  */
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"com.jike"})
 @EnableDiscoveryClient
 @SpringBootApplication
 public class SysWebApplication {

@@ -1,5 +1,5 @@
 server:
-  port: 8020
+  port: 8010
 
 spring:
   profiles:
@@ -9,13 +9,6 @@ spring:
     username: wlw
     password: wlw
 
-
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka/
-  instance:
-    non-secure-port: 8020
 
 # REDIS
 redis:
@@ -27,13 +20,6 @@ redis:
   maxTotal: 100
   maxWaitMillis: 1000
 
-# 日志路径
-logging:
-  level:
-    org.springframework.web: info
-    com.jike: info
-  path: /home/deploy/log/wlw-server-test
-  config: classpath:logback.xml
 
 # RabbitMQ配置
 amqp:
