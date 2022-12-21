@@ -29,6 +29,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -45,6 +46,7 @@ import java.util.Map;
 @Slf4j
 @RestController
 @ApiModel("组织成员服务实现")
+@RequestMapping(value = "service/org/member", produces = "application/json;charset=utf-8")
 public class OrgMemberServiceImpl implements OrgMemberService {
 
     @Autowired

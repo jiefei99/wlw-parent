@@ -14,6 +14,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ import java.util.List;
 @Slf4j
 @ApiModel("访问记录实现")
 @RestController
+@RequestMapping(value = "service/accessrecord", produces = "application/json;charset=utf-8")
 public class AccessRecordServiceImpl extends BaseService implements AccessRecordService {
 
     @Autowired

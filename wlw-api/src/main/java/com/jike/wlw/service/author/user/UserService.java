@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "用户服务")
-@RequestMapping(value = "service/user", produces = "application/json;charset=utf-8")
 public interface UserService {
 
     @ApiOperation(value = "根据用户ID获取指定的用户")

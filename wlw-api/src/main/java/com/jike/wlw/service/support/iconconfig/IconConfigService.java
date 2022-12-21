@@ -8,7 +8,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "图标配置服务")
-@RequestMapping(value = "service/iconConfig", produces = "application/json;charset=utf-8")
+
 public interface IconConfigService {
 
     @ApiOperation(value = "根据图标配置ID获取指定的图标配置")

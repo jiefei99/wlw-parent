@@ -3,7 +3,6 @@ package com.jike.wlw.sys.web.controller.author.org;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.mall.goods.api.RemoteGoodsService;
 import com.jike.wlw.service.author.org.Org;
 import com.jike.wlw.service.author.org.OrgCreateRq;
 import com.jike.wlw.service.author.org.OrgFilter;
@@ -14,8 +13,6 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.openfeign.FeignClient;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.web.bind.annotation.*;
 
 
@@ -32,16 +29,16 @@ public class SysWebOrgController extends BaseController {
     @Autowired
     private OrgFeignClient orgFeignClient;
 
-    @Autowired
-    private RemoteGoodsService remoteGoodsService;
+//    @Autowired
+//    private RemoteGoodsService remoteGoodsService;
 
     @ApiOperation(value = "根据ID获取组织")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<Org> get(@ApiParam(required = true, value = "用户ID") @RequestParam("id") String id) throws BusinessException {
         try {
-//            Org result = orgFeignClient.get(id);
-            remoteGoodsService.getById("1001");
+            Org result = orgFeignClient.get(id);
+//            Object result = remoteGoodsService.getById("1003");
 
             return ActionResult.ok();
         } catch (Exception e) {

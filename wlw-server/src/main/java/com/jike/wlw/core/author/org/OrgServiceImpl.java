@@ -15,6 +15,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -26,8 +27,8 @@ import java.util.List;
  * @apiNote
  */
 @Slf4j
-@RestController
 @ApiModel("组织服务实现")
+@RequestMapping(value = "service/org", produces = "application/json;charset=utf-8")
 public class OrgServiceImpl implements OrgService {
 
     @Autowired

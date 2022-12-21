@@ -21,13 +21,13 @@ spring:
     active: dev
   http:
     encoding:
-      force: true
-      enabled: true
-      charset: UTF-8
   messages:
     encoding: UTF-8
   main:
     allow-bean-definition-overriding: true
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER
 management:
   endpoint:
     shutdown:

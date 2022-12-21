@@ -2,7 +2,7 @@ server:
   port: 8011
 spring:
   application:
-    name: @artifactId@
+    name: spring-cloud-demo
   cloud:
     nacos:
       discovery:
@@ -10,10 +10,8 @@ spring:
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         file-extension: yml
-#        shared-configs[0]:
-#          data-id: application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
-#          refresh: true
   profiles:
     active: dev
-
-
+  mvc:
+    pathmatch:
+      matching-strategy: ANT_PATH_MATCHER

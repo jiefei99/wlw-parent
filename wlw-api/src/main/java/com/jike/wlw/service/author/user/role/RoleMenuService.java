@@ -26,7 +26,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author subinzhu
  */
 @Api(tags = "角色权限菜单")
-@RequestMapping(value = "service/roleMenu", produces = "application/json;charset=utf-8")
 public interface RoleMenuService {
 
     @ApiOperation(value = "保存角色权限菜单")

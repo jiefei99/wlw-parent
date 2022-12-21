@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 流水号服务
  */
 @Api(tags = "流水号服务")
-@RequestMapping(value = "service/flowcode", produces = "application/json;charset=utf-8")
 public interface FlowCodeService {
 
     @ApiOperation(value = "下个流水")

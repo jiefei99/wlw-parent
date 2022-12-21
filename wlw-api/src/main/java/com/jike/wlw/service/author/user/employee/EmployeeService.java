@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 员工服务
  */
 @Api(tags = "员工服务")
-@RequestMapping(value = "service/employee", produces = "application/json;charset=utf-8")
 public interface EmployeeService {
 
     @ApiOperation(value = "根据用户ID获取指定的员工")

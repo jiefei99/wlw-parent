@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "角色服务")
-@RequestMapping(value = "service/role", produces = "application/json;charset=utf-8")
 public interface RoleService {
 
     @ApiOperation(value = "根据角色ID获取指定的角色")

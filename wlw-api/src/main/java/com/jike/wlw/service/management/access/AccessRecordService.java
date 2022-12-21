@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 访问记录服务
  */
 @Api(tags = "访问记录")
-@RequestMapping(value = "service/accessrecord", produces = "application/json;charset=utf-8")
 public interface AccessRecordService {
 
     @ApiOperation(value = "新增访问记录")

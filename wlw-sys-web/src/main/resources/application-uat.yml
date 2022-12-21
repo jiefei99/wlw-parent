@@ -1,9 +1,6 @@
 server:
   port: 8011
 
-spring:
-  profiles:
-    active: uat
 
 # SSO 配置
 login:

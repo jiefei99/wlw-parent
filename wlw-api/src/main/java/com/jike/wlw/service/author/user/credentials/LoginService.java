@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * 登录服务
  */
 @Api(tags = "登录服务")
-@RequestMapping(value = "service/login", produces = "application/json;charset=utf-8")
 public interface LoginService {
 
     @ApiOperation("用户密码登录")

@@ -29,7 +29,6 @@ import java.util.List;
  * @author subinzhu
  */
 @Api(tags = "授权服务")
-@RequestMapping(value = "service/auth", produces = "application/json;charset=utf-8")
 public interface AuthService {
 
     @ApiOperation(value = "通过角色列表保存用户角色")

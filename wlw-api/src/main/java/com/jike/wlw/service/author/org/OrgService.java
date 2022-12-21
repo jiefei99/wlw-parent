@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @apiNote
  */
 @Api(tags = "组织服务")
-@RequestMapping(value = "service/org", produces = "application/json;charset=utf-8")
 public interface OrgService {
 
     @ApiOperation(value = "通过用户ID获取指定组织")

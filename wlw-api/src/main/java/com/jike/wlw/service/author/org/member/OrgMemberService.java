@@ -20,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Api(tags = "组织成员服务")
 @RestController
-@RequestMapping(value = "service/org/member", produces = "application/json;charset=utf-8")
 public interface OrgMemberService {
 
     @ApiOperation(value = "根据组织成员ID获取指定的组织成员")

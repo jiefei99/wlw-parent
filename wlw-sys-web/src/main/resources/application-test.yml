@@ -1,9 +1,6 @@
 server:
   port: 8011
 
-spring:
-  profiles:
-    active: test
 
 
 # SSO 配置

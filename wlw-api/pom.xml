@@ -20,6 +20,10 @@
         </dependency>
         <dependency>
             <groupId>com.geeker123.rumba</groupId>
+            <artifactId>rumba-jdbc-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.geeker123.rumba</groupId>
             <artifactId>rumba-commons</artifactId>
             <exclusions>
                 <exclusion>

@@ -17,52 +17,24 @@
     <organization>
         <name>极客软创（厦门）信息技术有限公司 Co., Ltd</name>
     </organization>
-
-    <!-- 制品管理 -->
-    <distributionManagement>
-        <!-- 发布资源库 -->
-        <repository>
-            <id>releases</id>
-            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/releases</url>
-        </repository>
-        <snapshotRepository>
-            <id>snapshots</id>
-            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/snapshots</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <!-- Maven仓库 -->
-    <repositories>
-        <repository>
-            <id>rxrepo</id>
-            <name>rxrepo</name>
-            <url>https://repo.iqingyu.com.cn/nexus/content/groups/public/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>1.8</java.version>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-        <spring-boot.version>2.3.12.RELEASE</spring-boot.version>
-        <spring-cloud.version>Hoxton.SR12</spring-cloud.version>
+        <spring-boot.version>2.6.4</spring-boot.version>
+        <spring-cloud.version>2021.0.1</spring-cloud.version>
+        <spring-cloud-alibaba.version>2021.1</spring-cloud-alibaba.version>
         <docker-maven-plugin.version>0.4.10</docker-maven-plugin.version>
         <docker.registry>harbor.iqingyu.com.cn</docker.registry>
-        <swagger.version>2.9.2</swagger.version>
         <druid.version>1.1.20</druid.version>
         <rumba.version>5.0.0-SNAPSHOT</rumba.version>
         <fastjson.version>1.2.83</fastjson.version>
         <aliyun.java.sdk.core>4.5.14</aliyun.java.sdk.core>
         <aliyun.imageseg.version>1.1.9</aliyun.imageseg.version>
         <fasterxml-jackson.version>2.12.7</fasterxml-jackson.version>
+        <swagger.version>2.9.2</swagger.version>
         <poi.version>5.1.0</poi.version>
         <aliyun-sdk-oss.version>3.14.1</aliyun-sdk-oss.version>
         <log4j.version>1.2.16</log4j.version>
@@ -91,18 +63,23 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+                <version>2021.1</version>
+            </dependency>
             <!--配置中心客户端-->
             <dependency>
                 <groupId>com.alibaba.cloud</groupId>
                 <artifactId>spring-cloud-starter-alibaba-nacos-config</artifactId>
-                <version>${nacos.version}</version>
+                <version>2021.1</version>
             </dependency>
-            <!--注册中心客户端-->
             <dependency>
-                <groupId>com.alibaba.cloud</groupId>
-                <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
-                <version>${nacos.version}</version>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-starter-loadbalancer</artifactId>
+                <version>3.1.1</version>
             </dependency>
+
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-starter-bootstrap</artifactId>
@@ -112,11 +89,6 @@
                 <groupId>com.alibaba</groupId>
                 <artifactId>druid-spring-boot-starter</artifactId>
                 <version>${druid.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>io.springfox</groupId>
-                <artifactId>springfox-swagger2</artifactId>
-                <version>${swagger.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.geeker123.rumba</groupId>
@@ -132,6 +104,11 @@
             <dependency>
                 <groupId>io.springfox</groupId>
                 <artifactId>springfox-swagger-ui</artifactId>
+                <version>${swagger.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.springfox</groupId>
+                <artifactId>springfox-swagger2</artifactId>
                 <version>${swagger.version}</version>
             </dependency>
             <dependency>
@@ -282,8 +259,61 @@
                 <version>1.25</version>
             </dependency>
 
+
+            <!--spring boot 公共版本定义-->
+            <dependency>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--spring cloud 公共版本定义-->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!--spring cloud alibaba-->
+            <dependency>
+                <groupId>com.alibaba.cloud</groupId>
+                <artifactId>spring-cloud-alibaba-dependencies</artifactId>
+                <version>${spring-cloud-alibaba.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <!-- 制品管理 -->
+    <distributionManagement>
+        <!-- 发布资源库 -->
+        <repository>
+            <id>releases</id>
+            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/releases</url>
+        </repository>
+        <snapshotRepository>
+            <id>snapshots</id>
+            <url>https://repo.iqingyu.com.cn/nexus/content/repositories/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <!-- Maven仓库 -->
+    <repositories>
+        <repository>
+            <id>rxrepo</id>
+            <name>rxrepo</name>
+            <url>https://repo.iqingyu.com.cn/nexus/content/groups/public/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <finalName>${project.artifactId}</finalName>

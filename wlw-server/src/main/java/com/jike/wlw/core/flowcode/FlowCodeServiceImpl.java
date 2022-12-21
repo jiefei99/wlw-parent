@@ -17,6 +17,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Date;
@@ -27,6 +28,7 @@ import java.util.Date;
 @ApiModel("流水号服务实现")
 @Slf4j
 @RestController
+@RequestMapping(value = "service/flowcode", produces = "application/json;charset=utf-8")
 public class FlowCodeServiceImpl implements FlowCodeService {
 
     @Autowired
