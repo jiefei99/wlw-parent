@@ -90,7 +90,6 @@
         <dependency>
             <groupId>com.jike</groupId>
             <artifactId>mall-goods-api</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

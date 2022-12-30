@@ -8,6 +8,7 @@ import java.text.SimpleDateFormat;
 import java.util.Arrays;
 
 import com.geeker123.rumba.commons.redis.RedisManager;
+import com.geeker123.rumba.commons.util.AppCtxUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -71,6 +72,14 @@ public class ApplicationConfig {
                 Arrays.asList(new StringHttpMessageConverter(Charset.forName("UTF-8")),
                         new MappingJackson2HttpMessageConverter(objectMapper)));
         return template;
+    }
+
+    /**
+     * 操作上下文
+     **/
+    @Bean
+    public AppCtxUtil getAppContext() {
+        return AppCtxUtil.getInstance();
     }
 
     /**

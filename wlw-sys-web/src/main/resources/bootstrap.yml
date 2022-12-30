@@ -12,6 +12,3 @@ spring:
         file-extension: yml
   profiles:
     active: dev
-  mvc:
-    pathmatch:
-      matching-strategy: ANT_PATH_MATCHER

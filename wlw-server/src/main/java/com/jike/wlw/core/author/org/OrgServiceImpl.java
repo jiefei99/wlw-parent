@@ -28,6 +28,7 @@ import java.util.List;
  */
 @Slf4j
 @ApiModel("组织服务实现")
+@RestController
 @RequestMapping(value = "service/org", produces = "application/json;charset=utf-8")
 public class OrgServiceImpl implements OrgService {
 

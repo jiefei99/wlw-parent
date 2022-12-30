@@ -2,12 +2,23 @@ server:
   port: 8010
 
 spring:
-  profiles:
-    active: dev
   datasource:
     url: jdbc:mysql://rm-bp1t93tie621nh88odo.mysql.rds.aliyuncs.com:3306/wlw?useUnicode=yes&characterEncoding=utf-8&useSSL=no&serverTimezone=Asia/Shanghai
     username: wlw
     password: wlw
+  influx:
+    url: http://118.31.189.96:8087
+    user: jike123
+    password: jk123
+    database: Test
+  mqtt:
+    username: admin                            # 账号
+    password: public                        # 密码
+    host-url: tcp://118.31.189.96:11883    # mqtt连接tcp地址
+    client-id: mq-dky-0813        # 客户端Id，每个启动的id要不同
+    default-topic: topic-test        # 默认主题
+    timeout: 100                            # 超时时间
+    keepalive: 100
 
 # REDIS
 redis:
@@ -19,7 +30,18 @@ redis:
   maxTotal: 100
   maxWaitMillis: 1000
 
-
+ali:
+  iot:
+    accessKey: LTAIZOpGhq6KtGqU
+    accessSecret: xi2neJPmjJqDOmtjzTL9pBq8yLXogZ
+    clientId: 123
+    instanceId:
+    consumerGroupId: jmz9pAJ1HzawVqA2N3r9000100
+    productKeys: a1dg6xBsM9h
+    regionId: cn-shanghai
+    deviceTemplate:
+    productCode: Iot
+    domain: iot.cn-shanghai.aliyuncs.com
 
 # RabbitMQ配置
 amqp:

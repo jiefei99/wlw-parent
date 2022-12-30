@@ -2,8 +2,6 @@ server:
   port: 8010
 
 spring:
-  profiles:
-    active: uat
   datasource:
     url: jdbc:mysql://rm-bp1t93tie621nh88odo.mysql.rds.aliyuncs.com:3306/wlw?useUnicode=yes&characterEncoding=utf-8&useSSL=no&serverTimezone=Asia/Shanghai
     username: wlw

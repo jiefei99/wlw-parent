@@ -16,7 +16,7 @@
     <task:annotation-driven scheduler="wlw.scheduler"
                             mode="proxy"/>
 
-    <bean id="icc.extractExecutor"
+    <bean id="wlw.extractExecutor"
           class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor"
           p:maxPoolSize="48" p:corePoolSize="6"/>
 </beans>

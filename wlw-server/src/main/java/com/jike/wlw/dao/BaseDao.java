@@ -9,6 +9,7 @@ import com.geeker123.rumba.jdbc.entity.HashId;
 import com.geeker123.rumba.jdbc.entity.HashUuid;
 import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.CollectionUtils;
 
