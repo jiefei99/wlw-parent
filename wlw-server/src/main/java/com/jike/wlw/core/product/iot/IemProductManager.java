@@ -1,5 +1,6 @@
 package com.jike.wlw.core.product.iot;
 
+import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.tea.TeaException;
@@ -49,9 +50,9 @@ public class IemProductManager {
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateProductRequest createProductRequest = new CreateProductRequest();
         createProductRequest.setNodeType(1);
-        createProductRequest.setProductName("超级赛亚人004");
+        createProductRequest.setProductName("超级赛亚人005");
         createProductRequest.setDataFormat(1);
-        createProductRequest.setDescription("变身超级赛亚人");
+        createProductRequest.setDescription("变身超级赛亚人3");
         createProductRequest.setAliyunCommodityCode("iothub_senior");
         createProductRequest.setProtocolType("customize");
         createProductRequest.setAuthType("secret");
@@ -61,7 +62,7 @@ public class IemProductManager {
         try {
             // 复制代码运行请自行打印 API 的返回值
             CreateProductResponse productWithOptions = client.createProductWithOptions(createProductRequest, runtime);
-            System.out.println("新建产品返回结果：" + productWithOptions);
+            System.out.println("新建产品返回结果：" + JSON.toJSONString(productWithOptions));
         } catch (TeaException error) {
             // 如有需要，请打印 error
             Common.assertAsString(error.message);
