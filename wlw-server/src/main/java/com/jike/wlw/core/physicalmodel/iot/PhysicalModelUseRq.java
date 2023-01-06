@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -51,12 +52,12 @@ public class PhysicalModelUseRq implements Serializable {
     @ApiModelProperty("服务的标识符")
     private List<String> identifierList;
     @ApiModelProperty("启用服务的入参信息")
-    private Map<String,String> args;
+    private Map<String,Object> args;
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
     @ApiModelProperty("设置的属性信息")
-    private Map<String,String> items;
+    private Map<String,Object> items;
     @ApiModelProperty("期望属性值版本")
-    private Map<String,String> versions;
+    private Map<String,Object> versions=new HashMap<>();
 
 }

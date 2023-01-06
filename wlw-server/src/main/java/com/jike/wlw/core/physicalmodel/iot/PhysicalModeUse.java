@@ -6,6 +6,7 @@
  */
 package com.jike.wlw.core.physicalmodel.iot;
 
+import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
@@ -17,6 +18,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
+
+import java.util.*;
 
 /**
  *
@@ -42,10 +45,41 @@ public class PhysicalModeUse {
         return new Client(config);
     }
 
+    public static void main(String[] args) {
+        PhysicalModelUseRq modelUseRq=new PhysicalModelUseRq();
+        modelUseRq.setProductKey("a1BwAGVasdq");
+        modelUseRq.setDeviceName("device1");
+        modelUseRq.setIdentifier("set");
+        modelUseRq.setPageSize("10");
+        modelUseRq.setAsc(1);
+//        modelUseRq.setEventType("info");
+        modelUseRq.setStartTime("1516538300303");
+        modelUseRq.setEndTime("1516541900303");
+        modelUseRq.setIotId("abcdef12345671234214asda");
+        Map<String,Object> itemMap=new HashMap<>();
+        itemMap.put("itemMap",1);
+        itemMap.put("Color","blue");
+        modelUseRq.setItems(itemMap);
+        Map<String,Object> venersionMap=new HashMap<>();
+//        itemMap.put("Temperature","0");
+        modelUseRq.setVersions(venersionMap);
+//        List<String> nameList= Arrays.asList("rs1","rs2");
+//        modelUseRq.setDeviceNameList(nameList);
+        List<String> identifierList= Arrays.asList("rs1","rs2");
+        modelUseRq.setIdentifierList(identifierList);
+        PhysicalModeUse physicalModeUse=new PhysicalModeUse();
+        try {
+            physicalModeUse.queryDeviceDesiredProperty(modelUseRq);
+        }catch (Exception e){
+            System.out.println(e);
+        }
+    }
+
     public SetDevicePropertyResponse setDeviceProperty(PhysicalModelUseRq model) throws Exception {
         if (model.getItems()==null){
             throw new IllegalAccessException("物模型属性信息不能为空");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         SetDevicePropertyRequest request=new SetDevicePropertyRequest();
         if (StringUtils.isNotBlank(model.getDeviceName())&&StringUtils.isNotBlank(model.getProductKey())){
@@ -66,7 +100,7 @@ public class PhysicalModeUse {
         try {
             // 复制代码运行请自行打印 API 的返回值
             SetDevicePropertyResponse response = client.setDevicePropertyWithOptions(request, runtime);
-            System.out.println("设置属性值返回结果：" + response);
+            System.out.println("设置属性值返回结果：" + JSON.toJSONString(response));
             return response;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -84,6 +118,7 @@ public class PhysicalModeUse {
         if (model.getItems()==null){
             throw new IllegalAccessException("物模型属性信息不能为空");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         SetDevicesPropertyRequest request=new SetDevicesPropertyRequest();
         request.setDeviceName(model.getDeviceNameList());
@@ -92,7 +127,7 @@ public class PhysicalModeUse {
         //设置的属性信息
         request.setItems(new JSONObject(model.getItems()).toString());
         SetDevicesPropertyResponse response = client.setDevicesProperty(request);
-        System.out.println("设置多个属性值返回结果：" + response);
+        System.out.println("设置多个属性值返回结果：" + JSON.toJSONString(response));
         return response;
     }
 
@@ -100,7 +135,8 @@ public class PhysicalModeUse {
         if (StringUtils.isBlank(model.getIdentifier())){
             throw new IllegalAccessException("物模型服务的标识符不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         InvokeThingServiceRequest request=new InvokeThingServiceRequest();
         request.setIotId(model.getIotId());
         if (StringUtils.isNotBlank(model.getDeviceName())&&StringUtils.isNotBlank(model.getProductKey())){
@@ -121,6 +157,7 @@ public class PhysicalModeUse {
         }
         request.setIdentifier(model.getIdentifier());
         InvokeThingServiceResponse response = client.invokeThingService(request);
+        System.out.println("调用指定服务返回接口："+JSON.toJSONString(response));
         return response;
     }
 
@@ -134,6 +171,7 @@ public class PhysicalModeUse {
         if (StringUtils.isBlank(model.getProductKey())){
             throw new IllegalAccessException("设备所属的产品productKey不能为空");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         InvokeThingsServiceRequest request=new InvokeThingsServiceRequest();
         //为空传递{}
@@ -148,6 +186,7 @@ public class PhysicalModeUse {
         request.setIotInstanceId(model.getIotInstanceId());
         request.setIdentifier(model.getIdentifier());
         InvokeThingsServiceResponse response = client.invokeThingsService(request);
+        System.out.println("批量调用指定服务返回接口："+JSON.toJSONString(response));
         return response;
     }
 
@@ -161,9 +200,10 @@ public class PhysicalModeUse {
         if (StringUtils.isBlank(model.getPageSize())||(Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0)){
             throw new IllegalAccessException("物模型返回结果中每页显示的记录数不能为空且记录数不能大于50");
         }
-        if (model.getAsc()!=1||model.getAsc()!=2){
+        if (model.getAsc()!=1&&model.getAsc()!=2){
             throw new IllegalAccessException("物模型排序的方式必须为正序或者倒序");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDevicePropertyDataRequest request=new QueryDevicePropertyDataRequest();
         request.setIotId(model.getIotId());
@@ -183,15 +223,16 @@ public class PhysicalModeUse {
         request.setPageSize(Integer.valueOf(model.getPageSize()));
         request.setStartTime(Long.valueOf(model.getStartTime()));
         QueryDevicePropertyDataResponse response = client.queryDevicePropertyData(request);
+        System.out.println("查询规定时间戳内属性："+JSON.toJSONString(response));
         return response;
     }
 
     public QueryDevicePropertiesDataResponse queryDevicePropertiesData(PhysicalModelUseRq model) throws Exception {
-        if (model.getAsc()!=1||model.getAsc()!=2){
+        if (model.getAsc()!=1&&model.getAsc()!=2){
             throw new IllegalAccessException("物模型排序的方式必须为正序或者倒序");
         }
-        if (StringUtils.isBlank(model.getPageSize())||(Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0)){
-            throw new IllegalAccessException("物模型返回结果中每页显示的记录数不能为空且记录数不能大于50");
+        if (StringUtils.isBlank(model.getPageSize())||(Integer.valueOf(model.getPageSize())>100||Integer.valueOf(model.getPageSize())<0)){
+            throw new IllegalAccessException("物模型返回结果中每页显示的记录数不能为空且记录数不能大于100");
         }
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
@@ -199,6 +240,7 @@ public class PhysicalModeUse {
         if (CollectionUtils.isEmpty(model.getIdentifierList())){
             throw new IllegalAccessException("属性的标识符列表不能为空");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDevicePropertiesDataRequest request=new QueryDevicePropertiesDataRequest();
         request.setIotId(model.getIotId());
@@ -217,15 +259,20 @@ public class PhysicalModeUse {
         request.setEndTime(Long.valueOf(model.getEndTime()));
         request.setPageSize(Integer.valueOf(model.getPageSize()));
         request.setStartTime(Long.valueOf(model.getStartTime()));
-        QueryDevicePropertiesDataResponse queryDevicePropertiesDataResponse = client.queryDevicePropertiesData(request);
-        return queryDevicePropertiesDataResponse;
+        QueryDevicePropertiesDataResponse response = client.queryDevicePropertiesData(request);
+        System.out.println("查询规定时间戳内多个属性："+JSON.toJSONString(response));
+        return response;
     }
 
     public QueryDeviceEventDataResponse queryDeviceEventData(PhysicalModelUseRq model) throws Exception{
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        if (Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0){
+            throw new IllegalAccessException("每页显示的记录数范围为0-50");
+        }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+      Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDeviceEventDataRequest request=new QueryDeviceEventDataRequest();
         if (StringUtils.isNotBlank(model.getDeviceName())&&StringUtils.isNotBlank(model.getProductKey())){
             //如果传入该参数，需同时传入ProductKey。
@@ -245,6 +292,7 @@ public class PhysicalModeUse {
         request.setStartTime(Long.valueOf(model.getStartTime()));
         request.setPageSize(Integer.valueOf(model.getPageSize()));
         QueryDeviceEventDataResponse response = client.queryDeviceEventData(request);
+        System.out.println("指定设备的事件记录："+JSON.toJSONString(response));
         return response;
     }
 
@@ -253,6 +301,10 @@ public class PhysicalModeUse {
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
+        if (Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0){
+            throw new IllegalAccessException("每页显示的记录数范围为0-50");
+        }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDeviceServiceDataRequest request=new QueryDeviceServiceDataRequest();
         request.setAsc(model.getAsc());
@@ -272,6 +324,7 @@ public class PhysicalModeUse {
         request.setPageSize(Integer.valueOf(model.getPageSize()));
         request.setStartTime(Long.valueOf(model.getStartTime()));
         QueryDeviceServiceDataResponse response = client.queryDeviceServiceData(request);
+        System.out.println("指定设备的服务调用记录："+JSON.toJSONString(response));
         return  response;
     }
 
@@ -280,6 +333,7 @@ public class PhysicalModeUse {
         if (model.getItems()==null){
             throw new IllegalAccessException("物模型设置的期望属性值不能为空");
         }
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         SetDeviceDesiredPropertyRequest request=new SetDeviceDesiredPropertyRequest();
         request.setIotId(model.getIotId());
@@ -296,12 +350,14 @@ public class PhysicalModeUse {
         }
         request.setVersions(new JSONObject(model.getVersions()).toString());
         SetDeviceDesiredPropertyResponse response = client.setDeviceDesiredProperty(request);
+        System.out.println("批量设置期望属性值："+JSON.toJSONString(response));
         return response;
 
     }
 
     //QueryDeviceDesiredProperty
     public QueryDeviceDesiredPropertyResponse queryDeviceDesiredProperty(PhysicalModelUseRq model) throws Exception{
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDeviceDesiredPropertyRequest request =new QueryDeviceDesiredPropertyRequest();
         request.setIotId(model.getIotId());
@@ -318,6 +374,7 @@ public class PhysicalModeUse {
             request.setProductKey(model.getProductKey());
         }
         QueryDeviceDesiredPropertyResponse response = client.queryDeviceDesiredProperty(request);
+        System.out.println("查询指定设备的期望属性值："+JSON.toJSONString(response));
         return response;
     }
 }

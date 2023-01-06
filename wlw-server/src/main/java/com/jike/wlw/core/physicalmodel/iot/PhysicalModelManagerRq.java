@@ -29,11 +29,13 @@ public class PhysicalModelManagerRq implements Serializable {
     @ApiModelProperty("查询的品类的标识符")
     private String categoryKey;
     @ApiModelProperty("是否获取精简版物模型信息")
-    private boolean simple;
+    private boolean simple=false;
     @ApiModelProperty("删除的事件标识符列表")
     private List<String> eventIdentifier;
     @ApiModelProperty("删除的服务标识符列表")
     private List<String> serviceIdentifier;
+    @ApiModelProperty("删除的属性标识符列表。")
+    private List<String> propertyIdentifier;
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
     @ApiModelProperty("要复制的物模型所属产品的ProductKey")
@@ -46,6 +48,8 @@ public class PhysicalModelManagerRq implements Serializable {
     private String identifier;
     @ApiModelProperty("查看的物模型版本号")
     private String modelVersion;
+    @ApiModelProperty("复制的物模型版本号")
+    private String sourceModelVersion;
     @ApiModelProperty("资源组Id")
     private String resourceGroupId;
     @ApiModelProperty("物模型自定义模块标识符")
@@ -53,5 +57,5 @@ public class PhysicalModelManagerRq implements Serializable {
     @ApiModelProperty("物模型的自定义模块名称")
     private String functionBlockName;
     @ApiModelProperty("功能定义详情")
-    private Map<String,String> thingModelJson;
+    private Map<String,Object> thingModelJson;
 }
