@@ -74,8 +74,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("物模型产品的ProductKey属性值不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         CreateThingModelRequest request = new CreateThingModelRequest();
         request.setProductKey(model.getProductKey());
         request.setIotInstanceId(model.getIotInstanceId());
@@ -108,8 +108,8 @@ public class PhysicalModeManager {
 
     //QueryThingModel
     public QueryThingModelResponse queryThingModel(PhysicalModelManagerRq model) throws Exception {
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryThingModelRequest request = new QueryThingModelRequest();
         request.setFunctionBlockId(model.getFunctionBlockId());
         request.setProductKey(model.getProductKey());
@@ -126,8 +126,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey()) || StringUtils.isBlank(model.getTargetProductKey())) {
             throw new IllegalAccessException("复制的物模型所属产品或目标物模型productKey不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         CopyThingModelRequest request = new CopyThingModelRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setResourceGroupId(model.getResourceGroupId());
@@ -153,8 +153,8 @@ public class PhysicalModeManager {
         if (CollectionUtils.isNotEmpty(model.getPropertyIdentifier()) && model.getPropertyIdentifier().size() > 10) {
             throw new IllegalAccessException("最多传入10个属性标识符");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         DeleteThingModelRequest request = new DeleteThingModelRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setResourceGroupId(model.getResourceGroupId());
@@ -197,8 +197,8 @@ public class PhysicalModeManager {
 
     //GetThingModelTsl
     public GetThingModelTslResponse getThingModelTsl(PhysicalModelManagerRq model) throws Exception {
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingModelTslRequest request = new GetThingModelTslRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setFunctionBlockId(model.getFunctionBlockId());
@@ -215,8 +215,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryThingModelPublishedRequest request = new QueryThingModelPublishedRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setFunctionBlockId(model.getFunctionBlockId());
@@ -233,8 +233,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingModelTslPublishedRequest request = new GetThingModelTslPublishedRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setFunctionBlockId(model.getFunctionBlockId());
@@ -252,8 +252,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         ListThingModelVersionRequest request = new ListThingModelVersionRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setProductKey(model.getProductKey());
@@ -267,8 +267,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         PublishThingModelRequest request = new PublishThingModelRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setProductKey(model.getProductKey());
