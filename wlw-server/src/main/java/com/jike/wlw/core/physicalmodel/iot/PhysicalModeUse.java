@@ -11,6 +11,7 @@ import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
+import com.jike.wlw.core.physicalmodel.iot.entity.DevicePropertyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -46,15 +47,15 @@ public class PhysicalModeUse {
     }
 
     public static void main(String[] args) {
-        PhysicalModelUseRq modelUseRq=new PhysicalModelUseRq();
-        modelUseRq.setProductKey("a1VczzGUHh8");
-        modelUseRq.setDeviceName("device1");
-        modelUseRq.setIdentifier("lightLevel");
-        modelUseRq.setPageSize("10");
-        modelUseRq.setAsc(1);
+//        PhysicalModelUseRq modelUseRq=new PhysicalModelUseRq();
+//        modelUseRq.setProductKey("a1VczzGUHh8");
+//        modelUseRq.setDeviceName("device1");
+//        modelUseRq.setIdentifier("lightLevel");
+//        modelUseRq.setPageSize("10");
+//        modelUseRq.setAsc(1);
 //        modelUseRq.setEventType("info");
-        modelUseRq.setStartTime("1516538300303");
-        modelUseRq.setEndTime("1673057416524");
+//        modelUseRq.setStartTime("1516538300303");
+//        modelUseRq.setEndTime("1673057416524");
 //        modelUseRq.setIotId("abcdef12345671234214asda");
 //        Map<String,Object> itemMap=new HashMap<>();
 //        itemMap.put("Switch",1);
@@ -69,13 +70,13 @@ public class PhysicalModeUse {
 //        modelUseRq.setIdentifierList(identifierList);
         PhysicalModeUse physicalModeUse=new PhysicalModeUse();
         try {
-            physicalModeUse.queryDevicePropertyData(modelUseRq);
+//            physicalModeUse.queryDevicePropertyData(modelUseRq);
         }catch (Exception e){
             System.out.println(e);
         }
     }
 
-    public SetDevicePropertyResponse setDeviceProperty(PhysicalModelUseRq model) throws Exception {
+    public SetDevicePropertyResponse setDeviceProperty(DevicePropertyRq model) throws Exception {
         if (model.getItems()==null){
             throw new IllegalAccessException("物模型属性信息不能为空");
         }
@@ -108,7 +109,7 @@ public class PhysicalModeUse {
         }
     }
 
-    public SetDevicesPropertyResponse SetDevicesProperty(PhysicalModelUseRq model) throws Exception {
+    public SetDevicesPropertyResponse SetDevicesProperty(DevicePropertyRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())){
             throw new IllegalAccessException("设备所属的产品productKey不能为空");
         }
@@ -131,7 +132,7 @@ public class PhysicalModeUse {
         return response;
     }
 
-    public InvokeThingServiceResponse invokeThingService(PhysicalModelUseRq model) throws Exception {
+    public InvokeThingServiceResponse invokeThingService(DevicePropertyRq model) throws Exception {
         if (StringUtils.isBlank(model.getIdentifier())){
             throw new IllegalAccessException("物模型服务的标识符不能为空");
         }
@@ -157,7 +158,7 @@ public class PhysicalModeUse {
         return response;
     }
 
-    public InvokeThingsServiceResponse invokeThingsService(PhysicalModelUseRq model) throws Exception {
+    public InvokeThingsServiceResponse invokeThingsService(DevicePropertyRq model) throws Exception {
         if (CollectionUtils.isEmpty(model.getDeviceNameList())){
             throw new IllegalAccessException("物模型调用服务的设备的名称列表不能为空");
         }
@@ -186,7 +187,7 @@ public class PhysicalModeUse {
         return response;
     }
 
-    public QueryDevicePropertyDataResponse queryDevicePropertyData(PhysicalModelUseRq model) throws Exception {
+    public QueryDevicePropertyDataResponse queryDevicePropertyData(DevicePropertyRq model) throws Exception {
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
@@ -223,7 +224,7 @@ public class PhysicalModeUse {
         return response;
     }
 
-    public QueryDevicePropertiesDataResponse queryDevicePropertiesData(PhysicalModelUseRq model) throws Exception {
+    public QueryDevicePropertiesDataResponse queryDevicePropertiesData(DevicePropertyRq model) throws Exception {
         if (model.getAsc()!=1&&model.getAsc()!=2){
             throw new IllegalAccessException("物模型排序的方式必须为正序或者倒序");
         }
@@ -260,7 +261,7 @@ public class PhysicalModeUse {
         return response;
     }
 
-    public QueryDeviceEventDataResponse queryDeviceEventData(PhysicalModelUseRq model) throws Exception{
+    public QueryDeviceEventDataResponse queryDeviceEventData(DevicePropertyRq model) throws Exception{
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
@@ -293,7 +294,7 @@ public class PhysicalModeUse {
     }
 
     //QueryDeviceServiceData
-    public QueryDeviceServiceDataResponse queryDeviceServiceData(PhysicalModelUseRq model) throws Exception {
+    public QueryDeviceServiceDataResponse queryDeviceServiceData(DevicePropertyRq model) throws Exception {
         if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
@@ -325,7 +326,7 @@ public class PhysicalModeUse {
     }
 
     //SetDeviceDesiredProperty
-    public SetDeviceDesiredPropertyResponse setDeviceDesiredProperty(PhysicalModelUseRq model) throws Exception{
+    public SetDeviceDesiredPropertyResponse setDeviceDesiredProperty(DevicePropertyRq model) throws Exception{
         if (model.getItems()==null){
             throw new IllegalAccessException("物模型设置的期望属性值不能为空");
         }
@@ -352,7 +353,7 @@ public class PhysicalModeUse {
     }
 
     //QueryDeviceDesiredProperty
-    public QueryDeviceDesiredPropertyResponse queryDeviceDesiredProperty(PhysicalModelUseRq model) throws Exception{
+    public QueryDeviceDesiredPropertyResponse queryDeviceDesiredProperty(DevicePropertyRq model) throws Exception{
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDeviceDesiredPropertyRequest request =new QueryDeviceDesiredPropertyRequest();
