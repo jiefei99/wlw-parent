@@ -10,6 +10,8 @@ import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
+import com.jike.wlw.core.product.iot.entity.ConsumerGroupRq;
+import com.jike.wlw.core.product.iot.entity.SubscribeRelationRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -43,10 +45,10 @@ public class ServerSubscription {
     }
 
     public static void main(String[] args) {
-        ServerSubscritionRq subscritionRq=new ServerSubscritionRq();
+//        ServerSubscritionRq subscritionRq=new ServerSubscritionRq();
 //        subscritionRq.setOtaEventFlag(true);
-        subscritionRq.setProductKey("a1GgN502dxa");
-        subscritionRq.setType("AMQP");
+//        subscritionRq.setProductKey("a1GgN502dxa");
+//        subscritionRq.setType("AMQP");
 //        List<String> consumerGroupIds= Arrays.asList("LcJqlUzXLRb9yroihtWC000100");
 //        subscritionRq.setConsumerGroupIdList(consumerGroupIds);
 //        subscritionRq.setGroupName("新rs好帅啊2");
@@ -57,7 +59,7 @@ public class ServerSubscription {
 //        subscritionRq.setGroupName("帅");
         ServerSubscription serverSubscription=new ServerSubscription();
         try {
-            serverSubscription.deleteSubscribeRelation(subscritionRq);
+//            serverSubscription.deleteSubscribeRelation(subscritionRq);
         } catch (Exception e) {
             System.out.println(e.getMessage());
             e.printStackTrace();
@@ -65,7 +67,7 @@ public class ServerSubscription {
     }
 
     //CreateSubscribeRelation
-    public CreateSubscribeRelationResponse createSubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
+    public CreateSubscribeRelationResponse createSubscribeRelation(SubscribeRelationRq subscritionRq) throws Exception {
         if (StringUtils.isBlank(subscritionRq.getProductKey())){
             throw new IllegalAccessException("订阅中的产品的ProductKey不能为空");
         }
@@ -98,7 +100,7 @@ public class ServerSubscription {
         return response;
     }
     //UpdateSubscribeRelation
-    public UpdateSubscribeRelationResponse updateSubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
+    public UpdateSubscribeRelationResponse updateSubscribeRelation(SubscribeRelationRq subscritionRq) throws Exception {
         if (StringUtils.isBlank(subscritionRq.getType())){
             throw new IllegalAccessException("选择查询的订阅类型不能为空");
         }
@@ -134,7 +136,7 @@ public class ServerSubscription {
         return response;
     }
     //QuerySubscribeRelation
-    public QuerySubscribeRelationResponse querySubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
+    public QuerySubscribeRelationResponse querySubscribeRelation(SubscribeRelationRq subscritionRq) throws Exception {
         if (StringUtils.isBlank(subscritionRq.getType())){
             throw new IllegalAccessException("选择查询的订阅类型不能为空");
         }
@@ -152,7 +154,7 @@ public class ServerSubscription {
         return response;
     }
     //DeleteSubscribeRelation
-    public DeleteSubscribeRelationResponse deleteSubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
+    public DeleteSubscribeRelationResponse deleteSubscribeRelation(SubscribeRelationRq subscritionRq) throws Exception {
         if (StringUtils.isBlank(subscritionRq.getType())){
             throw new IllegalAccessException("选择删除的订阅类型不能为空");
         }
@@ -170,147 +172,147 @@ public class ServerSubscription {
         return response;
     }
     //CreateConsumerGroup
-    public CreateConsumerGroupResponse createConsumerGroup(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupName())){
+    public CreateConsumerGroupResponse createConsumerGroup(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupName())){
             throw new IllegalAccessException("新建消费组名称不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateConsumerGroupRequest request =new CreateConsumerGroupRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupName(subscritionRq.getGroupName());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupName(consumerGroupRq.getGroupName());
         CreateConsumerGroupResponse response = client.createConsumerGroup(request);
         System.out.println("创建一个消费组"+ JSON.toJSONString(response));
         return response;
     }
     //UpdateConsumerGroup
-    public UpdateConsumerGroupResponse updateConsumerGroup(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+    public UpdateConsumerGroupResponse updateConsumerGroup(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
-        if (StringUtils.isBlank(subscritionRq.getGroupName())){
+        if (StringUtils.isBlank(consumerGroupRq.getGroupName())){
             throw new IllegalAccessException("新消费组名称不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         UpdateConsumerGroupRequest request =new UpdateConsumerGroupRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupId(subscritionRq.getGroupId());
-        request.setNewGroupName(subscritionRq.getGroupName());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupId(consumerGroupRq.getGroupId());
+        request.setNewGroupName(consumerGroupRq.getGroupName());
         UpdateConsumerGroupResponse response = client.updateConsumerGroup(request);
         System.out.println("修改消费组名称"+ JSON.toJSONString(response));
         return response;
     }
     //QueryConsumerGroupByGroupId
-    public QueryConsumerGroupByGroupIdResponse queryConsumerGroupByGroupId(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+    public QueryConsumerGroupByGroupIdResponse queryConsumerGroupByGroupId(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryConsumerGroupByGroupIdRequest request =new QueryConsumerGroupByGroupIdRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupId(subscritionRq.getGroupId());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupId(consumerGroupRq.getGroupId());
         QueryConsumerGroupByGroupIdResponse response = client.queryConsumerGroupByGroupId(request);
         System.out.println("根据消费组ID查询消费组详情"+ JSON.toJSONString(response));
         return response;
     }
     //QueryConsumerGroupList
-    public QueryConsumerGroupListResponse queryConsumerGroupList(ServerSubscritionRq subscritionRq) throws Exception {
-       if (StringUtils.isBlank(subscritionRq.getCurrentPage())||(Integer.valueOf(subscritionRq.getCurrentPage())<1)){
+    public QueryConsumerGroupListResponse queryConsumerGroupList(ConsumerGroupRq consumerGroupRq) throws Exception {
+       if (StringUtils.isBlank(consumerGroupRq.getCurrentPage())||(Integer.valueOf(consumerGroupRq.getCurrentPage())<1)){
            throw new IllegalAccessException("指定显示返回结果中页数不能为空且最小值为1");
        }
-       if (StringUtils.isBlank(subscritionRq.getPageSize())||(Integer.valueOf(subscritionRq.getPageSize())<1||Integer.valueOf(subscritionRq.getPageSize())>1000)){
+       if (StringUtils.isBlank(consumerGroupRq.getPageSize())||(Integer.valueOf(consumerGroupRq.getPageSize())<1||Integer.valueOf(consumerGroupRq.getPageSize())>1000)){
            throw new IllegalAccessException("指定显示返回结果中消费组数量不能为空且最小值为1最大值为1000");
        }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryConsumerGroupListRequest request =new QueryConsumerGroupListRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setCurrentPage(Integer.valueOf(subscritionRq.getCurrentPage()));
-        request.setFuzzy(subscritionRq.isFuzzy());
-        if (subscritionRq.isFuzzy()){
-            request.setGroupName(subscritionRq.getGroupName());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setCurrentPage(Integer.valueOf(consumerGroupRq.getCurrentPage()));
+        request.setFuzzy(consumerGroupRq.isFuzzy());
+        if (consumerGroupRq.isFuzzy()){
+            request.setGroupName(consumerGroupRq.getGroupName());
         }
-        request.setPageSize(Integer.valueOf(subscritionRq.getPageSize()));
+        request.setPageSize(Integer.valueOf(consumerGroupRq.getPageSize()));
         QueryConsumerGroupListResponse response = client.queryConsumerGroupList(request);
         System.out.println("查询用户所有消费组列表"+ JSON.toJSONString(response));
         return response;
     }
     //QueryConsumerGroupStatus
-    public QueryConsumerGroupStatusResponse queryConsumerGroupStatus(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+    public QueryConsumerGroupStatusResponse queryConsumerGroupStatus(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryConsumerGroupStatusRequest request =new QueryConsumerGroupStatusRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupId(subscritionRq.getGroupId());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupId(consumerGroupRq.getGroupId());
         QueryConsumerGroupStatusResponse response = client.queryConsumerGroupStatus(request);
         System.out.println("使用AMQP服务端订阅时，查询某个消费组的状态，包括在线客户端信息、消息消费速率、消息堆积数、最近消息消费时间"+ JSON.toJSONString(response));
         return response;
     }
     //ResetConsumerGroupPosition
-    public ResetConsumerGroupPositionResponse resetConsumerGroupPosition(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+    public ResetConsumerGroupPositionResponse resetConsumerGroupPosition(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ResetConsumerGroupPositionRequest request =new ResetConsumerGroupPositionRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupId(subscritionRq.getGroupId());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupId(consumerGroupRq.getGroupId());
         ResetConsumerGroupPositionResponse response = client.resetConsumerGroupPosition(request);
         System.out.println("使用AMQP服务端订阅时，清空某个消费组的堆积消息"+ JSON.toJSONString(response));
         return response;
     }
     //DeleteConsumerGroup
-    public DeleteConsumerGroupResponse deleteConsumerGroup(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+    public DeleteConsumerGroupResponse deleteConsumerGroup(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
         //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteConsumerGroupRequest request =new DeleteConsumerGroupRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setGroupId(subscritionRq.getGroupId());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setGroupId(consumerGroupRq.getGroupId());
         DeleteConsumerGroupResponse response = client.deleteConsumerGroup(request);
         System.out.println("删除消费组。"+ JSON.toJSONString(response));
         return response;
     }
     //CreateConsumerGroupSubscribeRelation
-    public CreateConsumerGroupSubscribeRelationResponse createConsumerGroupSubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getProductKey())){
+    public CreateConsumerGroupSubscribeRelationResponse createConsumerGroupSubscribeRelation(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getProductKey())){
             throw new IllegalAccessException("订阅中的产品的ProductKey不能为空");
         }
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("订阅中的消费组ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateConsumerGroupSubscribeRelationRequest request =new CreateConsumerGroupSubscribeRelationRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setConsumerGroupId(subscritionRq.getGroupId());
-        request.setProductKey(subscritionRq.getProductKey());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setConsumerGroupId(consumerGroupRq.getGroupId());
+        request.setProductKey(consumerGroupRq.getProductKey());
         CreateConsumerGroupSubscribeRelationResponse response = client.createConsumerGroupSubscribeRelation(request);
         System.out.println("在AMQP订阅中添加一个消费组。"+ JSON.toJSONString(response));
         return response;
     }
     //DeleteConsumerGroupSubscribeRelation
-    public DeleteConsumerGroupSubscribeRelationResponse deleteConsumerGroupSubscribeRelation(ServerSubscritionRq subscritionRq) throws Exception {
-        if (StringUtils.isBlank(subscritionRq.getProductKey())){
+    public DeleteConsumerGroupSubscribeRelationResponse deleteConsumerGroupSubscribeRelation(ConsumerGroupRq consumerGroupRq) throws Exception {
+        if (StringUtils.isBlank(consumerGroupRq.getProductKey())){
             throw new IllegalAccessException("订阅中的产品的ProductKey不能为空");
         }
-        if (StringUtils.isBlank(subscritionRq.getGroupId())){
+        if (StringUtils.isBlank(consumerGroupRq.getGroupId())){
             throw new IllegalAccessException("订阅中的消费组ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteConsumerGroupSubscribeRelationRequest request =new DeleteConsumerGroupSubscribeRelationRequest();
-        request.setIotInstanceId(subscritionRq.getIotInstanceId());
-        request.setConsumerGroupId(subscritionRq.getGroupId());
-        request.setProductKey(subscritionRq.getProductKey());
+        request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
+        request.setConsumerGroupId(consumerGroupRq.getGroupId());
+        request.setProductKey(consumerGroupRq.getProductKey());
         DeleteConsumerGroupSubscribeRelationResponse response = client.deleteConsumerGroupSubscribeRelation(request);
         System.out.println("从AMQP订阅中的多个消费组移除指定消费组。"+ JSON.toJSONString(response));
         return response;

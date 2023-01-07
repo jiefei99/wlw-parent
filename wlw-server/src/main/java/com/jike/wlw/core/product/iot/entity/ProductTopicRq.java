@@ -1,10 +1,4 @@
-/**
- * 版权所有©，Rs自主完成，所有权利保留。
- * <p>
- * 修改历史：
- * 2023年01月06日 15:03 - ASUS - 创建。
- */
-package com.jike.wlw.core.product.iot;
+package com.jike.wlw.core.product.iot.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -14,16 +8,16 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- *
- *
- * @author rs
- * @since 1.0
+ * @title: ProductTopicRq
+ * @Author RS
+ * @Date: 2023/1/7 17:48
+ * @Version 1.0
  */
 @Setter
 @Getter
-@ApiModel("阿里产品Topic类请求参数")
+@ApiModel("产品自定义Topic请求参数")
 public class ProductTopicRq implements Serializable {
-    private static final long serialVersionUID = 7456101230072538946L;
+    private static final long serialVersionUID = 7451111024272538946L;
 
     @ApiModelProperty("操作权限")
     private String operation;
@@ -38,3 +32,5 @@ public class ProductTopicRq implements Serializable {
     @ApiModelProperty("Topic类的描述信息")
     private String desc;
 }
+
+
