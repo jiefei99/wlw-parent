@@ -47,29 +47,29 @@ public class PhysicalModeUse {
 
     public static void main(String[] args) {
         PhysicalModelUseRq modelUseRq=new PhysicalModelUseRq();
-        modelUseRq.setProductKey("a1BwAGVasdq");
+        modelUseRq.setProductKey("a1VczzGUHh8");
         modelUseRq.setDeviceName("device1");
-        modelUseRq.setIdentifier("set");
+        modelUseRq.setIdentifier("lightLevel");
         modelUseRq.setPageSize("10");
         modelUseRq.setAsc(1);
 //        modelUseRq.setEventType("info");
         modelUseRq.setStartTime("1516538300303");
-        modelUseRq.setEndTime("1516541900303");
-        modelUseRq.setIotId("abcdef12345671234214asda");
-        Map<String,Object> itemMap=new HashMap<>();
-        itemMap.put("itemMap",1);
-        itemMap.put("Color","blue");
-        modelUseRq.setItems(itemMap);
-        Map<String,Object> venersionMap=new HashMap<>();
+        modelUseRq.setEndTime("1673057416524");
+//        modelUseRq.setIotId("abcdef12345671234214asda");
+//        Map<String,Object> itemMap=new HashMap<>();
+//        itemMap.put("Switch",1);
+//        itemMap.put("Color","blue");
+//        modelUseRq.setItems(itemMap);
+//        Map<String,Object> venersionMap=new HashMap<>();
 //        itemMap.put("Temperature","0");
-        modelUseRq.setVersions(venersionMap);
+//        modelUseRq.setVersions(venersionMap);
 //        List<String> nameList= Arrays.asList("rs1","rs2");
 //        modelUseRq.setDeviceNameList(nameList);
-        List<String> identifierList= Arrays.asList("rs1","rs2");
-        modelUseRq.setIdentifierList(identifierList);
+//        List<String> identifierList= Arrays.asList("rs1","rs2");
+//        modelUseRq.setIdentifierList(identifierList);
         PhysicalModeUse physicalModeUse=new PhysicalModeUse();
         try {
-            physicalModeUse.queryDeviceDesiredProperty(modelUseRq);
+            physicalModeUse.queryDevicePropertyData(modelUseRq);
         }catch (Exception e){
             System.out.println(e);
         }
@@ -135,8 +135,8 @@ public class PhysicalModeUse {
         if (StringUtils.isBlank(model.getIdentifier())){
             throw new IllegalAccessException("物模型服务的标识符不能为空");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         InvokeThingServiceRequest request=new InvokeThingServiceRequest();
         request.setIotId(model.getIotId());
         if (StringUtils.isNotBlank(model.getDeviceName())&&StringUtils.isNotBlank(model.getProductKey())){
@@ -146,11 +146,7 @@ public class PhysicalModeUse {
             request.setProductKey(model.getProductKey());
         }
         //为空传递{}
-        if (model.getArgs()!=null){
-            request.setArgs(new JSONObject(model.getArgs()).toString());
-        }else {
-            request.setArgs("{}");
-        }
+        request.setArgs(new JSONObject(model.getArgs()).toString());
         //若有ID值，必须传入该ID
         if (StringUtils.isNotBlank(model.getIotInstanceId())){
             request.setIotInstanceId(model.getIotInstanceId());
@@ -203,8 +199,8 @@ public class PhysicalModeUse {
         if (model.getAsc()!=1&&model.getAsc()!=2){
             throw new IllegalAccessException("物模型排序的方式必须为正序或者倒序");
         }
-//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryDevicePropertyDataRequest request=new QueryDevicePropertyDataRequest();
         request.setIotId(model.getIotId());
         //若有ID值，必须传入该ID

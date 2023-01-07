@@ -41,31 +41,31 @@ public class PhysicalModeManager {
 
     public static void main(String[] args) {
         PhysicalModelManagerRq physicalModelManagerRq=new PhysicalModelManagerRq();
-        physicalModelManagerRq.setResourceGroupId("rg-acfm4l5tcwdwer12as");
-        List<String> eventIdentifier= Arrays.asList("rsTest1","rsTest2");
-        physicalModelManagerRq.setEventIdentifier(eventIdentifier);
-        List<String> serviceIdentifier= Arrays.asList("rsTest3","rsTest4");
-        physicalModelManagerRq.setServiceIdentifier(serviceIdentifier);
-        physicalModelManagerRq.setProductKey("a1bPo9p123a");
-        physicalModelManagerRq.setIotInstanceId("iot-cn-0pp1n8t23ae");
-        List<String> propertyIdentifier= Arrays.asList("rsTest5","rsTest6");
-        physicalModelManagerRq.setPropertyIdentifier(propertyIdentifier);
+//        physicalModelManagerRq.setResourceGroupId("rg-acfm4l5tcwdwer12as");
+//        List<String> eventIdentifier= Arrays.asList("rsTest1","rsTest2");
+//        physicalModelManagerRq.setEventIdentifier(eventIdentifier);
+//        List<String> serviceIdentifier= Arrays.asList("rsTest3","rsTest4");
+//        physicalModelManagerRq.setServiceIdentifier(serviceIdentifier);
+        physicalModelManagerRq.setProductKey("a1VczzGUHh8");
+//        physicalModelManagerRq.setIotInstanceId("iot-cn-0pp1n8t23ae");
+//        List<String> propertyIdentifier= Arrays.asList("rsTest5","rsTest6");
+//        physicalModelManagerRq.setPropertyIdentifier(propertyIdentifier);
 //        Map<String,Object> thingModelMap=new HashMap();
 //        thingModelMap.put("required",false);
-//        thingModelMap.put("customFlag",true);
+//        thingModelMap.put("customFlag",false);
 //        physicalModelManagerRq.setThingModelJson(thingModelMap);
 //        physicalModelManagerRq.setCategoryKey("Lighting");
 //        physicalModelManagerRq.setPropertyId();
 //        physicalModelManagerRq.setIdentifier("SimCardType");
 //        physicalModelManagerRq.setModelVersion("v1.0.0");
-//        physicalModelManagerRq.setSourceProductKey("a1BwAGVasd2");
-//        physicalModelManagerRq.setTargetProductKey("a1BwwG0123a");
+//        physicalModelManagerRq.setSourceProductKey("a1GgN502dxa");
+//        physicalModelManagerRq.setTargetProductKey("a1VczzGUHh8");
 //        physicalModelManagerRq.setSourceModelVersion("v1.0.0");
-//        physicalModelManagerRq.setSimple(false);
-//        physicalModelManagerRq.setModelVersion("v1.0.0");
+        physicalModelManagerRq.setSimple(false);
+        physicalModelManagerRq.setModelVersion("v1.0.0");
         PhysicalModeManager physicalModeManager=new PhysicalModeManager();
         try {
-            physicalModeManager.deleteThingModel(physicalModelManagerRq);
+            physicalModeManager.getThingModelTslPublished(physicalModelManagerRq);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -122,16 +122,16 @@ public class PhysicalModeManager {
 
     //CopyThingModel
     public CopyThingModelResponse copyThingModel(PhysicalModelManagerRq model) throws Exception {
-        if (StringUtils.isBlank(model.getSourceProductKey())||StringUtils.isBlank(model.getTargetProductKey())){
+        if (StringUtils.isBlank(model.getProductKey())||StringUtils.isBlank(model.getTargetProductKey())){
             throw new IllegalAccessException("复制的物模型所属产品或目标物模型productKey不能为空");
         }
-//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         CopyThingModelRequest request=new CopyThingModelRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setResourceGroupId(model.getResourceGroupId());
-        request.setSourceModelVersion(model.getSourceModelVersion());
-        request.setSourceProductKey(model.getSourceProductKey());
+        request.setSourceModelVersion(model.getModelVersion());
+        request.setSourceProductKey(model.getProductKey());
         request.setTargetProductKey(model.getTargetProductKey());
         CopyThingModelResponse response = client.copyThingModel(request);
         System.out.println("复制指定产品的物模型到目标产品："+JSON.toJSONString(response));
@@ -194,8 +194,8 @@ public class PhysicalModeManager {
 
     //GetThingModelTsl
     public GetThingModelTslResponse getThingModelTsl(PhysicalModelManagerRq model) throws Exception {
-//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingModelTslRequest request=new GetThingModelTslRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setFunctionBlockId(model.getFunctionBlockId());
@@ -228,8 +228,8 @@ public class PhysicalModeManager {
         if (StringUtils.isBlank(model.getProductKey())){
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
-//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingModelTslPublishedRequest request=new GetThingModelTslPublishedRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setFunctionBlockId(model.getFunctionBlockId());

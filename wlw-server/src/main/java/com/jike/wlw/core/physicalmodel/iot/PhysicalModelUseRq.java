@@ -52,7 +52,7 @@ public class PhysicalModelUseRq implements Serializable {
     @ApiModelProperty("服务的标识符")
     private List<String> identifierList;
     @ApiModelProperty("启用服务的入参信息")
-    private Map<String,Object> args;
+    private Map<String,Object> args=new HashMap<>();
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
     @ApiModelProperty("设置的属性信息")

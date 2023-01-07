@@ -38,8 +38,8 @@ public class PhysicalModelManagerRq implements Serializable {
     private List<String> propertyIdentifier;
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
-    @ApiModelProperty("要复制的物模型所属产品的ProductKey")
-    private String sourceProductKey;
+//    @ApiModelProperty("要复制的物模型所属产品的ProductKey")
+//    private String sourceProductKey;
     @ApiModelProperty("目标产品的ProductKey")
     private String targetProductKey;
     @ApiModelProperty("实例ID")
@@ -48,8 +48,8 @@ public class PhysicalModelManagerRq implements Serializable {
     private String identifier;
     @ApiModelProperty("查看的物模型版本号")
     private String modelVersion;
-    @ApiModelProperty("复制的物模型版本号")
-    private String sourceModelVersion;
+//    @ApiModelProperty("复制的物模型版本号")
+//    private String sourceModelVersion;
     @ApiModelProperty("资源组Id")
     private String resourceGroupId;
     @ApiModelProperty("物模型自定义模块标识符")

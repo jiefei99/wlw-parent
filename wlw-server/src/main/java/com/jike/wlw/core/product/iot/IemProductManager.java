@@ -50,9 +50,9 @@ public class IemProductManager {
         Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateProductRequest createProductRequest = new CreateProductRequest();
         createProductRequest.setNodeType(1);
-        createProductRequest.setProductName("超级赛亚人005");
+        createProductRequest.setProductName("超级赛亚人006");
         createProductRequest.setDataFormat(1);
-        createProductRequest.setDescription("变身超级赛亚人3");
+        createProductRequest.setDescription("变身超级赛亚人4");
         createProductRequest.setAliyunCommodityCode("iothub_senior");
         createProductRequest.setProtocolType("customize");
         createProductRequest.setAuthType("secret");
