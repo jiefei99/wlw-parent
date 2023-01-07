@@ -56,6 +56,8 @@ public class PhysicalModelManagerRq implements Serializable {
     private String functionBlockId;
     @ApiModelProperty("物模型的自定义模块名称")
     private String functionBlockName;
+    @ApiModelProperty("物模型版本的描述")
+    private String description;
     @ApiModelProperty("功能定义详情")
     private Map<String,Object> thingModelJson;
 }
