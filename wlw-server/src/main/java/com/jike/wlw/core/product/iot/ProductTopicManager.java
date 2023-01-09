@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
+import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.core.product.iot.entity.ProductTopicRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class ProductTopicManager {
+
+    @Autowired
+    private AliIotClient client;
 
     @Autowired
     private Environment env;
@@ -68,7 +72,7 @@ public class ProductTopicManager {
         if (StringUtils.isBlank(topic.getTopicShortName())){
             throw new IllegalAccessException("设置Topic类的自定义类目名称不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateProductTopicRequest request=new CreateProductTopicRequest();
         request.setProductKey(topic.getProductKey());
@@ -108,7 +112,7 @@ public class ProductTopicManager {
         if (StringUtils.isBlank(topic.getProductKey())){
             throw new IllegalAccessException("Topic类的productKey不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryProductTopicRequest request=new QueryProductTopicRequest();
         request.setIotInstanceId(topic.getIotInstanceId());
@@ -122,7 +126,7 @@ public class ProductTopicManager {
         if (StringUtils.isBlank(topic.getTopicId())){
             throw new IllegalAccessException("修改的Topic类的ID不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteProductTopicRequest request=new DeleteProductTopicRequest();
         request.setIotInstanceId(topic.getIotInstanceId());
