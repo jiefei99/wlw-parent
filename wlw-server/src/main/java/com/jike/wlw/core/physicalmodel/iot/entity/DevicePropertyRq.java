@@ -37,13 +37,13 @@ public class DevicePropertyRq implements Serializable {
     @ApiModelProperty("服务的标识符")
     private String identifier;
     @ApiModelProperty("属性记录的结束时间")
-    private String endTime;
+    private Long endTime;
     @ApiModelProperty("属性记录的开始时间")
-    private String startTime;
+    private Long startTime;
     @ApiModelProperty("排序方式  0：倒序 1：正序")
     private Integer asc;
     @ApiModelProperty("每页记录数")
-    private String pageSize;
+    private Integer pageSize;
     @ApiModelProperty("服务的标识符")
     private List<String> identifierList;
     @ApiModelProperty("物模型自定义模块标识符")
