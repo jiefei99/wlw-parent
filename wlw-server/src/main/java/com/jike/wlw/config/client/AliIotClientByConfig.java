@@ -1,13 +1,9 @@
 package com.jike.wlw.config.client;
 
 import com.aliyun.teaopenapi.models.Config;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 /**
@@ -20,13 +16,13 @@ import org.springframework.stereotype.Component;
 @Getter
 @Setter
 @Component
-public class AliIotConfig extends Config {
+public class AliIotClientByConfig extends Config {
     @Value("${ali.iot.accessKey}")
     private String accessKey;
     @Value("${ali.iot.accessSecret}")
     private String accessSecret;
 
-    public AliIotConfig() {
+    public AliIotClientByConfig() {
         this.endpoint="iot.cn-shanghai.aliyuncs.com";
         this.accessKeyId=this.accessKey;
         this.accessKeySecret=this.accessSecret;
