@@ -25,15 +25,15 @@ public class ConsumerGroupRq implements Serializable {
     @ApiModelProperty("实例ID")
     private String iotInstanceId;
     @ApiModelProperty("消费组名称")
-    public String groupName;
+    private String groupName;
     @ApiModelProperty("消费组ID")
     private String groupId;
     @ApiModelProperty("指定显示返回结果中的第几页,最小值为1")
-    public String currentPage;
+    private Integer currentPage;
     @ApiModelProperty("指定返回结果中每页显示的消费组数量，最小值为1，最大值为1000")
-    public String pageSize;
+    private Integer pageSize;
     @ApiModelProperty("是否使用模糊查询")
-    public boolean fuzzy=false;
+    private boolean fuzzy=false;
 }
 
 

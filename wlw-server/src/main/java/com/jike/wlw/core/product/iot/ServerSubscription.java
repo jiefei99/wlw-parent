@@ -224,22 +224,22 @@ public class ServerSubscription {
     }
     //QueryConsumerGroupList
     public QueryConsumerGroupListResponse queryConsumerGroupList(ConsumerGroupRq consumerGroupRq) throws Exception {
-       if (StringUtils.isBlank(consumerGroupRq.getCurrentPage())||(Integer.valueOf(consumerGroupRq.getCurrentPage())<1)){
+       if (consumerGroupRq.getCurrentPage()==null||consumerGroupRq.getCurrentPage()<1){
            throw new IllegalAccessException("指定显示返回结果中页数不能为空且最小值为1");
        }
-       if (StringUtils.isBlank(consumerGroupRq.getPageSize())||(Integer.valueOf(consumerGroupRq.getPageSize())<1||Integer.valueOf(consumerGroupRq.getPageSize())>1000)){
+       if (consumerGroupRq.getPageSize()==null||consumerGroupRq.getPageSize()<1||consumerGroupRq.getPageSize()>1000){
            throw new IllegalAccessException("指定显示返回结果中消费组数量不能为空且最小值为1最大值为1000");
        }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryConsumerGroupListRequest request =new QueryConsumerGroupListRequest();
         request.setIotInstanceId(consumerGroupRq.getIotInstanceId());
-        request.setCurrentPage(Integer.valueOf(consumerGroupRq.getCurrentPage()));
+        request.setCurrentPage(consumerGroupRq.getCurrentPage());
         request.setFuzzy(consumerGroupRq.isFuzzy());
         if (consumerGroupRq.isFuzzy()){
             request.setGroupName(consumerGroupRq.getGroupName());
         }
-        request.setPageSize(Integer.valueOf(consumerGroupRq.getPageSize()));
+        request.setPageSize(consumerGroupRq.getPageSize());
         QueryConsumerGroupListResponse response = this.client.queryConsumerGroupList(request);
         System.out.println("查询用户所有消费组列表"+ JSON.toJSONString(response));
         return response;

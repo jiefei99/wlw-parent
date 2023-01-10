@@ -25,31 +25,31 @@ public class SubscribeRelationRq implements Serializable {
     @ApiModelProperty("实例ID")
     private String iotInstanceId;
     @ApiModelProperty("订阅类型")
-    public String type;
+    private String type;
     @ApiModelProperty("是否选择设备上报消息")
-    public boolean deviceDataFlag=false;
+    private boolean deviceDataFlag=false;
     @ApiModelProperty("是否选择设备状态变化通知")
-    public boolean deviceStatusChangeFlag=false;
+    private boolean deviceStatusChangeFlag=false;
     @ApiModelProperty("是否选择网关子设备发现上报")
-    public boolean foundDeviceListFlag=false;
+    private boolean foundDeviceListFlag=false;
     @ApiModelProperty("是否选择设备拓扑关系变更")
-    public boolean deviceTopoLifeCycleFlag=false;
+    private boolean deviceTopoLifeCycleFlag=false;
     @ApiModelProperty("是否选择设备生命周期变更")
-    public boolean deviceLifeCycleFlag=false;
+    private boolean deviceLifeCycleFlag=false;
     @ApiModelProperty("是否选择物模型历史数据上报")
-    public boolean thingHistoryFlag=false;
+    private boolean thingHistoryFlag=false;
     @ApiModelProperty("是否选择OTA升级状态通知")
-    public boolean otaEventFlag=false;
+    private boolean otaEventFlag=false;
     @ApiModelProperty("是否选择设备标签变更")
-    public boolean deviceTagFlag=false;
+    private boolean deviceTagFlag=false;
     @ApiModelProperty("是否选择OTA模块版本号上报")
-    public boolean otaVersionFlag=false;
+    private boolean otaVersionFlag=false;
     @ApiModelProperty("是否选择OTA升级批次状态通知")
-    public boolean otaJobFlag=false;
+    private boolean otaJobFlag=false;
     @ApiModelProperty("MNS队列的配置信息，Type为MNS时必填。")
-    public String mnsConfiguration;
+    private String mnsConfiguration;
     @ApiModelProperty("创建的AMQP订阅中的消费组ID")
-    public List<String> consumerGroupIdList;
+    private List<String> consumerGroupIdList;
 }
 
 
