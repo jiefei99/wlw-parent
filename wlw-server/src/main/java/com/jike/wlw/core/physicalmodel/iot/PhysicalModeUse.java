@@ -8,7 +8,26 @@ package com.jike.wlw.core.physicalmodel.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
-import com.aliyun.iot20180120.models.*;
+import com.aliyun.iot20180120.models.InvokeThingServiceRequest;
+import com.aliyun.iot20180120.models.InvokeThingServiceResponse;
+import com.aliyun.iot20180120.models.InvokeThingsServiceRequest;
+import com.aliyun.iot20180120.models.InvokeThingsServiceResponse;
+import com.aliyun.iot20180120.models.QueryDeviceDesiredPropertyRequest;
+import com.aliyun.iot20180120.models.QueryDeviceDesiredPropertyResponse;
+import com.aliyun.iot20180120.models.QueryDeviceEventDataRequest;
+import com.aliyun.iot20180120.models.QueryDeviceEventDataResponse;
+import com.aliyun.iot20180120.models.QueryDevicePropertiesDataRequest;
+import com.aliyun.iot20180120.models.QueryDevicePropertiesDataResponse;
+import com.aliyun.iot20180120.models.QueryDevicePropertyDataRequest;
+import com.aliyun.iot20180120.models.QueryDevicePropertyDataResponse;
+import com.aliyun.iot20180120.models.QueryDeviceServiceDataRequest;
+import com.aliyun.iot20180120.models.QueryDeviceServiceDataResponse;
+import com.aliyun.iot20180120.models.SetDeviceDesiredPropertyRequest;
+import com.aliyun.iot20180120.models.SetDeviceDesiredPropertyResponse;
+import com.aliyun.iot20180120.models.SetDevicePropertyRequest;
+import com.aliyun.iot20180120.models.SetDevicePropertyResponse;
+import com.aliyun.iot20180120.models.SetDevicesPropertyRequest;
+import com.aliyun.iot20180120.models.SetDevicesPropertyResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.jike.wlw.config.client.AliIotClient;
@@ -20,8 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import java.util.*;
 
 /**
  *
@@ -191,13 +208,13 @@ public class PhysicalModeUse {
     }
 
     public QueryDevicePropertyDataResponse queryDevicePropertyData(DevicePropertyRq model) throws Exception {
-        if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
+        if (model.getEndTime()==null||model.getStartTime()==null){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
         if (StringUtils.isBlank(model.getIdentifier())){
             throw new IllegalAccessException("物模型服务的标识符不能为空");
         }
-        if (StringUtils.isBlank(model.getPageSize())||(Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0)){
+        if (model.getPageSize()==null||model.getPageSize()>50||model.getPageSize()<0){
             throw new IllegalAccessException("物模型返回结果中每页显示的记录数不能为空且记录数不能大于50");
         }
         if (model.getAsc()!=1&&model.getAsc()!=2){
@@ -219,9 +236,9 @@ public class PhysicalModeUse {
         }
         request.setIdentifier(model.getIdentifier());
         request.setAsc(model.getAsc());
-        request.setEndTime(Long.valueOf(model.getEndTime()));
-        request.setPageSize(Integer.valueOf(model.getPageSize()));
-        request.setStartTime(Long.valueOf(model.getStartTime()));
+        request.setEndTime(model.getEndTime());
+        request.setPageSize(model.getPageSize());
+        request.setStartTime(model.getStartTime());
         QueryDevicePropertyDataResponse response = client.queryDevicePropertyData(request);
         System.out.println("查询规定时间戳内属性："+JSON.toJSONString(response));
         return response;
@@ -231,10 +248,10 @@ public class PhysicalModeUse {
         if (model.getAsc()!=1&&model.getAsc()!=2){
             throw new IllegalAccessException("物模型排序的方式必须为正序或者倒序");
         }
-        if (StringUtils.isBlank(model.getPageSize())||(Integer.valueOf(model.getPageSize())>100||Integer.valueOf(model.getPageSize())<0)){
+        if (model.getPageSize()==null||model.getPageSize()>100||model.getPageSize()<0){
             throw new IllegalAccessException("物模型返回结果中每页显示的记录数不能为空且记录数不能大于100");
         }
-        if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
+        if (model.getEndTime()==null||model.getStartTime()==null){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
         if (CollectionUtils.isEmpty(model.getIdentifierList())){
@@ -256,19 +273,22 @@ public class PhysicalModeUse {
         }
         request.setIdentifier(model.getIdentifierList());
         request.setAsc(model.getAsc());
-        request.setEndTime(Long.valueOf(model.getEndTime()));
-        request.setPageSize(Integer.valueOf(model.getPageSize()));
-        request.setStartTime(Long.valueOf(model.getStartTime()));
+        request.setEndTime(model.getEndTime());
+        request.setPageSize(model.getPageSize());
+        request.setStartTime(model.getStartTime());
         QueryDevicePropertiesDataResponse response = client.queryDevicePropertiesData(request);
         System.out.println("查询规定时间戳内多个属性："+JSON.toJSONString(response));
         return response;
     }
 
     public QueryDeviceEventDataResponse queryDeviceEventData(DevicePropertyRq model) throws Exception{
-        if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
+        if (model.getEndTime()==null||model.getStartTime()==null){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
-        if (Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0){
+        if (model.getPageSize()==null){
+            throw new IllegalAccessException("每页显示的记录数范围不能为空");
+        }
+        if (model.getPageSize()>50||model.getPageSize()<0){
             throw new IllegalAccessException("每页显示的记录数范围为0-50");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
@@ -283,14 +303,14 @@ public class PhysicalModeUse {
         request.setAsc(model.getAsc());
         request.setIotId(model.getIotId());
         request.setIdentifier(model.getIdentifier());
-        request.setEndTime(Long.valueOf(model.getEndTime()));
+        request.setEndTime(model.getEndTime());
         request.setEventType(model.getEventType());
         //若有ID值，必须传入该ID
         if (StringUtils.isNotBlank(model.getIotInstanceId())){
             request.setIotInstanceId(model.getIotInstanceId());
         }
-        request.setStartTime(Long.valueOf(model.getStartTime()));
-        request.setPageSize(Integer.valueOf(model.getPageSize()));
+        request.setStartTime(model.getStartTime());
+        request.setPageSize(model.getPageSize());
         QueryDeviceEventDataResponse response = client.queryDeviceEventData(request);
         System.out.println("指定设备的事件记录："+JSON.toJSONString(response));
         return response;
@@ -298,10 +318,13 @@ public class PhysicalModeUse {
 
     //QueryDeviceServiceData
     public QueryDeviceServiceDataResponse queryDeviceServiceData(DevicePropertyRq model) throws Exception {
-        if (StringUtils.isBlank(model.getEndTime())||StringUtils.isBlank(model.getStartTime())){
+        if (model.getEndTime()==null||model.getStartTime()==null){
             throw new IllegalAccessException("物模型属性记录开始、结束时间不能为空");
         }
-        if (Integer.valueOf(model.getPageSize())>50||Integer.valueOf(model.getPageSize())<0){
+        if (model.getPageSize()==null){
+            throw new IllegalAccessException("每页显示的记录数范围不能为空");
+        }
+        if (model.getPageSize()>50||model.getPageSize()<0){
             throw new IllegalAccessException("每页显示的记录数范围为0-50");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
@@ -320,9 +343,9 @@ public class PhysicalModeUse {
             request.setProductKey(model.getProductKey());
         }
         request.setIdentifier(model.getIdentifier());
-        request.setEndTime(Long.valueOf(model.getEndTime()));
-        request.setPageSize(Integer.valueOf(model.getPageSize()));
-        request.setStartTime(Long.valueOf(model.getStartTime()));
+        request.setEndTime(model.getEndTime());
+        request.setPageSize(model.getPageSize());
+        request.setStartTime(model.getStartTime());
         QueryDeviceServiceDataResponse response = client.queryDeviceServiceData(request);
         System.out.println("指定设备的服务调用记录："+JSON.toJSONString(response));
         return  response;
