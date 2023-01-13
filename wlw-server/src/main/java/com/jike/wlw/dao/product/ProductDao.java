@@ -30,6 +30,12 @@ public class ProductDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
             q.where("o.id = :id").p("id", filter.getIdEq());
         }
+        if (!StringUtil.isNullOrBlank(filter.getTenantId())) {
+            q.where("o.tenantId = :tenantId").p("tenantId", filter.getTenantId());
+        }
+        if (!StringUtil.isNullOrBlank(filter.getTenantId())) {
+            q.where("o.productId = :productId").p("productId", filter.getProductId());
+        }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
         }

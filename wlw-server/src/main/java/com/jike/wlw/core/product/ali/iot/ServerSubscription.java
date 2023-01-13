@@ -4,24 +4,21 @@
  * 修改历史：
  * 2023年01月06日 16:14 - ASUS - 创建。
  */
-package com.jike.wlw.core.product.iot;
+package com.jike.wlw.core.product.ali.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.core.product.iot.entity.ConsumerGroupRq;
-import com.jike.wlw.core.product.iot.entity.SubscribeRelationRq;
+import com.jike.wlw.core.product.ali.iot.entity.ConsumerGroupRq;
+import com.jike.wlw.core.product.ali.iot.entity.SubscribeRelationRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  *

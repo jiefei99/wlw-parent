@@ -7,7 +7,7 @@
 package com.jike.wlw.config.fegin;
 
 
-import com.jike.bsc.commons.service.flowcode.FlowCodeService;
+import com.jike.wlw.service.flowcode.FlowCodeService;
 import org.springframework.cloud.openfeign.FeignClient;
 
 /**
