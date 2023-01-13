@@ -153,7 +153,6 @@ public class ProductServiceImpl extends BaseService implements ProductService {
     @Override
     public void delete(String tenantId, String productKey, String iotInstanceId) throws BusinessException {
         try {
-            System.out.println(productKey);
             PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
