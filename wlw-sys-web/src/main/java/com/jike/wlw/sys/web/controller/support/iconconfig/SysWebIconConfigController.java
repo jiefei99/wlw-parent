@@ -31,6 +31,8 @@ public class SysWebIconConfigController extends BaseController {
         try {
             IconConfig result = iconConfigFeignClient.get(id);
 
+
+
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);

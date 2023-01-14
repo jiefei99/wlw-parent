@@ -9,7 +9,6 @@
  */
 package com.jike.wlw.service.author.user.employee;
 
-import com.jike.wlw.service.author.org.OrgType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -24,10 +23,8 @@ import java.util.List;
 public class EmployeeCreateRq implements Serializable {
     private static final long serialVersionUID = -2172900463849804347L;
 
-    @ApiModelProperty("组织ID")
-    private String orgId = "-";
-    @ApiModelProperty("组织类型")
-    private OrgType orgType = OrgType.SYSTEM;
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("登录账号")
     private String loginId;
     @ApiModelProperty("员工姓名")

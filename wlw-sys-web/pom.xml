@@ -88,8 +88,8 @@
         </dependency>
         <!-- doc -->
         <dependency>
-            <groupId>com.jike</groupId>
-            <artifactId>mall-goods-api</artifactId>
+            <groupId>com.enet</groupId>
+            <artifactId>base-auth</artifactId>
         </dependency>
 
     </dependencies>

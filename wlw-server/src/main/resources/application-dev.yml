@@ -16,7 +16,7 @@ spring:
     password: public                        # 密码
     host-url: tcp://118.31.189.96:11883    # mqtt连接tcp地址
     client-id: mq-dky-0813        # 客户端Id，每个启动的id要不同
-    default-topic: topic-test        # 默认主题
+    default-topic: t/#       # 默认主题
     timeout: 100                            # 超时时间
     keepalive: 100
 

@@ -7,7 +7,6 @@
 package com.jike.wlw.service.author.user.employee;
 
 import com.geeker123.rumba.jpa.api.entity.StandardEntity;
-import com.jike.wlw.service.author.org.OrgType;
 import com.jike.wlw.service.author.user.User;
 import com.jike.wlw.service.author.user.role.Role;
 import io.swagger.annotations.ApiModel;
@@ -26,10 +25,8 @@ public class Employee extends StandardEntity {
     public static final String PARTS_USER = "user";
     public static final String PARTS_PWD_ACCOUNT = "pwdAccount";
 
-    @ApiModelProperty("组织ID")
-    private String orgId;
-    @ApiModelProperty("组织类型")
-    private OrgType orgType;
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("ID")
     private String id;
     @ApiModelProperty("是否为管理员")

@@ -10,7 +10,6 @@
 package com.jike.wlw.service.author.user.employee;
 
 import com.geeker123.rumba.commons.paging.AbstractQueryFilter;
-import com.jike.wlw.service.author.org.OrgType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -29,10 +28,8 @@ public class EmployeeFilter extends AbstractQueryFilter {
     @ApiModelProperty("关键字")
     private String keywords;
 
-    @ApiModelProperty("组织ID等于")
-    private String orgIdEq;
-    @ApiModelProperty("组织类型等于")
-    private OrgType orgTypeEq;
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("ID等于")
     private String idEq;
     @ApiModelProperty("是否为管理员等于")
@@ -40,10 +37,8 @@ public class EmployeeFilter extends AbstractQueryFilter {
     @ApiModelProperty("用户ID等于")
     private String userIdEq;
     // “in”批量查询
-    @ApiModelProperty("组织ID集合")
-    private List<String> orgIdIn;
-    @ApiModelProperty("组织类型集合")
-    private List<String> orgTypeIn;
+    @ApiModelProperty("租户ID集合")
+    private List<String> tenentIdIn;
     @ApiModelProperty("ID集合")
     private List<String> idIn;
     @ApiModelProperty("用户ID集合")

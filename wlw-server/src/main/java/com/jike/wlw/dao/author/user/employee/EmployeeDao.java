@@ -43,11 +43,8 @@ public class EmployeeDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getUserIdEq())) {
             q.where("o.userId = :userIdEq").p("userIdEq", filter.getUserIdEq());
         }
-        if (!StringUtil.isNullOrBlank(filter.getOrgIdEq())) {
-            q.where("o.orgId = :orgIdEq").p("orgIdEq", filter.getOrgIdEq());
-        }
-        if (filter.getOrgTypeEq() != null) {
-            q.where("o.orgType = :orgTypeEq").p("orgTypeEq", filter.getOrgTypeEq());
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
         }
         if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
             q.where("o.id = :idEq").p("idEq", filter.getIdEq());
@@ -55,11 +52,8 @@ public class EmployeeDao extends BaseDao {
         if (filter.getAdminEq() != null) {
             q.where("o.admin = :adminEq").p("adminEq", filter.getAdminEq());
         }
-        if (!CollectionUtils.isEmpty(filter.getOrgIdIn())) {
-            q.where("o.orgId in (:orgIdIn)").p("orgIdIn", filter.getOrgIdIn());
-        }
-        if (!CollectionUtils.isEmpty(filter.getOrgTypeIn())) {
-            q.where("o.orgType in (:orgTypeIn)").p("orgTypeIn", filter.getOrgTypeIn());
+        if (!CollectionUtils.isEmpty(filter.getTenentIdIn())) {
+            q.where("o.tenantId in (:tenantIdIn)").p("tenantIdIn", filter.getTenentIdIn());
         }
         if (!CollectionUtils.isEmpty(filter.getIdIn())) {
             q.where("o.id in (:idIn)").p("idIn", filter.getIdIn());
@@ -83,9 +77,9 @@ public class EmployeeDao extends BaseDao {
         return q;
     }
 
-    public PEmployee getMaxId (String orgType, String orgId) {
-        String sql = " select * from " + PEmployee.TABLE_NAME + " o where o.orgType = ?  and  orgId = ? order by o.id desc limit 1";
-        List<PEmployee> list = jdbcTemplate.query(sql, new Object[]{orgType, orgId}, new BeanPropertyRowMapper<PEmployee>(PEmployee.class));
+    public PEmployee getMaxId(String tenantId) {
+        String sql = " select * from " + PEmployee.TABLE_NAME + " o where o.tenantId = ?  order by o.id desc limit 1";
+        List<PEmployee> list = jdbcTemplate.query(sql, new Object[]{tenantId}, new BeanPropertyRowMapper<>(PEmployee.class));
         return list.isEmpty() ? null : list.get(0);
     }
 

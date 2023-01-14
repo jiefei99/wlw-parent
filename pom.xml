@@ -255,9 +255,9 @@
             </dependency>
 
             <dependency>
-                <groupId>com.jike</groupId>
-                <artifactId>mall-goods-api</artifactId>
-                <version>1.0.0-SNAPSHOT</version>
+                <groupId>com.enet</groupId>
+                <artifactId>base-auth</artifactId>
+                <version>4.0.2-SNAPSHOT</version>
             </dependency>
 
             <!--spring boot 公共版本定义-->

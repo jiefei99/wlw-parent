@@ -24,10 +24,8 @@ public class PEmployee extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_employee";
 
-    @ApiModelProperty("组织ID")
-    private String orgId;
-    @ApiModelProperty("组织类型")
-    private String orgType;
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("ID")
     private String id;
     @ApiModelProperty("是否为管理员")

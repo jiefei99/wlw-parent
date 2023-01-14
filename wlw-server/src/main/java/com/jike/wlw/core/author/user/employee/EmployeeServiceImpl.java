@@ -101,15 +101,15 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             userCreateRq.setName(createRq.getName());
             userCreateRq.setSex(createRq.getSex());
             String userId = userService.create(userCreateRq, operator);
-            perz.setId(idGen(createRq.getOrgType().name(), createRq.getOrgId()));
+            perz.setId(idGen(createRq.getTenantId()));
             while(perz.getId() == null){
-                perz.setId(idGen(createRq.getOrgType().name(), createRq.getOrgId()));
+                perz.setId(idGen(createRq.getTenantId()));
             }
+
             perz.setAdmin(false);
             perz.onCreated(operator);
             perz.setUserId(userId);
-            perz.setOrgId(createRq.getOrgId());
-            perz.setOrgType(createRq.getOrgType().name());
+            perz.setTenantId(createRq.getTenantId());
             employeeDao.save(perz);
 
             PPwdAccount pwdAccount = new PPwdAccount();
@@ -126,8 +126,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             pwdAccount.setUserId(userId);
             pwdAccountDao.save(pwdAccount);
 
-            // TODO 需创建“员工-角色关联关系”，等角色接口提供完成后实现
-
             return userId;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -142,7 +140,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             // 参数校验
             verification(adminRq);
 
-            PEmployee perz = employeeDao.get(PEmployee.class, "orgType", adminRq.getOrgType().name(), "orgId", adminRq.getOrgId(), "admin", "1");
+            PEmployee perz = employeeDao.get(PEmployee.class,  "tenantId", adminRq.getTenantId(), "admin", "1");
             if (perz != null) {
                 return perz.getUserId();
             }
@@ -156,9 +154,8 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             perz.onCreated(operator);
             perz.setAdmin(true);
             perz.setUserId(userId);
-            perz.setOrgType(adminRq.getOrgType().name());
-            perz.setOrgId(adminRq.getOrgId());
-            perz.setId(idGen(adminRq.getOrgType().name(), adminRq.getOrgId()));
+            perz.setTenantId(adminRq.getTenantId());
+            perz.setId(idGen(adminRq.getTenantId()));
             employeeDao.save(perz);
 
             PPwdAccount pwdAccount = new PPwdAccount();
@@ -337,8 +334,8 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     /**
      * ID生成
      */
-    private String idGen(String orgType, String orgId) {
-        PEmployee maxId = employeeDao.getMaxId(orgType, orgId);
+    private String idGen(String tenantId) {
+        PEmployee maxId = employeeDao.getMaxId(tenantId);
         String prefix = "";
         int newNumber = 0;
         int idNumber = Integer.valueOf(maxId == null ? "0" : maxId.getId());

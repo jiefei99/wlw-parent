@@ -97,6 +97,11 @@ public class EmqxClient {
         }
     }
 
+
+    public void disConnect() throws MqttException {
+        client.disconnect();
+    }
+
     /**
      * 发布
      *

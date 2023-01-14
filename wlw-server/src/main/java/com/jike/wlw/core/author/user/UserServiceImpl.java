@@ -7,7 +7,6 @@ import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.dao.TX;
 import com.jike.wlw.dao.author.user.PUser;
 import com.jike.wlw.dao.author.user.UserDao;
-import com.jike.wlw.service.author.org.member.OrgMemberService;
 import com.jike.wlw.service.author.user.User;
 import com.jike.wlw.service.author.user.UserCreateRq;
 import com.jike.wlw.service.author.user.UserFilter;
