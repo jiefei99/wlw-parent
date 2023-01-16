@@ -109,8 +109,9 @@ public class SourceServiceImpl extends BaseService implements SourceService {
                     createRq.setUuid(list.get(0).getUuid());
                 }
             }
-
-            sourceDao.save(convert(tenantId, createRq));
+            PSource perz = convert(tenantId, createRq);
+            perz.onCreated(operator);
+            sourceDao.save(perz);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -152,6 +153,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
                 }
             }
 
+            perz.onModified(operator);
             sourceDao.save(perz);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -160,7 +162,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     @Override
-    public void delete(String tenantId, String uuid) throws BusinessException {
+    public void delete(String tenantId, String uuid, String operator) throws BusinessException {
         try {
             PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId);
             if (perz == null || (perz.getDeleted() != null && perz.getDeleted())) {
@@ -168,6 +170,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
             }
             //逻辑删除
             perz.setDeleted(true);
+            perz.onModified(operator);
             sourceDao.save(perz);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -176,7 +179,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     @Override
-    public void connecting(String tenantId, String uuid) throws BusinessException {
+    public void connecting(String tenantId, String uuid, String operator) throws BusinessException {
         try {
             PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId);
             if (perz == null || (perz.getDeleted() != null && perz.getDeleted())) {
@@ -198,6 +201,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
             }
 
             perz.setConnected(true);
+            perz.onModified(operator);
             sourceDao.save(perz);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -206,7 +210,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     @Override
-    public void disConnect(String tenantId, String uuid) throws BusinessException {
+    public void disConnect(String tenantId, String uuid, String operator) throws BusinessException {
         try {
             PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId);
             if (perz == null || (perz.getDeleted() != null && perz.getDeleted())) {
@@ -217,6 +221,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
             }
 
             perz.setConnected(false);
+            perz.onModified(operator);
             sourceDao.save(perz);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

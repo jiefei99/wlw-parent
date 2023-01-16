@@ -35,19 +35,22 @@ public interface SourceService {
     @ApiOperation(value = "根据ID删除资源")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
-    void delete(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException;
+    void delete(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
+                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 
     @ApiOperation(value = "资源连接")
     @RequestMapping(value = "/connecting", method = RequestMethod.GET)
     @ResponseBody
-    void connecting(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException;
+    void connecting(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
+                    @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 
     @ApiOperation(value = "资源断接")
     @RequestMapping(value = "/disConnect", method = RequestMethod.GET)
     @ResponseBody
-    void disConnect(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException;
+    void disConnect(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
+                    @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "测试资源是否连接正常")
     @RequestMapping(value = "/checkConnecting", method = RequestMethod.GET)
