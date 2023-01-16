@@ -25,6 +25,8 @@ public class SubscribeFilter extends AbstractQueryFilter {
     private String tenantId;
     @ApiModelProperty("订阅类型")
     private String type;
+    @ApiModelProperty("消费组Id")
+    private String groupIdLike;
     @ApiModelProperty("分页大小")
     private int pageSize;
     @ApiModelProperty("实例Id")

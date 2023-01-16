@@ -2,17 +2,23 @@ package com.jike.wlw.core.product.serverSubscription.consumerGroup.privatization
 
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.google.common.eventbus.Subscribe;
 import com.jike.wlw.common.StringRelevant;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.product.serverSubscription.consumerGroup.ConsumerGroupDao;
 import com.jike.wlw.dao.product.serverSubscription.consumerGroup.PConsumerGroup;
+import com.jike.wlw.dao.product.serverSubscription.subscribe.PSubscribe;
+import com.jike.wlw.dao.product.serverSubscription.subscribe.SubscribeDao;
 import com.jike.wlw.service.product.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.product.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
 import com.jike.wlw.service.product.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.product.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.product.serverSubscription.consumerGroup.privatization.PrivateConsumerGroupService;
+import com.jike.wlw.service.product.serverSubscription.subscribe.SubscribeFilter;
+import com.jike.wlw.service.product.serverSubscription.subscribe.SubscribeRelation;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +40,8 @@ import java.util.List;
 public class PrivateConsumerGroupServiceImpl extends BaseService implements PrivateConsumerGroupService {
     @Autowired
     private ConsumerGroupDao consumerGroupDao;
+    @Autowired
+    private SubscribeDao subscribeDao;
 
     @Override
     public String create(String tenantId, ConsumerGroupCreateRq createRq, String operator) throws BusinessException {
@@ -104,8 +112,14 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
             if (group == null) {
                 return;
             }
-
-            // TODO: 2023/1/13 需要先删除关联订阅才可以删除消费组
+            SubscribeFilter subscribeFilter=new SubscribeFilter();
+            subscribeFilter.setTenantId(tenantId);
+            subscribeFilter.setType(SubscribeRelation.AMQP);
+            subscribeFilter.setGroupIdLike(groupId);
+            List<PSubscribe> query = subscribeDao.query(subscribeFilter);
+            if (CollectionUtils.isNotEmpty(query)){
+                throw new BusinessException("需要先删除关联订阅才可以删除消费组！");
+            }
             consumerGroupDao.remove(PConsumerGroup.class, group.getUuid());
         } catch (Exception e) {
             log.error(e.getMessage(), e);

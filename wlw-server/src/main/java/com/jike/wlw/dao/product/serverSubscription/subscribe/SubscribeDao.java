@@ -39,8 +39,11 @@ public class SubscribeDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getType())) {
             q.where("o.type = :type").p("type", filter.getType());
         }
-        if (!StringUtil.isNullOrBlank(filter.getIotInstanceId())) {
+        if (!StringUtil.isNullOrBlank(filter.getProductKey())) {
             q.where("o.productKey = :productKey").p("productKey", filter.getProductKey());
+        }
+        if (!StringUtil.isNullOrBlank(filter.getGroupIdLike())) {
+            q.where("o.consumerGroupIds like :consumerGroupIds").p("consumerGroupIds", filter.getGroupIdLike());
         }
         q.where("o.isDeleted = 0");
 
