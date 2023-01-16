@@ -1,10 +1,10 @@
 package com.jike.wlw.dao;
 
+import com.jike.wlw.util.SpringUtil;
 import org.influxdb.InfluxDB;
 import org.influxdb.dto.Point;
 import org.influxdb.dto.Query;
 import org.influxdb.dto.QueryResult;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
 import java.lang.reflect.Field;
@@ -17,21 +17,18 @@ import java.util.concurrent.TimeUnit;
 @Repository
 public class InfluxDao {
 
-    @Autowired
-    InfluxDB influxDB;
-
     //数据保存
     public void saveMessage(String measurement, Map<String, Object> fields, Map<String, String> tags) {
         Point.Builder builder = Point.measurement(measurement);
         builder.time(System.currentTimeMillis(), TimeUnit.MILLISECONDS)
                 .fields(fields).tag(tags);
-        influxDB.write(builder.build());
+        SpringUtil.getBean(InfluxDB.class).write(builder.build());
     }
 
     //数据读取
     public QueryResult getMessage(String measurement, String command) {
         Query query = new Query(command, measurement);
-        QueryResult queryResult = influxDB.query(query);
+        QueryResult queryResult = SpringUtil.getBean(InfluxDB.class).query(query);
         return queryResult;
     }
 
@@ -45,7 +42,7 @@ public class InfluxDao {
     public List<Map<String, Object>> fetchRecords(String measurement, String query) {
         List<Map<String, Object>> results = new ArrayList<>();
 
-        QueryResult queryResult = influxDB.query(new Query(query, measurement));
+        QueryResult queryResult = SpringUtil.getBean(InfluxDB.class).query(new Query(query, measurement));
 
         queryResult.getResults().forEach(result -> {
             result.getSeries().forEach(serial -> {
@@ -73,7 +70,7 @@ public class InfluxDao {
     @SuppressWarnings({"rawtypes", "unchecked"})
     public <T> List<T> fetchResults(String measurement, String query, Class<?> clasz) {
         List results = new ArrayList<>();
-        QueryResult queryResult = influxDB.query(new Query(query, measurement));
+        QueryResult queryResult = SpringUtil.getBean(InfluxDB.class).query(new Query(query, measurement));
 
         queryResult.getResults().forEach(result -> {
             result.getSeries().forEach(serial -> {

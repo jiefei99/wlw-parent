@@ -38,7 +38,7 @@ public class EmqxClient {
      * @param keepalive 保留数
      */
     public void connect(String host, String clientID, String username, String password, int timeout,
-        int keepalive, String mqttTopic) {
+                        int keepalive, String mqttTopic) {
         MqttClient client;
         try {
             client = new MqttClient(host, clientID, new MemoryPersistence());
@@ -80,12 +80,12 @@ public class EmqxClient {
                         System.out.println("接收消息内容 : " + content);
                         System.out.println("接收消息 : " + message.getId());
                         // 处理数据
-                        client.messageArrivedComplete(message.getId(),message.getQos());
+                        client.messageArrivedComplete(message.getId(), message.getQos());
                     }
 
                     @Override
                     public void deliveryComplete(IMqttDeliveryToken token) {
-                        System.out.println("deliveryComplete....");
+                        System.out.println("发布完成...." + token.isComplete());
                     }
                 });
                 client.connect(options);
@@ -145,5 +145,31 @@ public class EmqxClient {
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    /**
+     * 断开连接
+     *
+     * @param quiesceTimeout 延迟时间
+     */
+    public void disconnect(Long quiesceTimeout) {
+        logger.info("==============准备断开连接=========" + quiesceTimeout);
+        try {
+            if (quiesceTimeout == null) {
+                EmqxClient.getClient().disconnect();
+            } else {
+                EmqxClient.getClient().disconnect(quiesceTimeout);
+            }
+            logger.info("==============成功断开连接=========" + quiesceTimeout);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 是否连接成功
+     */
+    public boolean isConnected() {
+        return EmqxClient.getClient().isConnected();
     }
 }
