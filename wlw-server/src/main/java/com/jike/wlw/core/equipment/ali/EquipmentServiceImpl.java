@@ -152,11 +152,13 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
     }
 
     @Override
-    public ActionResult<Void> getStatus(String tenantId, EquipmentGetRq getRq) throws BusinessException {
+    public ActionResult<Equipment> getStatus(String tenantId, EquipmentGetRq getRq) throws BusinessException {
         try {
             GetDeviceStatusResponseBody response = equipmentManager.getDeviceStatus(getRq);
             if (Boolean.TRUE.equals(response.getSuccess())) {
-                return ActionResult.ok();
+                Equipment equipment = new Equipment();
+                BeanUtils.copyProperties(response.getData(), equipment);
+                return ActionResult.ok(equipment);
             } else {
                 return ActionResult.fail("查看指定设备的运行状态失败，原因：" + response.getErrorMessage());
             }
@@ -167,11 +169,13 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
     }
 
     @Override
-    public ActionResult<Void> queryStatistics(String tenantId, EquipmentStatisticsQueryRq queryRq) throws BusinessException {
+    public ActionResult<Equipment> queryStatistics(String tenantId, EquipmentStatisticsQueryRq queryRq) throws BusinessException {
         try {
             QueryDeviceStatisticsResponseBody response = equipmentManager.queryDeviceStatistics(queryRq);
             if (Boolean.TRUE.equals(response.getSuccess())) {
-                return ActionResult.ok();
+                Equipment equipment = new Equipment();
+                BeanUtils.copyProperties(response.getData(), equipment);
+                return ActionResult.ok(equipment);
             } else {
                 return ActionResult.fail("查看指定设备的运行状态失败，原因：" + response.getErrorMessage());
             }

@@ -56,12 +56,12 @@ public interface EquipmentService {
     @ApiOperation(value = "查看指定设备运行状态")
     @RequestMapping(value = "/getDeviceStatus", method = RequestMethod.POST)
     @ResponseBody
-    ActionResult<Void> getStatus(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "删除设备请求参数") @RequestBody EquipmentGetRq getRq) throws BusinessException;
+    ActionResult<Equipment> getStatus(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "删除设备请求参数") @RequestBody EquipmentGetRq getRq) throws BusinessException;
 
     @ApiOperation(value = "查询设备统计数据")
     @RequestMapping(value = "/queryDeviceStatistics", method = RequestMethod.POST)
     @ResponseBody
-    ActionResult<Void> queryStatistics(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询设备统计数据请求参数") @RequestBody EquipmentStatisticsQueryRq queryRq) throws BusinessException;
+    ActionResult<Equipment> queryStatistics(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询设备统计数据请求参数") @RequestBody EquipmentStatisticsQueryRq queryRq) throws BusinessException;
 
 
     @ApiOperation(value = "查询设备上报过的OTA模块版本列表")
