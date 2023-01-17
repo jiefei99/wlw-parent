@@ -101,7 +101,7 @@ public class AliProductServiceImpl extends BaseService implements AliProductServ
         try {
             QueryProductListResponse response = productManager.queryProductList(productQueryRq);
             List<Product> result = new ArrayList<>();
-            if (!response.getBody().getSuccess()||response.getBody().getData().getList()==null){
+            if (!response.getBody().getSuccess()||response.getBody().getData()==null||response.getBody().getData().getList()==null){
                 throw new BusinessException("查询产品列表失败："+response.getBody().getErrorMessage());
             }
             for (QueryProductListResponseBodyDataListProductInfo productInfo : response.getBody().getData().getList().getProductInfo()) {
