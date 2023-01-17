@@ -11,7 +11,8 @@ import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.service.equipment.Equipment;
 import com.jike.wlw.service.equipment.EquipmentFilter;
-import com.jike.wlw.service.equipment.EquipmentService;
+import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
+import com.jike.wlw.service.equipment.ali.EquipmentService;
 import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
@@ -157,9 +158,9 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
             }
-            EquipmentFilter filter = new EquipmentFilter();
-            filter.setProductKeyEq(perz.getProductKey());
-            List<Equipment> equipmentList = equipmentService.query(filter).getData();
+            EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
+            filter.setProductKey(perz.getProductKey());
+            List<Equipment> equipmentList = equipmentService.query(tenantId, filter).getData();
             if (!CollectionUtils.isEmpty(equipmentList)) {
                 throw new BusinessException("当前产品下存在未删除的设备，请删除设备后重试！");
             }
