@@ -9,6 +9,7 @@ import com.aliyun.iot20180120.models.UpdateProductTopicResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.product.topic.ali.iot.TopicManager;
+import com.jike.wlw.service.product.topic.Operation;
 import com.jike.wlw.service.product.topic.Topic;
 import com.jike.wlw.service.product.topic.TopicCreateRq;
 import com.jike.wlw.service.product.topic.TopicFilter;
@@ -50,11 +51,13 @@ public class AliTopicServiceImpl extends BaseService implements AliTopicService 
             }
             for (QueryProductTopicResponseBodyDataProductTopicInfo info : response.getBody().getData().getProductTopicInfo()) {
                 Topic topic=new Topic();
-                topic.setTopicId(info.getId());
+                topic.setId(info.getId());
                 topic.setDesc(info.getDesc());
                 topic.setTopicShortName(info.getTopicShortName());
-//                topic.setOperation();//info.getOperation()
+                //todo 这个有错
+//                topic.setOperation(Operation.valueOf(info.getOperation()));
                 topic.setProductKey(info.getProductKey());
+                topicList.add(topic);
             }
             return topicList;
         } catch (Exception e) {

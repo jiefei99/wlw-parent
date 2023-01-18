@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public interface AliProductService extends BaseProductService {
 
     @ApiOperation(value = "根据ID获取产品")
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @RequestMapping(value = "/get", method = RequestMethod.POST)
     @ResponseBody
     Product get(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductQueryRq productQueryRq) throws BusinessException;

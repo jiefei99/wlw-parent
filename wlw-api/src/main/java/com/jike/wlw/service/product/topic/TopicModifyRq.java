@@ -24,13 +24,14 @@ public class TopicModifyRq extends Entity implements Serializable {
     @ApiModelProperty("操作权限")
     private Operation operation;
     @ApiModelProperty("id")
-    private String topicId;
+    private String id;
     @ApiModelProperty("自定义类目名称")
     private String topicShortName;
     @ApiModelProperty("实例ID")
     private String iotInstanceId;
     @ApiModelProperty("描述")
     private String desc;
+
 }
 
 

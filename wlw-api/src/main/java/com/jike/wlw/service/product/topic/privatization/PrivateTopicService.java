@@ -26,7 +26,7 @@ import java.util.List;
 public interface PrivateTopicService extends BaseTopicService {
 
     @ApiOperation(value = "根据ID获取Topic")
-    @RequestMapping(value = "/query", method = RequestMethod.GET)
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     List<Topic> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                       @ApiParam(required = true, value = "查询Topic请求参数") @RequestBody TopicFilter filter) throws BusinessException;

@@ -25,10 +25,6 @@ public class ProductFilter extends AbstractQueryFilter {
     private String productSecretEq;
     @ApiModelProperty("名称等于")
     private String nameEq;
-    @ApiModelProperty("分页数量")
-    private int pageSize;
-    @ApiModelProperty("当前页")
-    private int currentPage;
     @ApiModelProperty("编号在之中")
     private List<String> idIn;
 

@@ -8,10 +8,16 @@ package com.jike.wlw.core.product.topic.ali.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
-import com.aliyun.iot20180120.models.*;
+import com.aliyun.iot20180120.models.CreateProductTopicRequest;
+import com.aliyun.iot20180120.models.CreateProductTopicResponse;
+import com.aliyun.iot20180120.models.DeleteProductTopicRequest;
+import com.aliyun.iot20180120.models.DeleteProductTopicResponse;
+import com.aliyun.iot20180120.models.QueryProductTopicRequest;
+import com.aliyun.iot20180120.models.QueryProductTopicResponse;
+import com.aliyun.iot20180120.models.UpdateProductTopicRequest;
+import com.aliyun.iot20180120.models.UpdateProductTopicResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.core.product.info.ali.iot.entity.ProductTopicRq;
 import com.jike.wlw.service.product.topic.TopicCreateRq;
 import com.jike.wlw.service.product.topic.TopicFilter;
 import com.jike.wlw.service.product.topic.TopicModifyRq;
@@ -47,22 +53,6 @@ public class TopicManager {
         return new Client(config);
     }
 
-    public static void main(String[] args) {
-        ProductTopicRq productTopicRq=new ProductTopicRq();
-//        productTopicRq.setProductKey("a1GgN502dxa");
-//        productTopicRq.setOperation("ALL");
-//        productTopicRq.setDesc("resubmit a test topic");
-//        productTopicRq.setIotInstanceId();
-//        productTopicRq.setTopicShortName("resubmit");
-        productTopicRq.setTopicId("31823259");
-        TopicManager productTopicManager=new TopicManager();
-        try {
-//            productTopicManager.deleteProductTopic(productTopicRq);
-        } catch (Exception e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-    }
 
     //CreateProductTopic
     public CreateProductTopicResponse createProductTopic(TopicCreateRq topic) throws Exception{
@@ -80,7 +70,7 @@ public class TopicManager {
         CreateProductTopicRequest request=new CreateProductTopicRequest();
         request.setProductKey(topic.getProductKey());
         request.setDesc(topic.getDesc());
-        request.setOperation(topic.getOperation().getCaption());
+        request.setOperation(topic.getOperation().toString());
         request.setTopicShortName(topic.getTopicShortName());
         request.setIotInstanceId(topic.getIotInstanceId());
         CreateProductTopicResponse response = client.createProductTopic(request);
@@ -92,7 +82,7 @@ public class TopicManager {
         if (topic.getOperation()==null){
             throw new IllegalAccessException("设备对该Topic类的操作权限不能为空");
         }
-        if (StringUtils.isBlank(topic.getTopicId())){
+        if (StringUtils.isBlank(topic.getId())){
             throw new IllegalAccessException("修改的Topic类的ID不能为空");
         }
         if (StringUtils.isBlank(topic.getTopicShortName())){
@@ -105,7 +95,7 @@ public class TopicManager {
         request.setIotInstanceId(topic.getIotInstanceId());
         request.setOperation(topic.getOperation().toString());
         request.setTopicShortName(topic.getTopicShortName());
-        request.setTopicId(topic.getTopicId());
+        request.setTopicId(topic.getId());
         UpdateProductTopicResponse response = client.updateProductTopic(request);
         System.out.println("修改产品自定义Topic类"+ JSON.toJSONString(response));
         return response;

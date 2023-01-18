@@ -20,11 +20,12 @@ public class Topic extends StandardEntity {
     private static final long serialVersionUID = 6355685891103067786L;
 
     @ApiModelProperty("id")
-    private String topicId;
+    private String id;
     @ApiModelProperty("操作权限")
     private Operation operation;
     @ApiModelProperty("产品key")
     private String productKey;
+    //显示格式 ： /productKey/产品（DeviceName）/user（自定义特有）/ topicShortName
     @ApiModelProperty("自定义类目名称")
     private String topicShortName;
     @ApiModelProperty("实例ID")

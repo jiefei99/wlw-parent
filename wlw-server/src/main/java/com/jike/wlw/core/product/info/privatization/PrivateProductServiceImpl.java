@@ -29,6 +29,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -108,6 +109,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             perz.setProductSecret(productSecret);
             perz.setProductKey(productKey);
             perz.setNetType(createRq.getNetType());
+            perz.onCreated(operator);
             productDao.save(perz);
             return perz.getId();
         } catch (Exception e) {
