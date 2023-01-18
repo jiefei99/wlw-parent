@@ -36,6 +36,8 @@ public class Equipment extends StandardEntity {
     public String region;
     @ApiModelProperty("状态")
     public String status;
+    @ApiModelProperty("状态变更时间")
+    public Long timestamp;
     @ApiModelProperty("激活时间(GMT格式)")//2018-08-06 10:48:41
     public String gmtActive;
     @ApiModelProperty("最近上线时间(GMT格式)")
@@ -58,6 +60,11 @@ public class Equipment extends StandardEntity {
     public String moduleName;
     @ApiModelProperty("模块版本")
     public String moduleVersion;
-
-
+    //设备统计数据
+    @ApiModelProperty("已激活设备数量")
+    public Long activeCount;
+    @ApiModelProperty("设备总数")
+    public Long deviceCount;
+    @ApiModelProperty("在线设备数量")
+    public Long onlineCount;
 }
