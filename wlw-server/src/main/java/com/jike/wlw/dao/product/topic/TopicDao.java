@@ -17,10 +17,6 @@ import java.util.List;
  */
 @Repository
 public class TopicDao extends BaseDao {
-//    public List<PTopic> query(TopicFilter filter) {
-//        JdbcEntityQuery q = getQuery("query", "*", filter);
-//        return q.list(jdbcTemplate, PTopic.class, filter.getCurrentPage(), filter.getPageSize());
-//    }
     public List<PTopic> get(TopicFilter filter) {
         JdbcEntityQuery q = getQuery("query", "*", filter);
         return q.list(jdbcTemplate, PTopic.class);

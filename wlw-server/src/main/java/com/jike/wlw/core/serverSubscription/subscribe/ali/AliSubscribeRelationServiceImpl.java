@@ -121,7 +121,7 @@ public class AliSubscribeRelationServiceImpl extends BaseService implements AliS
     }
 
     @Override
-    public void deleteSubscribeRelation(String tenantId, String groupId, String productKey, String iotInstanceId) {
+    public void deleteSubscribeRelation(String tenantId, String groupId, String productKey,String operator, String iotInstanceId) {
         try {
             DeleteConsumerGroupSubscribeRelationResponse response = subscribeRelationManager.deleteConsumerGroupSubscribeRelation(groupId, productKey, iotInstanceId);
             if (!response.getBody().getSuccess()){

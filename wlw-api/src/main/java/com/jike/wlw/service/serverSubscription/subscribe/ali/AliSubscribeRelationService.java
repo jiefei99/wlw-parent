@@ -49,7 +49,7 @@ public interface AliSubscribeRelationService extends BaseSubscribeRelationServic
                           @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
         @ApiOperation(value = "新增消费组订阅")
-    @RequestMapping(value = "/createSubscribeRelation", method = RequestMethod.POST)
+    @RequestMapping(value = "/addSubscribeRelation", method = RequestMethod.POST)
     @ResponseBody
     String addSubscribeRelation(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                                    @ApiParam(required = true, value = "添加消费组订阅请求参数") @RequestBody ConsumerGroupSubscribeCreateRq createRq,
@@ -62,6 +62,7 @@ public interface AliSubscribeRelationService extends BaseSubscribeRelationServic
     void deleteSubscribeRelation(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                                  @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
                                  @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
+                                 @ApiParam(required = false, value = "operator") @RequestParam(value = "operator") String operator,
                                  @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
 }

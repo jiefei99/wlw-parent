@@ -3,6 +3,8 @@ package com.jike.wlw.core.product.topic.privatization;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.common.StringRelevant;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.dao.product.info.PProduct;
+import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.dao.product.topic.PTopic;
 import com.jike.wlw.dao.product.topic.TopicDao;
 import com.jike.wlw.service.product.topic.Topic;
@@ -34,6 +36,8 @@ import java.util.List;
 public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopicService {
     @Autowired
     private TopicDao topicDao;
+    @Autowired
+    private ProductDao productDao;
 
     @Override
     public List<Topic> query(String tenantId, TopicFilter filter) throws BusinessException {
@@ -79,6 +83,10 @@ public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopi
             throw new BusinessException("自定义类目名称不能为空！");
         }
         try {
+            PProduct perz = productDao.get(PProduct.class, "productKey", createRq.getProductKey(), "tenantId", tenantId,"isDeleted",0);
+            if (perz == null) {
+                throw new BusinessException("查无此产品！");
+            }
             PTopic topic=new PTopic();
             topic.setDetails(createRq.getDesc());
             topic.setProductKey(createRq.getProductKey());

@@ -32,12 +32,6 @@ public class TopicFilter extends AbstractQueryFilter {
     private String tenantId;
     @ApiModelProperty("操作权限")
     private String operation;
-//    @ApiModelProperty("当前页")
-//    private int currentPage;
-//    @ApiModelProperty("分页大小")
-//    private int pageSize;
-//    @ApiModelProperty("自定义类目名称")
-//    private String topicShortName;
 }
 
 

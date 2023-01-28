@@ -14,7 +14,6 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_product";
 
-    //三元组
 //    @ApiModelProperty("编号") //deviceName：可以自定义，否则自动生成
 //    private String id;
     @ApiModelProperty("产品Id")
@@ -36,27 +35,29 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
     private String remark;
 
     @ApiModelProperty("认证方式")
-    public String authType;
+    private String authType;
     @ApiModelProperty("品类的标识符")
-    public String categoryKey;
+    private String categoryKey;
     @ApiModelProperty("数据格式")
-    public Integer dataFormat;
+    private Integer dataFormat;
     @ApiModelProperty("是否使用id2认证")
-    public Boolean id2;
+    private Boolean id2;
     @ApiModelProperty("连网方式")
-    public NetType netType;
+    private NetType netType;
     @ApiModelProperty("节点类型")
-    public int nodeType;
+    private int nodeType;
     @ApiModelProperty("产品状态")
-    public String productStatus;
+    private String productStatus;
     @ApiModelProperty("入网凭证ID")
-    public String joinPermissionId;
+    private String joinPermissionId;
     @ApiModelProperty("网关协议类型")
-    public String protocolType;
+    private String protocolType;
     @ApiModelProperty("资源组Id")
-    public String resourceGroupId;
+    private String resourceGroupId;
     @ApiModelProperty("数据校验级别")
-    public int validateType;
+    private int validateType;
+    @ApiModelProperty("逻辑删除")
+    private int isDeleted;
 
     @Override
     public String getTableName() {

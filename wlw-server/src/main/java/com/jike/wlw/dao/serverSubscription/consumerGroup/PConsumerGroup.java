@@ -31,18 +31,6 @@ public class PConsumerGroup extends PStandardEntity implements JdbcEntity {
     private String name;
     @ApiModelProperty("逻辑删除")
     private int isDeleted;
-//    @ApiModelProperty("消费组的单个客户端堆积消息消费速率")
-//    private Integer accumulatedConsumeCountPerMinute;  //单位 条/分钟
-//    @ApiModelProperty("在线客户端Id")
-//    private String clientId;
-//    @ApiModelProperty("在线客户端Id含端口")
-//    private String clientIpPort;
-//    @ApiModelProperty("在线客户端最后在线时间")
-//    private Long onlineTime;
-//    @ApiModelProperty("消费组的单个客户端实时消息消费速率")  //单位 条/分钟
-//    private Integer realTimeConsumeCountPerMinute;
-
-
     @Override
     public String getTableName() {
         return TABLE_NAME;

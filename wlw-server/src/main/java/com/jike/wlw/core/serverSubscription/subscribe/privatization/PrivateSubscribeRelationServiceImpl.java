@@ -1,10 +1,16 @@
 package com.jike.wlw.core.serverSubscription.subscribe.privatization;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.common.StringRelevant;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.dao.product.info.PProduct;
+import com.jike.wlw.dao.product.info.ProductDao;
+import com.jike.wlw.dao.serverSubscription.consumerGroup.PConsumerGroup;
 import com.jike.wlw.dao.serverSubscription.subscribe.PSubscribe;
 import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
+import com.jike.wlw.service.product.topic.Operation;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -15,6 +21,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,42 +41,49 @@ import java.util.stream.IntStream;
 @RestController("subscribeRelationServicePrivateImpl")
 @ApiModel("私有化订阅实现")
 public class PrivateSubscribeRelationServiceImpl extends BaseService implements PrivateSubscribeRelationService {
-
     @Autowired
     private SubscribeDao subscribeDao;
+    @Autowired
+    private ProductDao productDao;
 
     @Override
     public String create(String tenantId, SubscribeRelationCreateRq createRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getType())){
+        if (StringUtils.isBlank(createRq.getType())) {
             throw new BusinessException("订阅类型不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getProductKey())){
+        if (StringUtils.isBlank(createRq.getProductKey())) {
             throw new BusinessException("ProductKey不能为空！");
         }
-        if ("MNS".equals(createRq.getType())&& io.micrometer.core.instrument.util.StringUtils.isBlank(createRq.getMnsConfiguration())){
+        if ("MNS".equals(createRq.getType()) && StringUtils.isBlank(createRq.getMnsConfiguration())) {
             throw new BusinessException("MNS队列的配置信息不能为空");
         }
         //consumerGroupIds
-        if ("AMQP".equals(createRq.getType())&& CollectionUtils.isEmpty(createRq.getConsumerGroupIds())){
+        if ("AMQP".equals(createRq.getType()) && CollectionUtils.isEmpty(createRq.getConsumerGroupIds())) {
             throw new BusinessException("创建的AMQP订阅中的消费组ID不能为空");
         }
-        if (CollectionUtils.isEmpty(createRq.getPushMessageType())){
+        if (CollectionUtils.isEmpty(createRq.getPushMessageType())) {
             throw new BusinessException("订阅消息不能为空");
         }
         try {
-            List<PSubscribe> list=new ArrayList<>();
+            PProduct perz = productDao.get(PProduct.class, "productKey", createRq.getProductKey(), "tenantId", tenantId, "isDeleted", 0);
+            if (perz == null) {
+                throw new BusinessException("产品不存在！");
+            }
+            List<PSubscribe> list = new ArrayList<>();
             for (String info : createRq.getPushMessageType()) {
-                PSubscribe subscribe=new PSubscribe();
-                subscribe.setId(StringRelevant.buildId(20));
+                PSubscribe subscribe = new PSubscribe();
                 subscribe.setTenantId(tenantId);
                 subscribe.setType(createRq.getType());
-                if (CollectionUtils.isNotEmpty(createRq.getConsumerGroupIds())){
+                if (CollectionUtils.isNotEmpty(createRq.getConsumerGroupIds())) {
                     subscribe.setConsumerGroupIds(createRq.getConsumerGroupIds().stream().map(String::valueOf).collect(Collectors.joining(",")));
                 }
-                subscribe.setMnsConfiguration(createRq.getMnsConfiguration());
+                subscribe.setProductKey(createRq.getProductKey());
+                if (StringUtils.isNotBlank(createRq.getMnsConfiguration())) {
+                    subscribe.setMnsConfiguration(createRq.getMnsConfiguration());
+                }
                 subscribe.setSubscribeFlags(createRq.getSubscribeFlags());
                 subscribe.setPushMessageType(info);
                 subscribe.onCreated(operator);
@@ -77,7 +91,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             }
             subscribeDao.save(list);
             return null;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
@@ -85,28 +99,36 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
 
     @Override
     public void modify(String tenantId, SubscribeRelationModifyRq modifyRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(modifyRq.getType())){
+        if (StringUtils.isBlank(modifyRq.getType())) {
             throw new BusinessException("订阅类型不能为空！");
         }
-        if (StringUtils.isBlank(modifyRq.getProductKey())){
+        if (StringUtils.isBlank(modifyRq.getProductKey())) {
             throw new BusinessException("ProductKey不能为空！");
         }
+        if (StringUtils.isBlank(tenantId)) {
+            throw new BusinessException("租户不能为空！");
+        }
         try {
-            //生成P对象，写进数据库，先查这个productkey和type有没有订阅，有才能修改
-            SubscribeFilter filter=new SubscribeFilter();
-            filter.setType(modifyRq.getType());
-            filter.setProductKey(modifyRq.getProductKey());
-            filter.setTenantId(tenantId);
-            List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            for (PSubscribe subscribe : subscribeList) {
-                subscribe.setMnsConfiguration(modifyRq.getMnsConfiguration());
-                subscribe.setSubscribeFlags(modifyRq.getSubscribelags());
-                subscribe.setConsumerGroupIds(modifyRq.getConsumerGroupIds().stream().map(String::valueOf).collect(Collectors.joining(",")));
-                subscribe.setPushMessageType(modifyRq.getPushMessageType().stream().map(String::valueOf).collect(Collectors.joining(",")));
-                subscribe.onModified(operator);
+            subscribeDao.removeSubscribe(modifyRq.getType(),modifyRq.getProductKey(),tenantId);
+            List<PSubscribe> subscribeList = new ArrayList<>();
+            for (String info : modifyRq.getPushMessageType()) {
+                PSubscribe subscribe = new PSubscribe();
+                subscribe.setType(modifyRq.getType());
+                if (CollectionUtils.isNotEmpty(modifyRq.getConsumerGroupIds())) {
+                    subscribe.setConsumerGroupIds(modifyRq.getConsumerGroupIds().stream().map(String::valueOf).collect(Collectors.joining(",")));
+                }
+                subscribe.setTenantId(tenantId);
+                if (StringUtils.isNotBlank(modifyRq.getMnsConfiguration())) {
+                    subscribe.setMnsConfiguration(modifyRq.getMnsConfiguration());
+                }
+                subscribe.setProductKey(modifyRq.getProductKey());
+                subscribe.setSubscribeFlags(modifyRq.getSubscribeFlags());
+                subscribe.setPushMessageType(info);
+                subscribe.onCreated(operator);
+                subscribeList.add(subscribe);
             }
             subscribeDao.save(subscribeList);
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
@@ -114,24 +136,24 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
 
     @Override
     public void delete(String tenantId, String productKey, String type, String iotInstanceId) throws BusinessException {
-        if (StringUtils.isBlank(type)){
+        if (StringUtils.isBlank(type)) {
             throw new BusinessException("订阅类型不能为空！");
         }
-        if (StringUtils.isBlank(productKey)){
+        if (StringUtils.isBlank(productKey)) {
             throw new BusinessException("ProductKey不能为空！");
         }
+        if (StringUtils.isBlank(tenantId)) {
+            throw new BusinessException("租户不能为空！");
+        }
         try {
-            SubscribeFilter filter=new SubscribeFilter();
-            filter.setType(type);
-            filter.setProductKey(productKey);
-            filter.setTenantId(tenantId);
-            List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            for (PSubscribe info : subscribeList) {
-                info.setIsDeleted(1);
-            }
-            //逻辑删
-            subscribeDao.save(subscribeList);
-        }catch (Exception e){
+            subscribeDao.removeSubscribe(type,productKey,tenantId);
+            //数据留着没有太大意义，暂时不用逻辑删
+//            List<PSubscribe> subscribeList = subscribeDao.query(filter);
+//            for (PSubscribe info : subscribeList) {
+//                info.setIsDeleted(1);
+//            }
+//            subscribeDao.save(subscribeList);
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
@@ -139,61 +161,84 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
 
     @Override
     public SubscribeRelation get(String tenantId, String productKey, String type, String iotInstanceId) throws BusinessException {
-        if (StringUtils.isBlank(type)){
+        if (StringUtils.isBlank(type)) {
             throw new BusinessException("订阅类型不能为空！");
         }
-        if (StringUtils.isBlank(productKey)){
+        if (StringUtils.isBlank(productKey)) {
             throw new BusinessException("ProductKey不能为空！");
         }
+        if (StringUtils.isBlank(tenantId)) {
+            throw new BusinessException("租户不能为空！");
+        }
         try {
-            SubscribeFilter filter=new SubscribeFilter();
+            SubscribeFilter filter = new SubscribeFilter();
             filter.setType(type);
             filter.setProductKey(productKey);
             filter.setTenantId(tenantId);
+            filter.setPage(filter.getPage());
+            filter.setPageSize(filter.getPageSize() <= 0 ? 100 : filter.getPageSize());
             List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            if (CollectionUtils.isEmpty(subscribeList)){
+            if (CollectionUtils.isEmpty(subscribeList)) {
                 return null;
             }
-            List<String> pushMsgTypeList=new ArrayList<>();
+            List<String> amqpMsgTypeList = new ArrayList<>();
             for (PSubscribe subscribe : subscribeList) {
-                pushMsgTypeList.add(subscribe.getPushMessageType());
+                amqpMsgTypeList.add(subscribe.getPushMessageType());
             }
-            SubscribeRelation subscribeRelation=new SubscribeRelation();
+            SubscribeRelation subscribeRelation = new SubscribeRelation();
             subscribeRelation.setType(type);
+            subscribeRelation.setConsumerGroupIds(Arrays.asList(subscribeList.get(0).getConsumerGroupIds().split(",")));
             subscribeRelation.setProductKey(productKey);
-            subscribeRelation.setPushMessageType(pushMsgTypeList);
+            subscribeRelation.setPushMessageType(amqpMsgTypeList);
             subscribeRelation.setSubscribeFlags(subscribeList.get(0).getSubscribeFlags());
             subscribeRelation.setMnsConfiguration(subscribeList.get(0).getMnsConfiguration());
             return subscribeRelation;
-        }catch (Exception e){
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
     }
 
+    @Override
+    public PagingResult<SubscribeRelation> query(String tenantId, SubscribeFilter filter) throws BusinessException {
+//        try {
+//            filter.setTenantId(tenantId);
+//            List<PSubscribe> subscribeList = subscribeDao.page(filter);
+//            List<SubscribeRelation> result = new ArrayList<>();
+//            for (PSubscribe pSubscribe : subscribeList) {
+//            }
+//            long count = subscribeDao.getCount(filter);
+//            return new PagingResult<>(filter.getPage(), filter.getPageSize(), count, result);
+//        } catch (Exception e) {
+//            log.error(e.getMessage(), e);
+//            throw new BusinessException(e.getMessage(), e);
+//        }
+        return null;
+    }
+
     //向订阅组增加一个消费组   如果该productKey没有订阅，先调用create创建订阅
     @Override
     public String addSubscribeRelation(String tenantId, ConsumerGroupSubscribeCreateRq createRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getGroupId())){
+        if (StringUtils.isBlank(createRq.getGroupId())) {
             throw new BusinessException("消费组ID不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getProductKey())){
+        if (StringUtils.isBlank(createRq.getProductKey())) {
             throw new BusinessException("ProductKey不能为空！");
         }
         try {
-            SubscribeFilter filter=new SubscribeFilter();
+            SubscribeFilter filter = new SubscribeFilter();
             filter.setType(SubscribeRelation.AMQP);
             filter.setProductKey(createRq.getProductKey());
             filter.setTenantId(tenantId);
             List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            if (CollectionUtils.isEmpty(subscribeList)){
+            if (CollectionUtils.isEmpty(subscribeList)) {
                 return null;
             }
-            List<String> groupIds = Arrays.asList(subscribeList.get(0).getConsumerGroupIds().split(","));
-            if (groupIds.contains(createRq.getGroupId())){
+            List<String> groupIds =new ArrayList<>(Arrays.asList(subscribeList.get(0).getConsumerGroupIds().split(",")));
+            if (groupIds.contains(createRq.getGroupId())) {
                 return null;
             }
             groupIds.add(createRq.getGroupId());
@@ -203,14 +248,14 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             }
             subscribeDao.save(subscribeList);
         } catch (Exception e) {
-            throw new BusinessException("添加消费组失败："+e.getMessage());
+            throw new BusinessException("添加消费组失败：" + e.getMessage());
         }
         return null;
     }
 
     @Override
-    public void deleteSubscribeRelation(String tenantId, String groupId, String productKey, String iotInstanceId) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+    public void deleteSubscribeRelation(String tenantId, String groupId, String productKey, String operator, String iotInstanceId) throws BusinessException {
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
         if (StringUtils.isBlank(groupId)) {
@@ -220,33 +265,28 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("ProductKey不能为空！");
         }
         try {
-            SubscribeFilter filter=new SubscribeFilter();
+            SubscribeFilter filter = new SubscribeFilter();
             filter.setType(SubscribeRelation.AMQP);
             filter.setProductKey(productKey);
             filter.setTenantId(tenantId);
             List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            if (CollectionUtils.isEmpty(subscribeList)){
+            if (CollectionUtils.isEmpty(subscribeList)) {
                 return;
             }
             String consumerGroupIds = subscribeList.get(0).getConsumerGroupIds();
-            if (!consumerGroupIds.contains(groupId)){
+            List<String> groupIds = new ArrayList<>( Arrays.asList(consumerGroupIds.split(",")));
+            if (!groupIds.contains(groupId) || groupIds.size() == 1) {
                 return;
             }
-            List<String> groupIds = Arrays.asList(consumerGroupIds.split(","));
-            IntStream.range(0,groupIds.size()).filter(i-> groupIds.get(i).equals(groupId)).
-                    boxed().findFirst().map(i->groupIds.remove((int)i));
-            if (groupIds.size()==0){
-                for (PSubscribe subscribe : subscribeList) {
-                    subscribe.setIsDeleted(1);
-                }
-            }else{
-                for (PSubscribe subscribe : subscribeList) {
-                    subscribe.setConsumerGroupIds(groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
-                }
+            IntStream.range(0, groupIds.size()).filter(i -> groupIds.get(i).equals(groupId)).
+                    boxed().findFirst().map(i -> groupIds.remove((int) i));
+            for (PSubscribe subscribe : subscribeList) {
+                subscribe.onModified(operator);
+                subscribe.setConsumerGroupIds(groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
             }
             subscribeDao.save(subscribeList);
         } catch (Exception e) {
-            throw new BusinessException("添加消费组失败："+e.getMessage());
+            throw new BusinessException("删除消费组失败：" + e.getMessage());
         }
     }
 

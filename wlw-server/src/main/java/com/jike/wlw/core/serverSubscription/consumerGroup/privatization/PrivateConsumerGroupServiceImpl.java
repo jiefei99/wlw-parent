@@ -166,6 +166,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
             throw new BusinessException("指定返回结果中每页显示的消费组数量，最小值为1，最大值为1000！");
         }
         try {
+            filter.setTenantId(tenantId);
             List<PConsumerGroup> list = consumerGroupDao.query(filter);
             long count = consumerGroupDao.getCount(filter);
             List<ConsumerGroup> result = new ArrayList<>();

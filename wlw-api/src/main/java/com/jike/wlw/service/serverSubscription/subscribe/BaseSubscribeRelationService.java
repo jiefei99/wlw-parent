@@ -15,6 +15,6 @@ public interface BaseSubscribeRelationService {
     String addSubscribeRelation(String tenantId, ConsumerGroupSubscribeCreateRq createRq, String operator);
 
     //DeleteConsumerGroupSubscribeRelation
-    void deleteSubscribeRelation(String tenantId, String groupId, String productKey, String iotInstanceId);
+    void deleteSubscribeRelation(String tenantId, String groupId, String productKey, String operator,String iotInstanceId);
 
 }

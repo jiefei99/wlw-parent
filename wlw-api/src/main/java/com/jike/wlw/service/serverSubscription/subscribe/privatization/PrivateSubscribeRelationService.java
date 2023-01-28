@@ -1,7 +1,11 @@
 package com.jike.wlw.service.serverSubscription.subscribe.privatization;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
+import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelationCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelationModifyRq;
@@ -48,8 +52,15 @@ public interface PrivateSubscribeRelationService extends BaseSubscribeRelationSe
                           @ApiParam(required = true, value = "订阅类型") @RequestParam(value = "type") String type,
                           @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
+    @ApiOperation(value = "获取服务端订阅列表")
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @ResponseBody
+    PagingResult<SubscribeRelation> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                      @ApiParam(required = true, value = "查询消费组请求参数") @RequestBody SubscribeFilter filter) throws BusinessException;
+
+
     @ApiOperation(value = "新建消费组订阅")
-    @RequestMapping(value = "/createSubscribeRelation", method = RequestMethod.POST)
+    @RequestMapping(value = "/addSubscribeRelation", method = RequestMethod.POST)
     @ResponseBody
     String addSubscribeRelation(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                                    @ApiParam(required = true, value = "添加消费组订阅请求参数") @RequestBody ConsumerGroupSubscribeCreateRq createRq,
@@ -62,6 +73,8 @@ public interface PrivateSubscribeRelationService extends BaseSubscribeRelationSe
     void deleteSubscribeRelation(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                                  @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
                                  @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
+                                 @ApiParam(required = true, value = "operator") @RequestParam(value = "operator") String operator,
                                  @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+
 
 }
