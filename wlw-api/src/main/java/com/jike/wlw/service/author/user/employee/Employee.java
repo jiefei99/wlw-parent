@@ -23,7 +23,6 @@ public class Employee extends StandardEntity {
     private static final long serialVersionUID = 8456162963968726410L;
 
     public static final String PARTS_USER = "user";
-    public static final String PARTS_PWD_ACCOUNT = "pwdAccount";
 
     @ApiModelProperty("租户ID")
     private String tenantId;

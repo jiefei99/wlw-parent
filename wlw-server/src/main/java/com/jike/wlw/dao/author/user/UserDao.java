@@ -17,6 +17,19 @@ import java.util.List;
  */
 @Repository
 public class UserDao extends BaseDao {
+
+
+    public String insertUser(PUser user) {
+        String sql = "insert into " + PUser.TABLE_NAME + " (`creator`,`created`,`modifier`," +
+                "`modified`,`userType`,`name`,`mobile`,`headImage`,`sex`,`status`,`remark`,`uuid`) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+
+        jdbcTemplate.update(sql, new Object[]{user.getCreator(), user.getCreated(),
+                user.getModifier(), user.getModified(), user.getUserType(), user.getName(), user.getMobile(), user.getHeadImage(),
+                user.getSex(), user.getStatus(), user.getRemark(), user.getUuid()});
+
+        return user.getUuid();
+    }
+
     public List<PUser> query(UserFilter filter) {
         JdbcEntityQuery q = getQuery("query", "distinct *", filter);
         return q.list(jdbcTemplate, PUser.class, filter.getPage(), filter.getPageSize());
@@ -30,11 +43,11 @@ public class UserDao extends BaseDao {
     private JdbcEntityQuery getQuery(String name, String select, UserFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PUser.TABLE_NAME, "o");
 
-        if(filter.getUserTypeEq() != null){
-            q.where("o.userType = :userTypeEq").p("userTypeEq",filter.getUserTypeEq().name());
+        if (filter.getUserTypeEq() != null) {
+            q.where("o.userType = :userTypeEq").p("userTypeEq", filter.getUserTypeEq().name());
         }
-        if(filter.getStatusEq() != null){
-            q.where("o.status = :statusEq").p("statusEq",filter.getStatusEq().name());
+        if (filter.getStatusEq() != null) {
+            q.where("o.status = :statusEq").p("statusEq", filter.getStatusEq().name());
         }
         if (!StringUtil.isNullOrBlank(filter.getMobileEq())) {
             q.where("o.mobile = :mobileEq").p("mobileEq", filter.getMobileEq());

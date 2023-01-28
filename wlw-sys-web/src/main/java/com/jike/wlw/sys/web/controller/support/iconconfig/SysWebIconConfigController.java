@@ -6,6 +6,7 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.support.iconconfig.IconConfig;
 import com.jike.wlw.service.support.iconconfig.IconConfigEditRq;
 import com.jike.wlw.service.support.iconconfig.IconConfigFilter;
+import com.jike.wlw.sys.web.config.fegin.IconConfigFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

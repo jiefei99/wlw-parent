@@ -19,6 +19,7 @@ import lombok.Setter;
 public class UserModifyRq extends Entity {
     private static final long serialVersionUID = -7977188629951051540L;
 
+
     @ApiModelProperty("userId")
     private String userId;
     @ApiModelProperty("姓名")

@@ -5,6 +5,7 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.management.access.AccessRecord;
 import com.jike.wlw.service.management.access.AccessRecordFilter;
+import com.jike.wlw.sys.web.config.fegin.AccessRecordFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
