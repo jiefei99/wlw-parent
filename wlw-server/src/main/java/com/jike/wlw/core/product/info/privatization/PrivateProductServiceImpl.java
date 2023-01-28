@@ -19,6 +19,8 @@ import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
 import com.jike.wlw.service.product.info.ProductQueryRq;
 import com.jike.wlw.service.product.info.privatization.PrivateProductService;
+import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
+import com.jike.wlw.service.serverSubscription.subscribe.privatization.PrivateSubscribeRelationService;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -49,11 +51,12 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     private EquipmentService equipmentService;
     @Autowired
     private InfluxDao influxDao;
+    @Autowired
+    private PrivateSubscribeRelationService subscribeRelationService;
 
     @Override
     public Product get(String tenantId, ProductQueryRq productQueryRq) throws BusinessException {
         try {
-
             PProduct perz = doGet(tenantId, productQueryRq.getProductKey());
             if (perz == null) {
                 return null;
@@ -84,19 +87,19 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
                 throw new BusinessException("设备接入网关的协议类型不能为空");
             }
             //校验 productName
-            PProduct perz = productDao.get(PProduct.class, "name", createRq.getName(), "tenantId", tenantId);
+            PProduct perz = productDao.get(PProduct.class, "name", createRq.getName(), "tenantId", tenantId,"isDeleted",0);
             if (perz != null) {
                 throw new BusinessException("指定的名称已用于其他产品，请重新输入！");
             }
             //生成 productKey
             String productKey = StringRelevant.buildRandomString(10);
-            perz = productDao.get(PProduct.class, "productKey", productKey, "tenantId", tenantId);
+            perz = productDao.get(PProduct.class, "productKey", productKey, "tenantId", tenantId,"isDeleted",0);
             while (true) {
                 if (perz == null) {
                     break;
                 }
                 productKey = StringRelevant.buildRandomString(10);
-                perz = productDao.get(PProduct.class, "productKey", productKey, "tenantId", tenantId);
+                perz = productDao.get(PProduct.class, "productKey", productKey, "tenantId", tenantId,"isDeleted",0);
             }
             //生成 productSecret
             perz = new PProduct();
@@ -130,7 +133,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             if (StringUtils.isNotBlank(modifyRq.getDescription()) && modifyRq.getDescription().length() > 100) {
                 throw new BusinessException("产品描述信息长度不能超过100个字符，请重新输入！");
             }
-            PProduct perz = productDao.get(PProduct.class, "name", modifyRq.getName(), "tenantId", tenantId);
+            PProduct perz = productDao.get(PProduct.class, "name", modifyRq.getName(), "tenantId", tenantId,"isDeleted",0);
             if (perz != null) {
                 throw new BusinessException("指定的名称已用于其他产品，请重新输入！");
             }
@@ -162,11 +165,14 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             }
             EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
             filter.setProductKey(perz.getProductKey());
+            //todo 得改成私有产品
             List<Equipment> equipmentList = equipmentService.query(tenantId, filter).getData();
             if (!CollectionUtils.isEmpty(equipmentList)) {
                 throw new BusinessException("当前产品下存在未删除的设备，请删除设备后重试！");
             }
-            productDao.remove(PProduct.class, perz.getUuid());
+            perz.setIsDeleted(1);
+            productDao.save(perz);
+            subscribeRelationService.delete(tenantId,productKey, SubscribeRelation.AMQP,null);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -206,7 +212,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     }
 
     private PProduct doGet(String tenantId, String id) throws Exception {
-        PProduct perz = productDao.get(PProduct.class, "productKey", id, "tenantId", tenantId);
+        PProduct perz = productDao.get(PProduct.class, "productKey", id, "tenantId", tenantId,"isDeleted",0);
         if (perz == null) {
             perz = productDao.get(PProduct.class, id);
         }

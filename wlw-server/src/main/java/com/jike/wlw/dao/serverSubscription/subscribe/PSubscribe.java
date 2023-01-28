@@ -20,8 +20,6 @@ public class PSubscribe extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_subscribe";
 
-    @ApiModelProperty("id")
-    private String id;
     @ApiModelProperty("租户")
     private String tenantId;
     @ApiModelProperty("productKey")

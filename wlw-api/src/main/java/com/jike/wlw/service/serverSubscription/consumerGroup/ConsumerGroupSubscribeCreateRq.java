@@ -25,8 +25,8 @@ public class ConsumerGroupSubscribeCreateRq  extends Entity implements Serializa
     private String groupId;
     @ApiModelProperty("ProductKey")
     private String productKey;
-    @ApiModelProperty("名称")
-    private String groupName;
+//    @ApiModelProperty("名称")
+//    private String groupName;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
 }
