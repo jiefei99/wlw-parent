@@ -14,7 +14,6 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_product";
 
-    //三元组
 //    @ApiModelProperty("编号") //deviceName：可以自定义，否则自动生成
 //    private String id;
     @ApiModelProperty("产品Id")

@@ -19,16 +19,12 @@ import lombok.Setter;
 public class SubscribeFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = -7888859554276354121L;
 
-//    @ApiModelProperty("当前页")
-//    private int currentPage;
     @ApiModelProperty("租户")
     private String tenantId;
     @ApiModelProperty("订阅类型")
     private String type;
     @ApiModelProperty("消费组Id")
     private String groupIdEq;
-//    @ApiModelProperty("分页大小")
-//    private int pageSize;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
     @ApiModelProperty("productKey")

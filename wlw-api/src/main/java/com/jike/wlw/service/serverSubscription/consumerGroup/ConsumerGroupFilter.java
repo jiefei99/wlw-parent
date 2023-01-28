@@ -22,12 +22,8 @@ import java.io.Serializable;
 public class ConsumerGroupFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = -7698859554276354121L;
 
-//    @ApiModelProperty("当前页")
-//    private int currentPage;
     @ApiModelProperty("租户")
     private String tenantId;
-//    @ApiModelProperty("分页大小")
-//    private int pageSize;
     @ApiModelProperty("是否使用模糊查询")
     private boolean fuzzy=false;
     @ApiModelProperty("消费组Id")
