@@ -19,9 +19,9 @@ public class EquipmentQueryByProductRq extends Entity implements Serializable {
     @ApiModelProperty("产品的ProductKey")
     public String productKey;
     @ApiModelProperty("当前页")//默认1
-    public Integer currentPage;
+    public Integer currentPage = 1;
     @ApiModelProperty("最大记录数量")//最大50 默认10
-    public Integer pageSize;
+    public Integer pageSize = 10;
     @ApiModelProperty("下一页标识")//下一页标识，首次查询无需传入。后续查询需使用的NextToken，要从上一次查询的返回结果中获取。当PageSize×CurrentPage值大于10,000时，必须传入NextToken。下一页标识，首次查询无需传入。后续查询需使用的NextToken，要从上一次查询的返回结果中获取。当PageSize×CurrentPage值大于10,000时，必须传入NextToken
     public String nextToken;
 }

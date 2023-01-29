@@ -15,11 +15,11 @@ public class EquipmentStatisticsQueryRq extends Entity implements Serializable {
 
     private static final long serialVersionUID = -4174754218136925915L;
     @ApiModelProperty("设备名称")
-    public String deviceName;
+    public String name;
     @ApiModelProperty("设备ID")
-    public String iotId;
+    public String id;
     @ApiModelProperty("实例ID")
-    public String GroupId;
+    public String groupId;
     @ApiModelProperty("所属产品的ProductKey")
     public String productKey;
 }

@@ -15,9 +15,9 @@ public class EquipmentGetRq extends Entity implements Serializable {
 
     private static final long serialVersionUID = 1342329336856159504L;
     @ApiModelProperty("设备名称")
-    public String deviceName;
+    public String name;
     @ApiModelProperty("设备ID")
-    public String iotId;
+    public String id;
     @ApiModelProperty("实例ID")
     public String iotInstanceId;
     @ApiModelProperty("所属产品的ProductKey")

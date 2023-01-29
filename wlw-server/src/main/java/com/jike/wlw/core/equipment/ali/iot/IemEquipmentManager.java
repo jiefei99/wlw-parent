@@ -38,6 +38,7 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.equipment.EquipmentCreateRq;
 import com.jike.wlw.service.equipment.EquipmentGetRq;
+import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
 import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
@@ -223,17 +224,18 @@ public class IemEquipmentManager {
     /**
      * 查询设备上报过的OTA模块版本列表
      */
-    public ListOTAModuleVersionsByDeviceResponseBody listOTAModuleVersionsByDevice(EquipmentQueryByStatusRq queryByStatusRq) {
+    public ListOTAModuleVersionsByDeviceResponseBody listOTAModuleVersionsByDevice(EquipmentOTAModuleVersionRq versionRq) {
         ListOTAModuleVersionsByDeviceRequest request = new ListOTAModuleVersionsByDeviceRequest();
-        BeanUtils.copyProperties(queryByStatusRq, request);
-
+        BeanUtils.copyProperties(versionRq, request);
+        request.setIotId(versionRq.getId());
+        request.setDeviceName(versionRq.getName());
         try {
             ListOTAModuleVersionsByDeviceResponse response = client.listOTAModuleVersionsByDevice(request);
             if (response.getBody() != null) {
                 return response.getBody();
             } else {
-                log.error("查询设备上报过的OTA模块版本列表失败：" + JSON.toJSONString(queryByStatusRq));
-                throw new BusinessException("查询设备上报过的OTA模块版本列表失败：" + JSON.toJSONString(queryByStatusRq));
+                log.error("查询设备上报过的OTA模块版本列表失败：" + JSON.toJSONString(versionRq));
+                throw new BusinessException("查询设备上报过的OTA模块版本列表失败：" + JSON.toJSONString(versionRq));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
