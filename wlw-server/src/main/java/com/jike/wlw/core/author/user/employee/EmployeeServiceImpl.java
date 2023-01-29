@@ -15,8 +15,18 @@ import com.jike.wlw.dao.author.user.PUser;
 import com.jike.wlw.dao.author.user.UserDao;
 import com.jike.wlw.dao.author.user.employee.EmployeeDao;
 import com.jike.wlw.dao.author.user.employee.PEmployee;
-import com.jike.wlw.service.author.user.*;
-import com.jike.wlw.service.author.user.employee.*;
+import com.jike.wlw.service.author.user.User;
+import com.jike.wlw.service.author.user.UserCreateRq;
+import com.jike.wlw.service.author.user.UserFilter;
+import com.jike.wlw.service.author.user.UserModifyRq;
+import com.jike.wlw.service.author.user.UserService;
+import com.jike.wlw.service.author.user.UserType;
+import com.jike.wlw.service.author.user.employee.Employee;
+import com.jike.wlw.service.author.user.employee.EmployeeCreateAdminRq;
+import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
+import com.jike.wlw.service.author.user.employee.EmployeeFilter;
+import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
+import com.jike.wlw.service.author.user.employee.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +34,11 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author mengchen

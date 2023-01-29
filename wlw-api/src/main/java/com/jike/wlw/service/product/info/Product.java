@@ -14,9 +14,9 @@ import java.util.List;
 public class Product extends StandardEntity {
     private static final long serialVersionUID = 6355685899103067786L;
 
-    //三元组
-//    @ApiModelProperty("编号") //deviceName：可以自定义，否则自动生成
-//    private String id;
+    public static final int RELEASE = 1;//发布
+    public static final int UN_RELEASE = 0;//未发布
+
     @ApiModelProperty("id")
     private String id;
     @ApiModelProperty("产品key")
@@ -25,18 +25,12 @@ public class Product extends StandardEntity {
     private String productSecret;
     @ApiModelProperty("物模型编号集合")
     private List<String> physicalModelIds;
-
     @ApiModelProperty("名称")
     private String name;
     @ApiModelProperty("描述")
     private String description;
     @ApiModelProperty("备注")
     private String remark;
-
-    //所属品类（标准/自定义：类似于预设型号，在创建设备的时候会额外提供一个点位模板）、节点类型（直连设备/网关子设备/网关设备）、数据格式（默认alink协议，格式json）
-    //productKey、productSecret：是否用id即可？
-
-
     @ApiModelProperty("版本类型")
     public String aliyunCommodityCode;
     @ApiModelProperty("认证方式")
@@ -59,12 +53,7 @@ public class Product extends StandardEntity {
     public String protocolType;
     @ApiModelProperty("数据校验级别")
     public Integer validateType;
-
-
-//    @ApiModelProperty("设备总数")
-//    public Integer deviceCount;
-//    @ApiModelProperty("gmt创建")
-//    public Long gmtCreate;
-//    @ApiModelProperty("物主")
-//    public Boolean owner;
+    //产品发布成功后，不可编辑产品、物模型，删除产品。
+    @ApiModelProperty("是否发布")
+    private int isRelease;
 }

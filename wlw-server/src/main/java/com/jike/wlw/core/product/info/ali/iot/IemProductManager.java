@@ -2,6 +2,8 @@ package com.jike.wlw.core.product.info.ali.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
+import com.aliyun.iot20180120.models.CancelReleaseProductRequest;
+import com.aliyun.iot20180120.models.CancelReleaseProductResponse;
 import com.aliyun.iot20180120.models.CreateProductRequest;
 import com.aliyun.iot20180120.models.CreateProductResponse;
 import com.aliyun.iot20180120.models.CreateProductResponseBody;
@@ -11,6 +13,8 @@ import com.aliyun.iot20180120.models.QueryProductListRequest;
 import com.aliyun.iot20180120.models.QueryProductListResponse;
 import com.aliyun.iot20180120.models.QueryProductRequest;
 import com.aliyun.iot20180120.models.QueryProductResponse;
+import com.aliyun.iot20180120.models.ReleaseProductRequest;
+import com.aliyun.iot20180120.models.ReleaseProductResponse;
 import com.aliyun.iot20180120.models.UpdateProductRequest;
 import com.aliyun.iot20180120.models.UpdateProductResponse;
 import com.aliyun.tea.TeaException;
@@ -179,6 +183,37 @@ public class IemProductManager {
         try {
             QueryProductListResponse queryProductListResponse = client.queryProductList(queryProductListRequest);
             return queryProductListResponse;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    public ReleaseProductResponse releaseProduct(String productKey, String iotInstanceId) throws Exception{
+        if (StringUtils.isBlank(productKey)){
+            throw new BusinessException("产品的ProductKey不能为空");
+        }
+        ReleaseProductRequest request=new ReleaseProductRequest();
+        request.setIotInstanceId(iotInstanceId);
+        request.setProductKey(productKey);
+        try {
+            ReleaseProductResponse response = client.releaseProduct(request);
+            return response;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+    public CancelReleaseProductResponse cancelReleaseProduct(String productKey, String iotInstanceId) throws Exception{
+        if (StringUtils.isBlank(productKey)){
+            throw new BusinessException("产品的ProductKey不能为空");
+        }
+        CancelReleaseProductRequest request=new CancelReleaseProductRequest();
+        request.setIotInstanceId(iotInstanceId);
+        request.setProductKey(productKey);
+        try {
+            CancelReleaseProductResponse response = client.cancelReleaseProduct(request);
+            return response;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);

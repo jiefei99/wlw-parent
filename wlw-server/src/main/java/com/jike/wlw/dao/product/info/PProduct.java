@@ -14,8 +14,6 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_product";
 
-//    @ApiModelProperty("编号") //deviceName：可以自定义，否则自动生成
-//    private String id;
     @ApiModelProperty("产品Id")
     private String id;
     @ApiModelProperty("租户")
@@ -26,14 +24,12 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
     private String productSecret;
     @ApiModelProperty("物模型编号集合json")
     private String physicalModelIdsJson;
-
     @ApiModelProperty("名称")
     private String name;
     @ApiModelProperty("描述")
     private String description;
     @ApiModelProperty("备注")
     private String remark;
-
     @ApiModelProperty("认证方式")
     private String authType;
     @ApiModelProperty("品类的标识符")
@@ -56,6 +52,8 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
     private String resourceGroupId;
     @ApiModelProperty("数据校验级别")
     private int validateType;
+    @ApiModelProperty("是否发布") //0为未发布，1为发布
+    private int isRelease;
     @ApiModelProperty("逻辑删除")
     private int isDeleted;
 

@@ -1,10 +1,12 @@
 package com.jike.wlw.core.product.info.ali;
 
+import com.aliyun.iot20180120.models.CancelReleaseProductResponse;
 import com.aliyun.iot20180120.models.CreateProductResponseBody;
 import com.aliyun.iot20180120.models.DeleteProductResponse;
 import com.aliyun.iot20180120.models.QueryProductListResponse;
 import com.aliyun.iot20180120.models.QueryProductListResponseBody.QueryProductListResponseBodyDataListProductInfo;
 import com.aliyun.iot20180120.models.QueryProductResponse;
+import com.aliyun.iot20180120.models.ReleaseProductResponse;
 import com.aliyun.iot20180120.models.UpdateProductResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
@@ -85,7 +87,6 @@ public class AliProductServiceImpl extends BaseService implements AliProductServ
     @Override
     public void delete(String tenantId, String productKey, String iotInstanceId) throws BusinessException {
         try {
-
             DeleteProductResponse response = productManager.deleteProduct(productKey,iotInstanceId);
             if (!response.getBody().getSuccess()){
                 throw new BusinessException("产品删除失败，原因：" + response.getBody().getErrorMessage());
@@ -111,6 +112,32 @@ public class AliProductServiceImpl extends BaseService implements AliProductServ
                 result.add(product);
             }
             return new PagingResult<>(productQueryRq.getCurrentPage(), productQueryRq.getPageSize(), response.getBody().getData().getTotal(), result);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void releaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) throws BusinessException {
+        try {
+            ReleaseProductResponse response = productManager.releaseProduct(productKey, iotInstanceId);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException("产品发布失败，原因：" + response.getBody().getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void cancelReleaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) throws BusinessException {
+        try {
+            CancelReleaseProductResponse response = productManager.cancelReleaseProduct(productKey, iotInstanceId);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException("取消产品发布失败，原因：" + response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
