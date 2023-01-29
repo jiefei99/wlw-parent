@@ -10,9 +10,8 @@ import com.jike.wlw.dao.InfluxDao;
 import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.service.equipment.Equipment;
-import com.jike.wlw.service.equipment.EquipmentFilter;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
-import com.jike.wlw.service.equipment.ali.EquipmentService;
+import com.jike.wlw.service.equipment.ali.AliEquipmentService;
 import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
@@ -48,7 +47,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     @Autowired
     private ProductDao productDao;
     @Autowired
-    private EquipmentService equipmentService;
+    private AliEquipmentService aliEquipmentService;
     @Autowired
     private InfluxDao influxDao;
     @Autowired
@@ -173,7 +172,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
             filter.setProductKey(perz.getProductKey());
             //todo 得改成私有产品
-            List<Equipment> equipmentList = equipmentService.query(tenantId, filter).getData();
+            List<Equipment> equipmentList = aliEquipmentService.queryByProductKey(tenantId, filter).getData();
             if (!CollectionUtils.isEmpty(equipmentList)) {
                 throw new BusinessException("当前产品下存在未删除的设备，请删除设备后重试！");
             }

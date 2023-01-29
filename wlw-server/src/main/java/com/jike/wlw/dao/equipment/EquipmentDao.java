@@ -27,8 +27,11 @@ public class EquipmentDao extends BaseDao {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PEquipment.TABLE_NAME, "o");
 
         //eq查询
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
-            q.where("o.id = :id").p("id", filter.getIdEq());
+            q.where("o.id = :idEq").p("idEq", filter.getIdEq());
         }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
@@ -39,12 +42,25 @@ public class EquipmentDao extends BaseDao {
         if (filter.getStatusEq() != null) {
             q.where("o.status = :statusEq").p("statusEq", filter.getStatusEq().name());
         }
+        if (filter.getDeleted() != null) {
+            q.where("o.deleted = :deleted").p("deleted", filter.getDeleted());
+        }
         //in查询
         if (!CollectionUtils.isEmpty(filter.getIdIn())) {
-            q.where("o.id in  (:ids)").p("ids", filter.getIdIn());
+            q.where("o.id in (:ids)").p("ids", filter.getIdIn());
         }
         if (!CollectionUtils.isEmpty(filter.getProductKeyIn())) {
-            q.where("o.productKey in  (:productKeyIn)").p("productKeyIn", filter.getProductKeyIn());
+            q.where("o.productKey in (:productKeyIn)").p("productKeyIn", filter.getProductKeyIn());
+        }
+        if (!CollectionUtils.isEmpty(filter.getStatusIn())) {
+            q.where("o.status in (:statusIn)").p("statusIn", filter.getStatusIn());
+        }
+        if (!CollectionUtils.isEmpty(filter.getResourceGroupIdIn())) {
+            q.where("o.resourceGroupId in (:resourceGroupIdIn)").p("resourceGroupIdIn", filter.getResourceGroupIdIn());
+        }
+        //like查询
+        if (!StringUtil.isNullOrBlank(filter.getNameLike())) {
+            q.where("o.name in (:nameLike)").p("nameLike", "%" + filter.getNameLike() + "%");
         }
 
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {

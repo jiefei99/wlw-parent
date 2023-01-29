@@ -14,6 +14,8 @@ import java.io.Serializable;
 public class EquipmentCreateRq extends Entity implements Serializable {
 
     private static final long serialVersionUID = 2508498364862758014L;
+    @ApiModelProperty("设备ID")
+    private String id;
     @ApiModelProperty("设备所属产品的productKey")  //必填
     private String productKey;
     @ApiModelProperty("实例ID")

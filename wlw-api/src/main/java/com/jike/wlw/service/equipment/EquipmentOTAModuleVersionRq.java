@@ -11,17 +11,17 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ApiModel("根据状态查询设备列表请求参数")
-public class EquipmentQueryByStatusRq extends Entity implements Serializable {
+public class EquipmentOTAModuleVersionRq extends Entity implements Serializable {
+    private static final long serialVersionUID = -2300813288035855450L;
 
-    private static final long serialVersionUID = -7360427722419252023L;
-    @ApiModelProperty("实例ID")
-    public String iotInstanceId;
+    @ApiModelProperty("设备ID")
+    public String id;
+    @ApiModelProperty("设备密钥")
+    public String name;
     @ApiModelProperty("所属产品ProductKey")
     public String productKey;
-    @ApiModelProperty("所属资源组ID")
-    public String resourceGroupId;
-    @ApiModelProperty("状态")
-    public Integer status;//0：未激活  1：在线   3：离线   8：已禁用
+    @ApiModelProperty("实例ID")
+    public String iotInstanceId;
     @ApiModelProperty("当前页")
     public Integer currentPage = 1;
     @ApiModelProperty("最大记录数量")

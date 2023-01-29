@@ -11,30 +11,21 @@ import com.aliyun.iot20180120.models.QueryDeviceInfoResponseBody;
 import com.aliyun.iot20180120.models.QueryDeviceResponseBody;
 import com.aliyun.iot20180120.models.QueryDeviceStatisticsResponseBody;
 import com.aliyun.iot20180120.models.RegisterDeviceResponseBody;
-import com.aliyuncs.iot.model.v20180120.DeleteDeviceResponse;
-import com.aliyuncs.iot.model.v20180120.RegisterDeviceResponse;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.geeker123.rumba.commons.util.JsonUtil;
-import com.geeker123.rumba.commons.util.StringUtil;
-import com.jike.wlw.config.fegin.FlowCodeFeignClient;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.equipment.ali.iot.IemEquipmentManager;
 import com.jike.wlw.dao.TX;
-import com.jike.wlw.dao.equipment.EquipmentDao;
-import com.jike.wlw.dao.equipment.PEquipment;
 import com.jike.wlw.service.equipment.Equipment;
 import com.jike.wlw.service.equipment.EquipmentCreateRq;
-import com.jike.wlw.service.equipment.EquipmentFilter;
 import com.jike.wlw.service.equipment.EquipmentGetRq;
-import com.jike.wlw.service.equipment.EquipmentModifyRq;
+import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
 import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
-import com.jike.wlw.service.equipment.ali.EquipmentService;
 import com.jike.wlw.service.equipment.EquipmentStatus;
-import com.jike.wlw.service.equipment.MQTTConnection;
+import com.jike.wlw.service.equipment.ali.AliEquipmentService;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -48,21 +39,24 @@ import java.util.List;
 @Slf4j
 @RestController
 @ApiModel("阿里云设备服务实现")
-public class EquipmentServiceImpl extends BaseService implements EquipmentService {
+public class AliEquipmentServiceImpl extends BaseService implements AliEquipmentService {
 
     @Autowired
     private IemEquipmentManager equipmentManager;
 
     @Override
-    public ActionResult<Equipment> getInfo(String tenantId, EquipmentGetRq getRq) throws BusinessException {
+    public ActionResult<Equipment> getBasic(String tenantId, EquipmentGetRq getRq) throws BusinessException {
         try {
             QueryDeviceInfoResponseBody response = equipmentManager.queryDeviceInfo(getRq);
             if (Boolean.TRUE.equals(response.getSuccess()) && response.getData() != null) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(response.getData(), equipment);
+                equipment.setId(response.getData().getIotId());
+                equipment.setName(response.getData().getDeviceName());
+                equipment.setSecret(response.getData().getDeviceSecret());
                 return ActionResult.ok(equipment);
             } else {
-                return ActionResult.fail("获取设备基本信息失败，原因：" + response.getErrorMessage());
+                return ActionResult.fail("获取设备基础信息失败，原因：" + response.getErrorMessage());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -77,6 +71,10 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
             if (Boolean.TRUE.equals(response.getSuccess()) && response.getData() != null) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(response.getData(), equipment);
+                equipment.setId(response.getData().getIotId());
+                equipment.setName(response.getData().getDeviceName());
+                equipment.setSecret(response.getData().getDeviceSecret());
+                equipment.setStatus(EquipmentStatus.valueOf(response.getData().getStatus()));
                 return ActionResult.ok(equipment);
             } else {
                 return ActionResult.fail("获取设备详细信息失败，原因：" + response.getErrorMessage());
@@ -105,7 +103,7 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
 
     @TX
     @Override
-    public ActionResult delete(String tenantId, EquipmentGetRq getRq) throws BusinessException {
+    public ActionResult<Void> delete(String tenantId, EquipmentGetRq getRq) throws BusinessException {
         try {
             DeleteDeviceResponseBody response = equipmentManager.deleteDevice(getRq);
             if (Boolean.TRUE.equals(response.getSuccess())) {
@@ -158,6 +156,7 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
             if (Boolean.TRUE.equals(response.getSuccess())) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(response.getData(), equipment);
+                equipment.setStatus(EquipmentStatus.valueOf(response.getData().getStatus()));
                 return ActionResult.ok(equipment);
             } else {
                 return ActionResult.fail("查看指定设备的运行状态失败，原因：" + response.getErrorMessage());
@@ -169,7 +168,7 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
     }
 
     @Override
-    public ActionResult<Equipment> queryStatistics(String tenantId, EquipmentStatisticsQueryRq queryRq) throws BusinessException {
+    public ActionResult<Equipment> getStatistics(String tenantId, EquipmentStatisticsQueryRq queryRq) throws BusinessException {
         try {
             QueryDeviceStatisticsResponseBody response = equipmentManager.queryDeviceStatistics(queryRq);
             if (Boolean.TRUE.equals(response.getSuccess())) {
@@ -186,9 +185,9 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
     }
 
     @Override
-    public PagingResult<Equipment> queryOTAModuleVersions(String tenantId, EquipmentQueryByStatusRq queryRq) throws BusinessException {
+    public PagingResult<Equipment> queryOTAModuleVersions(String tenantId, EquipmentOTAModuleVersionRq versionRq) throws BusinessException {
         try {
-            ListOTAModuleVersionsByDeviceResponseBody response = equipmentManager.listOTAModuleVersionsByDevice(queryRq);
+            ListOTAModuleVersionsByDeviceResponseBody response = equipmentManager.listOTAModuleVersionsByDevice(versionRq);
             if (!response.getSuccess() || response.getData() == null || CollectionUtils.isEmpty(response.getData().getSimpleOTAModuleInfo())) {
                 throw new BusinessException("查询设备上报过的OTA模块版本列表失败：" + response.getErrorMessage());
             }
@@ -196,9 +195,11 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
             for (ListOTAModuleVersionsByDeviceResponseBody.ListOTAModuleVersionsByDeviceResponseBodyDataSimpleOTAModuleInfo otaModuleInfo : response.getData().getSimpleOTAModuleInfo()) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(otaModuleInfo, equipment);
+                equipment.setId(otaModuleInfo.getIotId());
+                equipment.setName(otaModuleInfo.getDeviceName());
                 result.add(equipment);
             }
-            return new PagingResult<>(queryRq.getCurrentPage(), queryRq.getPageSize(), response.getTotal(), result);
+            return new PagingResult<>(versionRq.getCurrentPage(), versionRq.getPageSize(), response.getTotal(), result);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -216,6 +217,10 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
             for (QueryDeviceByStatusResponseBody.QueryDeviceByStatusResponseBodyDataSimpleDeviceInfo deviceInfo : response.getData().getSimpleDeviceInfo()) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(deviceInfo, equipment);
+                equipment.setId(deviceInfo.getIotId());
+                equipment.setName(deviceInfo.getDeviceName());
+                equipment.setSecret(deviceInfo.getDeviceSecret());
+                equipment.setStatus(EquipmentStatus.valueOf(deviceInfo.getStatus()));
                 result.add(equipment);
             }
             return new PagingResult<>(queryRq.getCurrentPage(), queryRq.getPageSize(), response.getTotal(), result);
@@ -226,7 +231,7 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
     }
 
     @Override
-    public PagingResult<Equipment> query(String tenantId, EquipmentQueryByProductRq queryRq) throws BusinessException {
+    public PagingResult<Equipment> queryByProductKey(String tenantId, EquipmentQueryByProductRq queryRq) throws BusinessException {
         try {
             QueryDeviceResponseBody response = equipmentManager.queryDeviceByProductKey(queryRq);
             if (!response.getSuccess() || response.getData() == null || CollectionUtils.isEmpty(response.getData().getDeviceInfo())) {
@@ -236,6 +241,10 @@ public class EquipmentServiceImpl extends BaseService implements EquipmentServic
             for (QueryDeviceResponseBody.QueryDeviceResponseBodyDataDeviceInfo deviceInfo : response.getData().getDeviceInfo()) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(deviceInfo, equipment);
+                equipment.setId(deviceInfo.getIotId());
+                equipment.setName(deviceInfo.getDeviceName());
+                equipment.setSecret(deviceInfo.getDeviceSecret());
+                equipment.setStatus(EquipmentStatus.valueOf(deviceInfo.getDeviceStatus()));
                 result.add(equipment);
             }
             return new PagingResult<>(queryRq.getCurrentPage(), queryRq.getPageSize(), response.getTotal(), result);
