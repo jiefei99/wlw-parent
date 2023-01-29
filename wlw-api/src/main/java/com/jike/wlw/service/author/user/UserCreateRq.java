@@ -6,6 +6,7 @@
  */
 package com.jike.wlw.service.author.user;
 
+import com.geeker123.rumba.jpa.api.entity.Entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -16,7 +17,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ApiModel("新增用户请求参数")
-public class UserCreateRq implements Serializable {
+public class UserCreateRq extends Entity {
     private static final long serialVersionUID = -1864509945078913882L;
 
     @ApiModelProperty("用户类型")

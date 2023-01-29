@@ -22,18 +22,20 @@ public class ApplicationStartUp implements ApplicationListener<ContextRefreshedE
         applicationContext = event.getApplicationContext();
         env = applicationContext.getBean(Environment.class);
         log.info("应用程序启动初始化...");
-        try {
-            EmployeeCreateAdminRq admin = new EmployeeCreateAdminRq();
-            admin.setName(env.getProperty("initialization.name"));
-            admin.setMobile(env.getProperty("initialization.mobile"));
-            admin.setLoginId(env.getProperty("initialization.loginId"));
-            admin.setPassword(env.getProperty("initialization.password"));
 
-            getEmployeeService().createAdmin(admin, "系统初始化");
-            log.info("初始化管理员数据成功！");
-        } catch (Exception e) {
-            log.error("应用程序启动初始化失败。", e);
-        }
+        //这块初始化要到base服务里面处理 TODO
+//        try {
+//            EmployeeCreateAdminRq admin = new EmployeeCreateAdminRq();
+//            admin.setName(env.getProperty("initialization.name"));
+//            admin.setMobile(env.getProperty("initialization.mobile"));
+//            admin.setLoginId(env.getProperty("initialization.loginId"));
+//            admin.setPassword(env.getProperty("initialization.password"));
+//
+//            getEmployeeService().createAdmin(admin, "系统初始化");
+//            log.info("初始化管理员数据成功！");
+//        } catch (Exception e) {
+//            log.error("应用程序启动初始化失败。", e);
+//        }
     }
 
     private EmployeeService getEmployeeService() {

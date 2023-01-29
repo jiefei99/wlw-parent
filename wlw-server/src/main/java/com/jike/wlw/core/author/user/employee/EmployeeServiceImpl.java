@@ -1,32 +1,22 @@
 package com.jike.wlw.core.author.user.employee;
 
+import com.enet.base.admin.api.dto.UserDTO;
+import com.enet.base.admin.api.dto.UserInfo;
+import com.enet.base.admin.api.feign.RemoteUserService;
+import com.enet.base.common.core.constant.SecurityConstants;
+import com.enet.base.common.core.util.R;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.geeker123.rumba.commons.util.MD5Util;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.geeker123.rumba.jpa.api.entity.Parts;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.TX;
 import com.jike.wlw.dao.author.user.PUser;
 import com.jike.wlw.dao.author.user.UserDao;
-import com.jike.wlw.dao.author.user.credentials.account.pwd.PPwdAccount;
-import com.jike.wlw.dao.author.user.credentials.account.pwd.PwdAccountDao;
 import com.jike.wlw.dao.author.user.employee.EmployeeDao;
 import com.jike.wlw.dao.author.user.employee.PEmployee;
-import com.jike.wlw.service.author.user.User;
-import com.jike.wlw.service.author.user.UserCreateRq;
-import com.jike.wlw.service.author.user.UserFilter;
-import com.jike.wlw.service.author.user.UserModifyRq;
-import com.jike.wlw.service.author.user.UserService;
-import com.jike.wlw.service.author.user.UserType;
-import com.jike.wlw.service.author.user.credentials.account.pwd.PwdAccount;
-import com.jike.wlw.service.author.user.credentials.account.pwd.PwdAccountFilter;
-import com.jike.wlw.service.author.user.employee.Employee;
-import com.jike.wlw.service.author.user.employee.EmployeeCreateAdminRq;
-import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
-import com.jike.wlw.service.author.user.employee.EmployeeFilter;
-import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
-import com.jike.wlw.service.author.user.employee.EmployeeService;
+import com.jike.wlw.service.author.user.*;
+import com.jike.wlw.service.author.user.employee.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +24,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * @author mengchen
@@ -49,6 +35,8 @@ import java.util.Map;
 @RestController
 @RequestMapping(value = "service/employee", produces = "application/json;charset=utf-8")
 public class EmployeeServiceImpl extends BaseService implements EmployeeService {
+    public static final long AGENT_DEFAULT_DEPT_ID = 1;
+    public static final long AGENT_DEFAULT_ROLE_ID = 2;
 
     @Autowired
     private EmployeeDao employeeDao;
@@ -57,12 +45,12 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     @Autowired
     private UserService userService;
     @Autowired
-    private PwdAccountDao pwdAccountDao;
+    private RemoteUserService remoteUserService;
 
     @Override
-    public Employee get(String id) throws BusinessException {
+    public Employee get(String tenantId, String id) throws BusinessException {
         try {
-            PEmployee perz = employeeDao.get(PEmployee.class, "userId", id);
+            PEmployee perz = employeeDao.get(PEmployee.class, "userId", id, "tenantId", tenantId);
             if (perz == null) {
                 perz = employeeDao.get(PEmployee.class, id);
             }
@@ -73,8 +61,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             BeanUtils.copyProperties(perz, result);
             result.setAdmin(perz.getAdmin());
 
-            fetchUser(Arrays.asList(result));
-            fetchPwdAccount(Arrays.asList(result));
+            fetchUser(tenantId, Arrays.asList(result));
 
             return result;
         } catch (Exception e) {
@@ -85,7 +72,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
 
     @TX
     @Override
-    public String create(EmployeeCreateRq createRq, String operator) throws BusinessException {
+    public String create(String tenantId, EmployeeCreateRq createRq, String operator) throws BusinessException {
         try {
             // 参数校验
             verification(createRq);
@@ -95,14 +82,36 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             if (pUser != null) {
                 return pUser.getUuid();
             }
+
+            //添加base用户
+            UserDTO userDTO = new UserDTO();
+            //手机号为登录账号
+            userDTO.setUsername(createRq.getLoginId());
+            // 默认密码123456
+            userDTO.setPassword("123456");
+            userDTO.setName(createRq.getName());
+            userDTO.setDeptId(AGENT_DEFAULT_DEPT_ID);
+            userDTO.setTenantId(1L);
+            List<Long> roles = new ArrayList<>();
+            roles.add(AGENT_DEFAULT_ROLE_ID);
+            userDTO.setRole(roles);
+            R<Boolean> rs = remoteUserService.addUser(userDTO);
+            if (rs.getCode() != 0) {
+                throw new BusinessException(rs.getMsg());
+            }
+
+            //添加代理商用户
+            UserInfo sysUser = remoteUserService.info(createRq.getLoginId(), SecurityConstants.FROM_IN).getData();
+
             UserCreateRq userCreateRq = new UserCreateRq();
             userCreateRq.setUserType(UserType.EMPLOYEE);
             userCreateRq.setMobile(createRq.getMobile());
             userCreateRq.setName(createRq.getName());
             userCreateRq.setSex(createRq.getSex());
-            String userId = userService.create(userCreateRq, operator);
+            userCreateRq.setUuid(StringUtil.toString(sysUser.getSysUser().getUserId()));
+            String userId = userService.create(tenantId, userCreateRq, operator);
             perz.setId(idGen(createRq.getTenantId()));
-            while(perz.getId() == null){
+            while (perz.getId() == null) {
                 perz.setId(idGen(createRq.getTenantId()));
             }
 
@@ -112,19 +121,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             perz.setTenantId(createRq.getTenantId());
             employeeDao.save(perz);
 
-            PPwdAccount pwdAccount = new PPwdAccount();
-            PwdAccountFilter filter = new PwdAccountFilter();
-            List<PPwdAccount> pPwdAccountList = new ArrayList<>();
-            filter.setLoginIdEq(createRq.getLoginId());
-            pPwdAccountList = pwdAccountDao.query(filter);
-            if(!CollectionUtils.isEmpty(pPwdAccountList)){
-                throw new BusinessException("当前登录账号已经存在，无法新建");
-            }
-            pwdAccount.setLoginId(createRq.getLoginId());
-            pwdAccount.setUserType(UserType.EMPLOYEE.name());
-            pwdAccount.setPassword(MD5Util.getMD5String(createRq.getPassword()));
-            pwdAccount.setUserId(userId);
-            pwdAccountDao.save(pwdAccount);
 
             return userId;
         } catch (Exception e) {
@@ -135,12 +131,12 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
 
     @TX
     @Override
-    public String createAdmin(EmployeeCreateAdminRq adminRq, String operator) throws BusinessException {
+    public String createAdmin(String tenantId, EmployeeCreateAdminRq adminRq, String operator) throws BusinessException {
         try {
             // 参数校验
             verification(adminRq);
 
-            PEmployee perz = employeeDao.get(PEmployee.class,  "tenantId", adminRq.getTenantId(), "admin", "1");
+            PEmployee perz = employeeDao.get(PEmployee.class, "tenantId", adminRq.getTenantId(), "admin", "1");
             if (perz != null) {
                 return perz.getUserId();
             }
@@ -148,7 +144,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             createRq.setUserType(UserType.EMPLOYEE);
             createRq.setName(adminRq.getName());
             createRq.setMobile(adminRq.getMobile());
-            String userId = userService.create(createRq, operator);
+            String userId = userService.create(tenantId, createRq, operator);
 
             perz = new PEmployee();
             perz.onCreated(operator);
@@ -158,13 +154,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             perz.setId(idGen(adminRq.getTenantId()));
             employeeDao.save(perz);
 
-            PPwdAccount pwdAccount = new PPwdAccount();
-            pwdAccount.setLoginId(adminRq.getLoginId());
-            pwdAccount.setPassword(MD5Util.getMD5String(adminRq.getPassword()));
-            pwdAccount.setUserType(UserType.EMPLOYEE.name());
-            pwdAccount.setUserId(userId);
-            pwdAccountDao.save(pwdAccount);
-
             return userId;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -174,7 +163,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
 
     @TX
     @Override
-    public void modify(EmployeeModifyRq modifyRq, String operator) throws BusinessException {
+    public void modify(String tenantId, EmployeeModifyRq modifyRq, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(modifyRq.getUserId())) {
                 throw new BusinessException("员工的用户id不可为空");
@@ -186,9 +175,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             userModifyRq.setMobile(modifyRq.getMobile());
             userModifyRq.setSex(modifyRq.getSex());
             userModifyRq.setRemark(modifyRq.getRemark());
-            userService.modify(userModifyRq, operator);
-
-            //TODO  修改“用户-角色关联关系”  等角色接口实现之后完成
+            userService.modify(tenantId, userModifyRq, operator);
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -197,7 +184,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     }
 
     @Override
-    public PagingResult<Employee> query(EmployeeFilter filter) throws BusinessException {
+    public PagingResult<Employee> query(String tenantId, EmployeeFilter filter) throws BusinessException {
         try {
             List<PEmployee> list = employeeDao.query(filter);
             long total = employeeDao.getCount(filter);
@@ -213,10 +200,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
             if (!StringUtil.isNullOrBlank(filter.getParts())) {
                 Parts parts = new Parts(filter.getParts());
                 if (parts.contains(Employee.PARTS_USER)) {
-                    fetchUser(result);
-                }
-                if (parts.contains(Employee.PARTS_PWD_ACCOUNT)) {
-                    fetchPwdAccount(result);
+                    fetchUser(tenantId, result);
                 }
             }
 
@@ -230,7 +214,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     /**
      * 获取用户信息
      */
-    private void fetchUser(List<Employee> employeeList) {
+    private void fetchUser(String tenantId, List<Employee> employeeList) {
         if (CollectionUtils.isEmpty(employeeList)) {
             return;
         }
@@ -240,7 +224,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
         }
         UserFilter filter = new UserFilter();
         filter.setUserIdIn(employeeUserIds);
-        List<User> userList = userService.query(filter).getData();
+        List<User> userList = userService.query(tenantId, filter).getData();
 
         Map<String, User> userMap = new HashMap<>();
         for (User user : userList) {
@@ -251,44 +235,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
 
         for (Employee employee : employeeList) {
             employee.setUser(userMap.get(employee.getUserId()));
-        }
-    }
-
-    /**
-     * 获取密码账户信息
-     */
-    private void fetchPwdAccount(List<Employee> employeeList) {
-        if (CollectionUtils.isEmpty(employeeList)) {
-            return;
-        }
-
-        List<String> employeeUserIds = new ArrayList<>();
-        for (Employee employee : employeeList) {
-            employeeUserIds.add(employee.getUserId());
-        }
-        PwdAccountFilter filter = new PwdAccountFilter();
-        filter.setUserIdIn(employeeUserIds);
-        List<PPwdAccount> pPwdAccountList = pwdAccountDao.query(filter);
-        List<PwdAccount> pwdAccountList = new ArrayList<>();
-        for (PPwdAccount pPwdAccount : pPwdAccountList) {
-            PwdAccount pwdAccount = new PwdAccount();
-            BeanUtils.copyProperties(pPwdAccount, pwdAccount);
-            pwdAccount.setUserType(UserType.valueOf(pPwdAccount.getUserType()));
-            pwdAccountList.add(pwdAccount);
-        }
-        Map<String, PwdAccount> pwdAccountMap = new HashMap<>();
-        for (PwdAccount pwdAccount : pwdAccountList) {
-            if (!pwdAccountMap.containsKey(pwdAccount.getUserId())) {
-                pwdAccountMap.put(pwdAccount.getUserId(), pwdAccount);
-            }
-        }
-
-        for (Employee employee : employeeList) {
-            if (pwdAccountMap.containsKey(employee.getUserId())) {
-                employee.setLoginId(pwdAccountMap.get(employee.getUserId()).getLoginId());
-                employee.setPassword(pwdAccountMap.get(employee.getUserId()).getPassword());
-            }
-
         }
     }
 
@@ -304,9 +250,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
         }
         if (StringUtil.isNullOrBlank(createRq.getMobile())) {
             throw new BusinessException("手机号不可以为空");
-        }
-        if (StringUtil.isNullOrBlank(createRq.getSex())) {
-            throw new BusinessException("性别不可以为空");
         }
         if (StringUtil.isNullOrBlank(createRq.getPassword())) {
             throw new BusinessException("登录密码不可以为空");
@@ -355,5 +298,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
 
         return id;
     }
+
 
 }

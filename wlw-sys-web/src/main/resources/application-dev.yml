@@ -2,12 +2,6 @@ server:
   port: 8011
 
 
-eureka:
-  client:
-    serviceUrl:
-      defaultZone: http://127.0.0.1:8761/eureka/
-  instance:
-    non-secure-port: 8011
 
 # SSO 配置
 login:

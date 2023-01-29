@@ -51,6 +51,15 @@ public class BaseController {
     /**
      * 获取用户ID
      */
+    protected String getTenantId() {
+        return "-";
+        //TODO 这个需要从请求头中获取到租户信息。 先写死
+//        return AppContext.getContext() == null ? null : AppContext.getContext().getUserId();
+    }
+
+    /**
+     * 获取用户ID
+     */
     protected String getUserId() {
         return AppContext.getContext() == null ? null : AppContext.getContext().getUserId();
     }

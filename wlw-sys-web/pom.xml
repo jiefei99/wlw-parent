@@ -86,10 +86,10 @@
             <groupId>com.geeker123.rumba</groupId>
             <artifactId>rumba-oss</artifactId>
         </dependency>
-        <!-- doc -->
         <dependency>
             <groupId>com.enet</groupId>
-            <artifactId>base-auth</artifactId>
+            <artifactId>base-upms-api</artifactId>
+            <version>4.0.2-SNAPSHOT</version>
         </dependency>
 
     </dependencies>

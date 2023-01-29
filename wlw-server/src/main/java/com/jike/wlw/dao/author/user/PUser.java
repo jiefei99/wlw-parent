@@ -15,6 +15,8 @@ public class PUser extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_user";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("用户类型")
     private String userType;
     @ApiModelProperty("姓名")

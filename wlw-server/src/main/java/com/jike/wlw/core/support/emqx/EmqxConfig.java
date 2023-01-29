@@ -57,8 +57,8 @@ public class EmqxConfig {
         // 以/#结尾表示订阅所有以test开头的主题
         emqxClient.subscribe(defaultTopic, 1);
 
-//        System.out.println("发送消息拉");
-//        emqxClient.publish(1,false,"topic-test","sb223");
+
+        emqxClient.publish(1,false,"topic-test","sb223");
         return emqxClient;
     }
 }

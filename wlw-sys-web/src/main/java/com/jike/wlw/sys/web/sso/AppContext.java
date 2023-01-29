@@ -24,6 +24,8 @@ public class AppContext implements Serializable {
 
     private static final ThreadLocal<AppContext> holder = new ThreadLocal();
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("用户类型")
     private String userType;
     @ApiModelProperty("用户ID")
