@@ -38,7 +38,7 @@ public class ConsumerGroup extends StandardEntity {
     private String clientIpPort;
     @ApiModelProperty("在线客户端最后在线时间")
     private Long onlineTime;
-    @ApiModelProperty("消费组的单个客户端堆积消息消费速率")  //单位 条/分钟
+    @ApiModelProperty("消费组实时消息消费速率")  //单位 条/分钟
     private Integer realTimeConsumeCountPerMinute;
 
 }

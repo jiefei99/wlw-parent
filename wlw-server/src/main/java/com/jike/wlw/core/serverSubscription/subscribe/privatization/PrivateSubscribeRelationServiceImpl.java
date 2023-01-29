@@ -2,15 +2,11 @@ package com.jike.wlw.core.serverSubscription.subscribe.privatization;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.common.StringRelevant;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
-import com.jike.wlw.dao.serverSubscription.consumerGroup.PConsumerGroup;
 import com.jike.wlw.dao.serverSubscription.subscribe.PSubscribe;
 import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
-import com.jike.wlw.service.product.topic.Operation;
-import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -25,9 +21,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -74,20 +73,24 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             }
             List<PSubscribe> list = new ArrayList<>();
             for (String info : createRq.getPushMessageType()) {
-                PSubscribe subscribe = new PSubscribe();
-                subscribe.setTenantId(tenantId);
-                subscribe.setType(createRq.getType());
-                if (CollectionUtils.isNotEmpty(createRq.getConsumerGroupIds())) {
-                    subscribe.setConsumerGroupIds(createRq.getConsumerGroupIds().stream().map(String::valueOf).collect(Collectors.joining(",")));
+                if ("AMQP".equals(createRq.getType())) {
+                    for (String groupId : createRq.getConsumerGroupIds()) {
+                        PSubscribe amqpSubscribe = new PSubscribe();
+                        amqpSubscribe.setPushMessageType(info);
+                        amqpSubscribe.setConsumerGroupId(groupId);
+                        amqpSubscribe.setSubscribeFlags(createRq.getSubscribeFlags());
+                        amqpSubscribe.onCreated(operator);
+                        amqpSubscribe.setTenantId(tenantId);
+                        amqpSubscribe.setType(createRq.getType());
+                        amqpSubscribe.setProductKey(createRq.getProductKey());
+                        list.add(amqpSubscribe);
+                    }
+                } else if ("MNS".equals(createRq.getType())) {
+                    PSubscribe mnsSubscribe = new PSubscribe();
+                    if (StringUtils.isNotBlank(createRq.getMnsConfiguration())) {
+                        mnsSubscribe.setMnsConfiguration(createRq.getMnsConfiguration());
+                    }
                 }
-                subscribe.setProductKey(createRq.getProductKey());
-                if (StringUtils.isNotBlank(createRq.getMnsConfiguration())) {
-                    subscribe.setMnsConfiguration(createRq.getMnsConfiguration());
-                }
-                subscribe.setSubscribeFlags(createRq.getSubscribeFlags());
-                subscribe.setPushMessageType(info);
-                subscribe.onCreated(operator);
-                list.add(subscribe);
             }
             subscribeDao.save(list);
             return null;
@@ -109,23 +112,27 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("租户不能为空！");
         }
         try {
-            subscribeDao.removeSubscribe(modifyRq.getType(),modifyRq.getProductKey(),tenantId);
+            subscribeDao.removeSubscribe(tenantId, modifyRq.getType(), modifyRq.getProductKey());
             List<PSubscribe> subscribeList = new ArrayList<>();
             for (String info : modifyRq.getPushMessageType()) {
-                PSubscribe subscribe = new PSubscribe();
-                subscribe.setType(modifyRq.getType());
-                if (CollectionUtils.isNotEmpty(modifyRq.getConsumerGroupIds())) {
-                    subscribe.setConsumerGroupIds(modifyRq.getConsumerGroupIds().stream().map(String::valueOf).collect(Collectors.joining(",")));
+                if ("AMQP".equals(modifyRq.getType())) {
+                    for (String groupId : modifyRq.getConsumerGroupIds()) {
+                        PSubscribe amqpSubscribe = new PSubscribe();
+                        amqpSubscribe.setPushMessageType(info);
+                        amqpSubscribe.setConsumerGroupId(groupId);
+                        amqpSubscribe.setSubscribeFlags(modifyRq.getSubscribeFlags());
+                        amqpSubscribe.onCreated(operator);
+                        amqpSubscribe.setTenantId(tenantId);
+                        amqpSubscribe.setType(modifyRq.getType());
+                        amqpSubscribe.setProductKey(modifyRq.getProductKey());
+                        subscribeList.add(amqpSubscribe);
+                    }
+                } else if ("MNS".equals(modifyRq.getType())) {
+                    PSubscribe mnsSubscribe = new PSubscribe();
+                    if (StringUtils.isNotBlank(modifyRq.getMnsConfiguration())) {
+                        mnsSubscribe.setMnsConfiguration(modifyRq.getMnsConfiguration());
+                    }
                 }
-                subscribe.setTenantId(tenantId);
-                if (StringUtils.isNotBlank(modifyRq.getMnsConfiguration())) {
-                    subscribe.setMnsConfiguration(modifyRq.getMnsConfiguration());
-                }
-                subscribe.setProductKey(modifyRq.getProductKey());
-                subscribe.setSubscribeFlags(modifyRq.getSubscribeFlags());
-                subscribe.setPushMessageType(info);
-                subscribe.onCreated(operator);
-                subscribeList.add(subscribe);
             }
             subscribeDao.save(subscribeList);
         } catch (Exception e) {
@@ -146,13 +153,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("租户不能为空！");
         }
         try {
-            subscribeDao.removeSubscribe(type,productKey,tenantId);
-            //数据留着没有太大意义，暂时不用逻辑删
-//            List<PSubscribe> subscribeList = subscribeDao.query(filter);
-//            for (PSubscribe info : subscribeList) {
-//                info.setIsDeleted(1);
-//            }
-//            subscribeDao.save(subscribeList);
+            subscribeDao.removeSubscribe(tenantId, type, productKey);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -175,21 +176,23 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             filter.setType(type);
             filter.setProductKey(productKey);
             filter.setTenantId(tenantId);
-            filter.setPage(filter.getPage());
-            filter.setPageSize(filter.getPageSize() <= 0 ? 100 : filter.getPageSize());
             List<PSubscribe> subscribeList = subscribeDao.query(filter);
             if (CollectionUtils.isEmpty(subscribeList)) {
                 return null;
             }
-            List<String> amqpMsgTypeList = new ArrayList<>();
+            Set<String> msgTypes = new HashSet<>();
+            Set<String> amqpGroupIds = new HashSet<>();
             for (PSubscribe subscribe : subscribeList) {
-                amqpMsgTypeList.add(subscribe.getPushMessageType());
+                msgTypes.add(subscribe.getPushMessageType());
+                if ("AMQP".equals(type)) {
+                    amqpGroupIds.add(subscribe.getConsumerGroupId());
+                }
             }
             SubscribeRelation subscribeRelation = new SubscribeRelation();
             subscribeRelation.setType(type);
-            subscribeRelation.setConsumerGroupIds(Arrays.asList(subscribeList.get(0).getConsumerGroupIds().split(",")));
+            subscribeRelation.setConsumerGroupIds(new ArrayList<>(amqpGroupIds));
             subscribeRelation.setProductKey(productKey);
-            subscribeRelation.setPushMessageType(amqpMsgTypeList);
+            subscribeRelation.setPushMessageType(new ArrayList<>(msgTypes));
             subscribeRelation.setSubscribeFlags(subscribeList.get(0).getSubscribeFlags());
             subscribeRelation.setMnsConfiguration(subscribeList.get(0).getMnsConfiguration());
             return subscribeRelation;
@@ -201,18 +204,6 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
 
     @Override
     public PagingResult<SubscribeRelation> query(String tenantId, SubscribeFilter filter) throws BusinessException {
-//        try {
-//            filter.setTenantId(tenantId);
-//            List<PSubscribe> subscribeList = subscribeDao.page(filter);
-//            List<SubscribeRelation> result = new ArrayList<>();
-//            for (PSubscribe pSubscribe : subscribeList) {
-//            }
-//            long count = subscribeDao.getCount(filter);
-//            return new PagingResult<>(filter.getPage(), filter.getPageSize(), count, result);
-//        } catch (Exception e) {
-//            log.error(e.getMessage(), e);
-//            throw new BusinessException(e.getMessage(), e);
-//        }
         return null;
     }
 
@@ -235,18 +226,23 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             filter.setTenantId(tenantId);
             List<PSubscribe> subscribeList = subscribeDao.query(filter);
             if (CollectionUtils.isEmpty(subscribeList)) {
-                return null;
+                throw new BusinessException("该产品没有订阅，请先创建该产品订阅");
             }
-            List<String> groupIds =new ArrayList<>(Arrays.asList(subscribeList.get(0).getConsumerGroupIds().split(",")));
-            if (groupIds.contains(createRq.getGroupId())) {
-                return null;
+            List<String> msgTypes = subscribeList.stream()
+                    .map(PSubscribe::getPushMessageType)
+                    .distinct()
+                    .collect(Collectors.toList());
+            List<PSubscribe> subscribes = new ArrayList<>();
+            for (String msgType : msgTypes) {
+                PSubscribe pSubscribe = new PSubscribe();
+                BeanUtils.copyProperties(subscribeList.get(0), pSubscribe);
+                pSubscribe.setUuid(null);
+                pSubscribe.setConsumerGroupId(createRq.getGroupId());
+                pSubscribe.onCreated(operator);
+                pSubscribe.setPushMessageType(msgType);
+                subscribes.add(pSubscribe);
             }
-            groupIds.add(createRq.getGroupId());
-            for (PSubscribe subscribe : subscribeList) {
-                subscribe.onModified(operator);
-                subscribe.setConsumerGroupIds(groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
-            }
-            subscribeDao.save(subscribeList);
+            subscribeDao.save(subscribes);
         } catch (Exception e) {
             throw new BusinessException("添加消费组失败：" + e.getMessage());
         }
@@ -265,26 +261,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("ProductKey不能为空！");
         }
         try {
-            SubscribeFilter filter = new SubscribeFilter();
-            filter.setType(SubscribeRelation.AMQP);
-            filter.setProductKey(productKey);
-            filter.setTenantId(tenantId);
-            List<PSubscribe> subscribeList = subscribeDao.query(filter);
-            if (CollectionUtils.isEmpty(subscribeList)) {
-                return;
-            }
-            String consumerGroupIds = subscribeList.get(0).getConsumerGroupIds();
-            List<String> groupIds = new ArrayList<>( Arrays.asList(consumerGroupIds.split(",")));
-            if (!groupIds.contains(groupId) || groupIds.size() == 1) {
-                return;
-            }
-            IntStream.range(0, groupIds.size()).filter(i -> groupIds.get(i).equals(groupId)).
-                    boxed().findFirst().map(i -> groupIds.remove((int) i));
-            for (PSubscribe subscribe : subscribeList) {
-                subscribe.onModified(operator);
-                subscribe.setConsumerGroupIds(groupIds.stream().map(String::valueOf).collect(Collectors.joining(",")));
-            }
-            subscribeDao.save(subscribeList);
+            subscribeDao.removeSubscribeByGroupId(tenantId,groupId,productKey);
         } catch (Exception e) {
             throw new BusinessException("删除消费组失败：" + e.getMessage());
         }

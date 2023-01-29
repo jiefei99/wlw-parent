@@ -23,7 +23,7 @@ public class SubscribeDao extends BaseDao {
 
     public List<PSubscribe> query(SubscribeFilter filter) {
         JdbcEntityQuery q = getQuery("query", "*", filter);
-        return q.list(jdbcTemplate, PSubscribe.class, filter.getPage(), filter.getPageSize());
+        return q.list(jdbcTemplate, PSubscribe.class);
     }
 
     public long getCount(SubscribeFilter filter) {
@@ -31,8 +31,13 @@ public class SubscribeDao extends BaseDao {
         return q.count(jdbcTemplate, String.class);
     }
 
-    public void removeSubscribe(String type,String productKey,String tenantId){
-        String sql = "delete from " + PSubscribe.TABLE_NAME + " where type = '"+type+"' and productKey = '"+productKey +"' and tenantId= '"+tenantId +"'";
+    public void removeSubscribe(String tenantId, String type, String productKey) {
+        String sql = "delete from " + PSubscribe.TABLE_NAME + " where type = '" + type + "' and productKey = '" + productKey + "' and tenantId= '" + tenantId + "'";
+        jdbcTemplate.batchUpdate(sql);
+    }
+
+    public void removeSubscribeByGroupId(String tenantId, String groupId, String productKey) {
+        String sql = "delete from " + PSubscribe.TABLE_NAME + " where consumerGroupId = '" + groupId + "' and productKey = '" + productKey + "' and tenantId= '" + tenantId + "'";
         jdbcTemplate.batchUpdate(sql);
     }
 
@@ -49,7 +54,7 @@ public class SubscribeDao extends BaseDao {
             q.where("o.productKey = :productKey").p("productKey", filter.getProductKey());
         }
         if (!StringUtil.isNullOrBlank(filter.getGroupIdEq())) {
-            q.where("o.consumerGroupIds = :consumerGroupIds").p("consumerGroupIds", filter.getGroupIdEq());
+            q.where("o.consumerGroupId = :consumerGroupId").p("consumerGroupId", filter.getGroupIdEq());
         }
         q.where("o.isDeleted = 0");
 

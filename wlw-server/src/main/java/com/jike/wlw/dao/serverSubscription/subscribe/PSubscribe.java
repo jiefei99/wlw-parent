@@ -25,7 +25,7 @@ public class PSubscribe extends PStandardEntity implements JdbcEntity {
     @ApiModelProperty("productKey")
     private String productKey;
     @ApiModelProperty("消费组Id")
-    private String consumerGroupIds;
+    private String consumerGroupId;
     @ApiModelProperty("MNS队列的配置信息")
     private String mnsConfiguration;
     @ApiModelProperty("当前订阅产品的其他类型消息")
