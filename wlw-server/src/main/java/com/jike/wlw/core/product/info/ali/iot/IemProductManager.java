@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 @Slf4j
 @Component
@@ -100,16 +101,14 @@ public class IemProductManager {
         CreateProductRequest createProductRequest = new CreateProductRequest();
         BeanUtils.copyProperties(registerRq, createProductRequest);
         createProductRequest.setProductName(registerRq.getName());
-        createProductRequest.setProtocolType(registerRq.getProtocolType().getCaption());
-        //枚举类型
+        createProductRequest.setProtocolType(registerRq.getProtocolType().toString().toLowerCase(Locale.ROOT));
+        createProductRequest.setNetType(registerRq.getNetType().toString());
+        createProductRequest.setAuthType(registerRq.getAuthType().toString().toLowerCase(Locale.ROOT));
         //todo 暂时写死吧。。。
         createProductRequest.setAliyunCommodityCode("iothub_senior"); //上传此编码支持产品使用物模型，否则不支持
-        //todo 暂时写死吧。。。
         createProductRequest.setAuthType("secret");  //设备接入物联网认证方式：secret--设备密钥； id2--使用物联网设备身份认证ID²； x509--使用设备X.509证书进行设备身份认证
-        createProductRequest.setPublishAuto(registerRq.isPublishAuto()); //是否创建产品自动发布物模型
         createProductRequest.setValidateType(1); // 数据校验级别：1--弱校验，仅校验设备数据的idetifier和dataType字段； 2--免校验，流转全量数据
         RuntimeOptions runtime = new RuntimeOptions();
-
         try {
             CreateProductResponse productWithOptions = client.createProductWithOptions(createProductRequest, runtime);
             CreateProductResponseBody body = productWithOptions.getBody();

@@ -25,7 +25,10 @@ public class ProductDao extends BaseDao {
 
     private JdbcEntityQuery getQuery(String name, String select, ProductFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PProduct.TABLE_NAME, "o");
-
+        if (!StringUtil.isNullOrBlank(filter.getResourceGroupId())) {
+            q.where("o.resourceGroupId= :resourceGroupId").p("resourceGroupId", filter.getResourceGroupId());
+        }
+        //TODO AliyunCommodityCode 这个参数得研究一下用不用
         //eq查询
         //todo 原型没出来之前这些都不用，先以阿里为主，先注释
 //        if (!StringUtil.isNullOrBlank(filter.getIdEq())) {

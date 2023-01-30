@@ -36,7 +36,7 @@ public class ProductCreateRq extends Entity implements Serializable {
     @ApiModelProperty("产品所属资源组Id")
     private String resourceGroupId;
     @ApiModelProperty("认证方式")
-    private AuthType authType;
+    private AuthType authType=AuthType.SECRET;
     @ApiModelProperty("产品品类标识符")
     private String categoryKey;
     @ApiModelProperty("实例Id")
@@ -48,5 +48,5 @@ public class ProductCreateRq extends Entity implements Serializable {
     @ApiModelProperty("数据校验级别")   //1:弱校验   2:免校验  (不传默认弱校验)
     private int validateType=1;
     @ApiModelProperty("是否使用ID²认证")  //默认false
-    private boolean id2;
+    private boolean id2=false;
 }

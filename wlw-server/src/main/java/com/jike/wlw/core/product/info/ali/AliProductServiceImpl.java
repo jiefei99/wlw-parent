@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
@@ -131,6 +132,8 @@ public class AliProductServiceImpl extends BaseService implements AliProductServ
                 Product product = new Product();
                 BeanUtils.copyProperties(productInfo, product);
                 product.setName(productInfo.getProductName());
+                product.setCreated(new Date(productInfo.getGmtCreate()));
+                product.setAuthType(AuthType.map.get(product.getAuthType()));
                 result.add(product);
             }
             return new PagingResult<>(aliFilter.getCurrentPage(), aliFilter.getPageSize(), response.getBody().getData().getTotal(), result);
