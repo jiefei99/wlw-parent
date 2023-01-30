@@ -27,28 +27,29 @@ public class ProductDao extends BaseDao {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PProduct.TABLE_NAME, "o");
 
         //eq查询
-        if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
-            q.where("o.id = :id").p("id", filter.getIdEq());
-        }
-        if (!StringUtil.isNullOrBlank(filter.getTenantId())) {
-            q.where("o.tenantId = :tenantId").p("tenantId", filter.getTenantId());
-        }
-        if (!StringUtil.isNullOrBlank(filter.getProductId())) {
-            q.where("o.productId = :productId").p("productId", filter.getProductId());
-        }
-        if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
-            q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
-        }
-        if (!StringUtil.isNullOrBlank(filter.getProductKeyEq())) {
-            q.where("o.productKey = :productKeyEq").p("productKeyEq", filter.getProductKeyEq());
-        }
-        if (!StringUtil.isNullOrBlank(filter.getProductSecretEq())) {
-            q.where("o.productSecret = :productSecretEq").p("productSecretEq", filter.getProductSecretEq());
-        }
-        //in查询
-        if (!CollectionUtils.isEmpty(filter.getIdIn())) {
-            q.where("o.id in  (:ids)").p("ids", filter.getIdIn());
-        }
+        //todo 原型没出来之前这些都不用，先以阿里为主，先注释
+//        if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
+//            q.where("o.id = :id").p("id", filter.getIdEq());
+//        }
+//        if (!StringUtil.isNullOrBlank(filter.getTenantId())) {
+//            q.where("o.tenantId = :tenantId").p("tenantId", filter.getTenantId());
+//        }
+//        if (!StringUtil.isNullOrBlank(filter.getProductId())) {
+//            q.where("o.productId = :productId").p("productId", filter.getProductId());
+//        }
+//        if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
+//            q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
+//        }
+//        if (!StringUtil.isNullOrBlank(filter.getProductKeyEq())) {
+//            q.where("o.productKey = :productKeyEq").p("productKeyEq", filter.getProductKeyEq());
+//        }
+//        if (!StringUtil.isNullOrBlank(filter.getProductSecretEq())) {
+//            q.where("o.productSecret = :productSecretEq").p("productSecretEq", filter.getProductSecretEq());
+//        }
+//        //in查询
+//        if (!CollectionUtils.isEmpty(filter.getIdIn())) {
+//            q.where("o.id in  (:ids)").p("ids", filter.getIdIn());
+//        }
         q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {

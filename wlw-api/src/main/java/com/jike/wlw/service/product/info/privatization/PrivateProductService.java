@@ -5,6 +5,7 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.product.info.BaseProductService;
 import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
+import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
 import com.jike.wlw.service.product.info.ProductQueryRq;
 import io.swagger.annotations.Api;
@@ -25,7 +26,8 @@ public interface PrivateProductService extends BaseProductService {
     @RequestMapping(value = "/get", method = RequestMethod.POST)
     @ResponseBody
     Product get(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductQueryRq productQueryRq) throws BusinessException;
+                @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId) throws BusinessException;
 
     @ApiOperation(value = "新建产品")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -42,33 +44,34 @@ public interface PrivateProductService extends BaseProductService {
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除产品")
-    @RequestMapping(value = "/delete", method = RequestMethod.GET)
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId) throws BusinessException;
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询产品")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
     PagingResult<Product> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                                @ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductQueryRq productQueryRq) throws BusinessException;
+                                @ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductFilter filter) throws BusinessException;
 
     @ApiOperation(value = "发布指定产品")
-    @RequestMapping(value = "/releaseProduct", method = RequestMethod.GET)
+    @RequestMapping(value = "/releaseProduct", method = RequestMethod.POST)
     @ResponseBody
-    void releaseProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+    void publishProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                         @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
                         @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
                         @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
 
     @ApiOperation(value = "取消指定产品的发布")
-    @RequestMapping(value = "/cancelReleaseProduct", method = RequestMethod.GET)
+    @RequestMapping(value = "/cancelReleaseProduct", method = RequestMethod.POST)
     @ResponseBody
-    void cancelReleaseProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                              @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
-                              @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
-                              @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
+    void unPublishProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                          @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
+                          @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                          @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
 
 
     @ApiOperation(value = "保存Influx")

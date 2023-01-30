@@ -13,10 +13,6 @@ import java.util.List;
 @ApiModel("产品信息")
 public class Product extends StandardEntity {
     private static final long serialVersionUID = 6355685899103067786L;
-
-    public static final int RELEASE = 1;//发布
-    public static final int UN_RELEASE = 0;//未发布
-
     @ApiModelProperty("id")
     private String id;
     @ApiModelProperty("产品key")
@@ -32,28 +28,30 @@ public class Product extends StandardEntity {
     @ApiModelProperty("备注")
     private String remark;
     @ApiModelProperty("版本类型")
-    public String aliyunCommodityCode;
+    private String aliyunCommodityCode;
     @ApiModelProperty("认证方式")
-    public String authType;
+    private AuthType authType;
     @ApiModelProperty("品类的标识符")
-    public String categoryKey;
+    private String categoryKey;
     @ApiModelProperty("品类名称")
-    public String categoryName;
+    private String categoryName;
     @ApiModelProperty("数据格式")
-    public Integer dataFormat;
+    private Integer dataFormat; //0 透传模式 ; 1 Alink JSON
+    @ApiModelProperty("该产品下的设备数量")
+    private Integer deviceCount;
     @ApiModelProperty("是否使用id2认证")
-    public Boolean id2;
+    private Boolean id2;
+    @ApiModelProperty("调用者是否是产品的拥有者")
+    private Boolean owner;
     @ApiModelProperty("连网方式")
-    public Integer netType;
+    private NetType netType;  //则默认为Wi-Fi
     @ApiModelProperty("节点类型")
-    public Integer nodeType;
-    @ApiModelProperty("产品状态")
-    public String productStatus;
+    private Integer nodeType;
     @ApiModelProperty("网关协议类型")
-    public String protocolType;
+    private ProtocolType protocolType;
     @ApiModelProperty("数据校验级别")
-    public Integer validateType;
+    private Integer validateType;
     //产品发布成功后，不可编辑产品、物模型，删除产品。
     @ApiModelProperty("是否发布")
-    private int isRelease;
+    private PublishStateType ProductStatus;
 }

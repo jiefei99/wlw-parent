@@ -1,11 +1,13 @@
 package com.jike.wlw.core.product.info.privatization;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.geeker123.rumba.commons.lang.Assert;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.geeker123.rumba.commons.util.JsonUtil;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.common.StringRelevant;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.product.info.ProductConverter;
 import com.jike.wlw.dao.InfluxDao;
 import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
@@ -17,6 +19,7 @@ import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
 import com.jike.wlw.service.product.info.ProductQueryRq;
+import com.jike.wlw.service.product.info.PublishStateType;
 import com.jike.wlw.service.product.info.privatization.PrivateProductService;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
 import com.jike.wlw.service.serverSubscription.subscribe.privatization.PrivateSubscribeRelationService;
@@ -54,9 +57,15 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     private PrivateSubscribeRelationService subscribeRelationService;
 
     @Override
-    public Product get(String tenantId, ProductQueryRq productQueryRq) throws BusinessException {
+    public Product get(String tenantId, String productKey, String iotInstanceId) throws BusinessException {
         try {
-            PProduct perz = doGet(tenantId, productQueryRq.getProductKey());
+            if (StringUtils.isBlank(productKey)){
+                throw new BusinessException("产品的ProductKey不能为空");
+            }
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
+            PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 return null;
             }
@@ -75,6 +84,10 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     @Override
     public String create(String tenantId, ProductCreateRq createRq, String operator) throws BusinessException {
         try {
+            Assert.assertArgumentNotNull(createRq, "createRq");
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
             if (StringUtil.isNullOrBlank(createRq.getName())) {
                 throw new BusinessException("产品名称不能为空");
             }
@@ -100,19 +113,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
                 productKey = StringRelevant.buildRandomString(10);
                 perz = productDao.get(PProduct.class, "productKey", productKey, "tenantId", tenantId,"isDeleted",0);
             }
-            //生成 productSecret
-            perz = new PProduct();
-            String productSecret = StringRelevant.buildRandomString(16);
-            BeanUtils.copyProperties(createRq, perz);
-            perz.setAuthType(createRq.getAuthType().getCaption());
-            perz.onCreated(operator);
-            perz.setId(StringRelevant.buildId(20));
-            perz.setTenantId(tenantId);
-            perz.setProductSecret(productSecret);
-            perz.setProductKey(productKey);
-            perz.setNetType(createRq.getNetType());
-            perz.setIsRelease(Product.UN_RELEASE);
-            perz.onCreated(operator);
+            perz = ProductConverter.coverPProduct(createRq,tenantId,productKey,operator);
             productDao.save(perz);
             return perz.getId();
         } catch (Exception e) {
@@ -124,6 +125,10 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     @Override
     public void modify(String tenantId, ProductModifyRq modifyRq, String operator) throws BusinessException {
         try {
+            Assert.assertArgumentNotNull(modifyRq, "modifyRq");
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
             if (StringUtils.isBlank(modifyRq.getProductKey())) {
                 throw new BusinessException("产品ProductKey不能为空");
             }
@@ -141,7 +146,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             if (perz == null) {
                 throw new BusinessException("指定产品不存在或已删除，请确认产品密钥是否正确");
             }
-            if (perz.getIsRelease()==Product.RELEASE){
+            if (perz.getProductStatus().equals(PublishStateType.RELEASE_STATUS)){
                 throw new BusinessException("产品已发布，无法修改");
             }
             perz.setName(modifyRq.getName());
@@ -160,13 +165,19 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     }
 
     @Override
-    public void delete(String tenantId, String productKey, String iotInstanceId) throws BusinessException {
+    public void delete(String tenantId, String productKey, String iotInstanceId, String operator) throws BusinessException {
         try {
+            if (StringUtils.isBlank(productKey)){
+                throw new BusinessException("需要删除的产品的ProductKey不能为空");
+            }
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
             PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
             }
-            if (perz.getIsRelease()==Product.RELEASE){
+            if (perz.getProductStatus().equals(PublishStateType.RELEASE_STATUS)){
                 throw new BusinessException("产品已发布，无法删除");
             }
             EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
@@ -177,6 +188,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
                 throw new BusinessException("当前产品下存在未删除的设备，请删除设备后重试！");
             }
             perz.setIsDeleted(1);
+            perz.onModified(operator);
             productDao.save(perz);
             subscribeRelationService.delete(tenantId,productKey, SubscribeRelation.AMQP,null);
         } catch (Exception e) {
@@ -186,18 +198,18 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     }
 
     @Override
-    public PagingResult<Product> query(String tenantId, ProductQueryRq productQueryRq) throws BusinessException {
+    public PagingResult<Product> query(String tenantId, ProductFilter filter) throws BusinessException {
         try {
-            if (productQueryRq.getCurrentPage() < 1) {
+            Assert.assertArgumentNotNull(filter, "filter");
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
+            if (filter.getPage() < 1) {
                 throw new BusinessException("页数默认从第一页开始显示");
             }
-            if (productQueryRq.getPageSize() < 1 || productQueryRq.getPageSize() > 200) {
+            if (filter.getPageSize() < 1 || filter.getPageSize() > 200) {
                 throw new BusinessException("每页显示的产品数量不能超过200个");
             }
-            ProductFilter filter = new ProductFilter();
-            filter.setIdIn(productQueryRq.getIdIn());
-            filter.setProductKeyEq(productQueryRq.getProductKey());
-            filter.setNameEq(productQueryRq.getNameEq());
             filter.setTenantId(tenantId);
             List<PProduct> list = productDao.query(filter);
             long count = productDao.getCount(filter);
@@ -210,7 +222,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
                 }
                 result.add(product);
             }
-            return new PagingResult<>(productQueryRq.getCurrentPage(), productQueryRq.getPageSize(), count, result);
+            return new PagingResult<>(filter.getPage(), filter.getPageSize(), count, result);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -218,16 +230,22 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     }
 
     @Override
-    public void releaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
+    public void publishProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
         try {
+            if (StringUtils.isBlank(productKey)){
+                throw new BusinessException("需要发布的产品的ProductKey不能为空");
+            }
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
             PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
             }
-            if (perz.getIsRelease()==Product.RELEASE){
+            if (perz.getProductSecret().equals(PublishStateType.RELEASE_STATUS)){
                 throw new BusinessException("产品已发布！");
             }
-            perz.setIsRelease(Product.RELEASE);
+            perz.setProductStatus(PublishStateType.RELEASE_STATUS.toString());
             perz.onModified(operator);
             productDao.save(perz);
         }catch (Exception e) {
@@ -237,16 +255,22 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     }
 
     @Override
-    public void cancelReleaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
+    public void unPublishProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
         try {
+            if (StringUtils.isBlank(productKey)){
+                throw new BusinessException("取消发布的产品的ProductKey不能为空");
+            }
+            if (StringUtils.isBlank(tenantId)){
+                throw new BusinessException("租户不能为空");
+            }
             PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
             }
-            if (perz.getIsRelease()==Product.UN_RELEASE){
+            if (perz.getProductStatus().equals(PublishStateType.DEVELOPMENT_STATUS)){
                 throw new BusinessException("产品未发布，不能取消发布！");
             }
-            perz.setIsRelease(Product.UN_RELEASE);
+            perz.setProductStatus(PublishStateType.DEVELOPMENT_STATUS.toString());
             perz.onModified(operator);
             productDao.save(perz);
         }catch (Exception e) {

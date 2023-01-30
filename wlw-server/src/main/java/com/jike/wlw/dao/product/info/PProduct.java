@@ -39,10 +39,10 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
     @ApiModelProperty("是否使用id2认证")
     private Boolean id2;
     @ApiModelProperty("连网方式")
-    private NetType netType;
+    private String netType;
     @ApiModelProperty("节点类型")
     private int nodeType;
-    @ApiModelProperty("产品状态")
+    @ApiModelProperty("产品是否发布")
     private String productStatus;
     @ApiModelProperty("入网凭证ID")
     private String joinPermissionId;
@@ -52,8 +52,6 @@ public class PProduct extends PStandardEntity implements JdbcEntity {
     private String resourceGroupId;
     @ApiModelProperty("数据校验级别")
     private int validateType;
-    @ApiModelProperty("是否发布") //0为未发布，1为发布
-    private int isRelease;
     @ApiModelProperty("逻辑删除")
     private int isDeleted;
 

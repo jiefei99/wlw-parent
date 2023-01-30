@@ -1,6 +1,8 @@
 package com.jike.wlw.service.product.info;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @title: NetType
@@ -10,7 +12,7 @@ import java.io.Serializable;
  */
 public enum NetType implements Serializable {
 
-    LORA("LoRaWAN"), WIFI("Wi-Fi"), CELLULAR("cellular"), ETHERNET("ethernet"), OTHER("other");
+    LORA("LoRaWAN"), WIFI("Wi-Fi"), CELLULAR("Cellular（2G/3G/4G/5G）蜂窝网"), ETHERNET("Ethernet以太网"), OTHER("其他");
 
     private String caption;
 
@@ -20,6 +22,14 @@ public enum NetType implements Serializable {
 
     public String getCaption() {
         return caption;
+    }
+
+    public final static Map<Integer,NetType> map = new HashMap();
+    static {
+        map.put(3, NetType.WIFI);
+        map.put(6, NetType.CELLULAR);
+        map.put(7, NetType.ETHERNET);
+        map.put(8, NetType.OTHER);
     }
 }
 

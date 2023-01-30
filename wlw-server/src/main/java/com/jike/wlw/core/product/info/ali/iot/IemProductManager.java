@@ -23,6 +23,7 @@ import com.aliyun.teautil.Common;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.config.client.AliIotClient;
+import com.jike.wlw.service.product.info.AliProductFilter;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductModifyRq;
 import com.jike.wlw.service.product.info.ProductQueryRq;
@@ -78,7 +79,7 @@ public class IemProductManager {
 //        createProductRequest.setPublishAuto(true);
 //        createProductRequest.setValidateType(1);
 //        RuntimeOptions runtime = new RuntimeOptions();
-        QueryProductRequest request=new QueryProductRequest();
+        QueryProductRequest request = new QueryProductRequest();
         request.setProductKey("11111");
         try {
             // 复制代码运行请自行打印 API 的返回值
@@ -97,12 +98,15 @@ public class IemProductManager {
     public CreateProductResponseBody registerProduct(ProductCreateRq registerRq) throws Exception {
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateProductRequest createProductRequest = new CreateProductRequest();
-        BeanUtils.copyProperties(registerRq,createProductRequest);
+        BeanUtils.copyProperties(registerRq, createProductRequest);
         createProductRequest.setProductName(registerRq.getName());
         createProductRequest.setProtocolType(registerRq.getProtocolType().getCaption());
+        //枚举类型
+        //todo 暂时写死吧。。。
         createProductRequest.setAliyunCommodityCode("iothub_senior"); //上传此编码支持产品使用物模型，否则不支持
+        //todo 暂时写死吧。。。
         createProductRequest.setAuthType("secret");  //设备接入物联网认证方式：secret--设备密钥； id2--使用物联网设备身份认证ID²； x509--使用设备X.509证书进行设备身份认证
-        createProductRequest.setPublishAuto(true); //是否创建产品自动发布物模型
+        createProductRequest.setPublishAuto(registerRq.isPublishAuto()); //是否创建产品自动发布物模型
         createProductRequest.setValidateType(1); // 数据校验级别：1--弱校验，仅校验设备数据的idetifier和dataType字段； 2--免校验，流转全量数据
         RuntimeOptions runtime = new RuntimeOptions();
 
@@ -125,8 +129,8 @@ public class IemProductManager {
         }
         //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         UpdateProductRequest updateProductRequest = new UpdateProductRequest();
-        BeanUtils.copyProperties(modifyRq,updateProductRequest);
-        updateProductRequest.setProductName(modifyRq.getName()); //必填
+        BeanUtils.copyProperties(modifyRq, updateProductRequest);
+        updateProductRequest.setProductName(modifyRq.getName());
         try {
             UpdateProductResponse updateProductResponse = client.updateProduct(updateProductRequest);
             return updateProductResponse;
@@ -137,8 +141,8 @@ public class IemProductManager {
     }
 
     public DeleteProductResponse deleteProduct(String productKey, String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(productKey)){
-            throw new BusinessException("产品的ProductKey不能为空");
+        if (StringUtils.isBlank(productKey)) {
+            throw new BusinessException("需要删除的产品的ProductKey不能为空");
         }
         //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteProductRequest deleteProductRequest = new DeleteProductRequest();
@@ -154,34 +158,36 @@ public class IemProductManager {
     }
 
     //查询指定产品的详细信息
-    public QueryProductResponse queryProduct(ProductQueryRq filter) throws Exception {
-        if (StringUtils.isBlank(filter.getProductKey())){
+    public QueryProductResponse queryProduct(String productKey, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(productKey)) {
             throw new BusinessException("产品的ProductKey不能为空");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        QueryProductRequest queryProductRequest = new QueryProductRequest();
-        BeanUtils.copyProperties(filter,queryProductRequest);
+        QueryProductRequest request = new QueryProductRequest();
+        request.setProductKey(productKey);
+        request.setIotInstanceId(iotInstanceId);
         try {
-            QueryProductResponse queryProductResponse = client.queryProduct(queryProductRequest);
+            QueryProductResponse queryProductResponse = client.queryProduct(request);
             return queryProductResponse;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
     }
+
     //查看产品列表
-    public QueryProductListResponse queryProductList(ProductQueryRq filter) throws Exception {
-        if (filter.getCurrentPage()<1){
+    public QueryProductListResponse queryProductList(AliProductFilter filter) throws Exception {
+        if (filter.getCurrentPage() < 1) {
             throw new BusinessException("页数默认从第一页开始显示");
         }
-        if (filter.getPageSize()<1||filter.getPageSize()>200){
+        if (filter.getPageSize() < 1 || filter.getPageSize() > 200) {
             throw new BusinessException("每页显示的产品数量不能超过200个");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
-        QueryProductListRequest queryProductListRequest = new QueryProductListRequest();
-        BeanUtils.copyProperties(filter,queryProductListRequest);
+        QueryProductListRequest request = new QueryProductListRequest();
+        BeanUtils.copyProperties(filter, request);
         try {
-            QueryProductListResponse queryProductListResponse = client.queryProductList(queryProductListRequest);
+            QueryProductListResponse queryProductListResponse = client.queryProductList(request);
             return queryProductListResponse;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -189,11 +195,11 @@ public class IemProductManager {
         }
     }
 
-    public ReleaseProductResponse releaseProduct(String productKey, String iotInstanceId) throws Exception{
-        if (StringUtils.isBlank(productKey)){
+    public ReleaseProductResponse releaseProduct(String productKey, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(productKey)) {
             throw new BusinessException("产品的ProductKey不能为空");
         }
-        ReleaseProductRequest request=new ReleaseProductRequest();
+        ReleaseProductRequest request = new ReleaseProductRequest();
         request.setIotInstanceId(iotInstanceId);
         request.setProductKey(productKey);
         try {
@@ -204,11 +210,12 @@ public class IemProductManager {
             throw new BusinessException(e.getMessage(), e);
         }
     }
-    public CancelReleaseProductResponse cancelReleaseProduct(String productKey, String iotInstanceId) throws Exception{
-        if (StringUtils.isBlank(productKey)){
+
+    public CancelReleaseProductResponse cancelReleaseProduct(String productKey, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(productKey)) {
             throw new BusinessException("产品的ProductKey不能为空");
         }
-        CancelReleaseProductRequest request=new CancelReleaseProductRequest();
+        CancelReleaseProductRequest request = new CancelReleaseProductRequest();
         request.setIotInstanceId(iotInstanceId);
         request.setProductKey(productKey);
         try {

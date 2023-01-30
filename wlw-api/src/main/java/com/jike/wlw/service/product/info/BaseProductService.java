@@ -3,21 +3,19 @@ package com.jike.wlw.service.product.info;
 import com.geeker123.rumba.commons.paging.PagingResult;
 
 public interface BaseProductService {
-    //ReleaseProduct
-    //CancelReleaseProduct
-    Product get(String tenantId, ProductQueryRq productQueryRq);
+    Product get(String tenantId, String productKey, String iotInstanceId);
 
     String create(String tenantId, ProductCreateRq createRq, String operator);
 
     void modify(String tenantId, ProductModifyRq modifyRq, String operator);
 
-    void delete(String tenantId,String productKey,String iotInstanceId);
+    void delete(String tenantId, String productKey, String iotInstanceId, String operator);
 
-    PagingResult<Product> query(String tenantId,ProductQueryRq productQueryRq);
+    PagingResult<Product> query(String tenantId, ProductFilter filter);
 
     //发布产品
-    void releaseProduct(String tenantId,String productKey,String iotInstanceId, String operator);
-    //取消发布
-    void cancelReleaseProduct(String tenantId,String productKey,String iotInstanceId, String operator);
+    void publishProduct(String tenantId, String productKey, String iotInstanceId, String operator);
 
+    //取消发布
+    void unPublishProduct(String tenantId, String productKey, String iotInstanceId, String operator);
 }

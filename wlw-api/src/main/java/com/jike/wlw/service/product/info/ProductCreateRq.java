@@ -32,7 +32,7 @@ public class ProductCreateRq extends Entity implements Serializable {
     @ApiModelProperty("是否自动发布物模型")
     private boolean publishAuto=true;
     @ApiModelProperty("连网模式") //不传入此参数，则默认为Wi-Fi
-    private NetType netType;
+    private NetType netType=NetType.WIFI;
     @ApiModelProperty("产品所属资源组Id")
     private String resourceGroupId;
     @ApiModelProperty("认证方式")
