@@ -50,6 +50,7 @@ public interface PrivateTopicService extends BaseTopicService {
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "topicId") @RequestParam(value = "topicId")String topicId,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId) throws BusinessException;
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 }

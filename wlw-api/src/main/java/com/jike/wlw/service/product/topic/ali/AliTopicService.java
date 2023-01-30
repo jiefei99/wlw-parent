@@ -32,20 +32,21 @@ public interface AliTopicService extends BaseTopicService {
     @ResponseBody
     String create(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                   @ApiParam(required = true, value = "添加请求参数") @RequestBody TopicCreateRq createRq,
-                  @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "编辑Topic")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
     void modify(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "编辑请求参数") @RequestBody TopicModifyRq modifyRq,
-                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除Topic")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "topicId") @RequestParam(value = "topicId")String topicId,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId) throws BusinessException;
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 }

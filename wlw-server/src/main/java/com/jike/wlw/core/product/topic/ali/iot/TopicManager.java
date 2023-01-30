@@ -88,7 +88,7 @@ public class TopicManager {
         if (StringUtils.isBlank(topic.getTopicShortName())){
             throw new IllegalAccessException("设置Topic类的自定义类目名称不能为空");
         }
-        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
+//        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         UpdateProductTopicRequest request=new UpdateProductTopicRequest();
         request.setDesc(topic.getDesc());
@@ -101,15 +101,15 @@ public class TopicManager {
         return response;
     }
     //QueryProductTopic
-    public QueryProductTopicResponse queryProductTopic(TopicFilter filter) throws Exception {
-        if (StringUtils.isBlank(filter.getProductKey())){
+    public QueryProductTopicResponse queryProductTopic(String productKey,String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(productKey)){
             throw new IllegalAccessException("Topic类的productKey不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryProductTopicRequest request=new QueryProductTopicRequest();
-        request.setIotInstanceId(filter.getIotInstanceId());
-        request.setProductKey(filter.getProductKey());
+        request.setIotInstanceId(iotInstanceId);
+        request.setProductKey(productKey);
         QueryProductTopicResponse response = client.queryProductTopic(request);
         System.out.println("查询指定产品的自定义Topic类"+ JSON.toJSONString(response));
         return response;

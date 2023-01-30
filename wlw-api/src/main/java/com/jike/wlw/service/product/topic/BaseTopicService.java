@@ -14,5 +14,5 @@ public interface BaseTopicService {
 
     void modify(String tenantId, TopicModifyRq modifyRq, String operator);
 
-    void delete(String tenantId,String topicId,String iotInstanceId);
+    void delete(String tenantId, String topicId, String iotInstanceId, String operator);
 }

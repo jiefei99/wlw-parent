@@ -7,6 +7,7 @@ import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.dao.product.topic.PTopic;
 import com.jike.wlw.dao.product.topic.TopicDao;
+import com.jike.wlw.service.product.topic.Operation;
 import com.jike.wlw.service.product.topic.Topic;
 import com.jike.wlw.service.product.topic.TopicCreateRq;
 import com.jike.wlw.service.product.topic.TopicFilter;
@@ -33,7 +34,7 @@ import java.util.List;
 @Slf4j
 @RestController("topicServicePrivateImpl")
 @ApiModel("私有化Topic服务实现")
-public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopicService {
+public class PrivateTopicServiceImpl extends BaseService implements PrivateTopicService {
     @Autowired
     private TopicDao topicDao;
     @Autowired
@@ -41,24 +42,24 @@ public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopi
 
     @Override
     public List<Topic> query(String tenantId, TopicFilter filter) throws BusinessException {
-        if (StringUtils.isBlank(filter.getProductKey())){
-             throw new BusinessException("ProductKey不能为空！");
+        if (StringUtils.isBlank(filter.getProductKey())) {
+            throw new BusinessException("ProductKey不能为空！");
         }
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        List<PTopic> topics = null;
         try {
             filter.setTenantId(tenantId);
-            topics = topicDao.get(filter);
-            if (CollectionUtils.isEmpty(topics)){
+            List<PTopic> topics = topicDao.get(filter);
+            if (CollectionUtils.isEmpty(topics)) {
                 return null;
             }
-            List<Topic> topicList=new ArrayList<>();
+            List<Topic> topicList = new ArrayList<>();
             for (PTopic info : topics) {
-                Topic topic=new Topic();
-                BeanUtils.copyProperties(info,topic);
-                //operation
+                Topic topic = new Topic();
+                BeanUtils.copyProperties(info, topic);
+                topic.setDesc(info.getDetails());
+                topic.setOperation(Operation.valueOf(info.getOperation()));
                 topicList.add(topic);
             }
             return topicList;
@@ -70,34 +71,31 @@ public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopi
 
     @Override
     public String create(String tenantId, TopicCreateRq createRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (createRq.getOperation()==null){
+        if (createRq.getOperation() == null) {
             throw new BusinessException("Topic操作权限不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getProductKey())){
+        if (StringUtils.isBlank(createRq.getProductKey())) {
             throw new BusinessException("ProductKey不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getTopicShortName())){
+        if (StringUtils.isBlank(createRq.getTopicShortName())) {
             throw new BusinessException("自定义类目名称不能为空！");
         }
         try {
-            PProduct perz = productDao.get(PProduct.class, "productKey", createRq.getProductKey(), "tenantId", tenantId,"isDeleted",0);
+            PProduct perz = productDao.get(PProduct.class, "productKey", createRq.getProductKey(), "tenantId", tenantId, "isDeleted", 0);
             if (perz == null) {
                 throw new BusinessException("查无此产品！");
             }
-            PTopic topic=new PTopic();
+            PTopic topic = new PTopic();
             topic.setDetails(createRq.getDesc());
             topic.setProductKey(createRq.getProductKey());
             topic.setOperation(createRq.getOperation().toString());
             topic.setId(StringRelevant.buildId(20));
             topic.setTopicShortName(createRq.getTopicShortName());
             topic.setTenantId(tenantId);
-            topic.setCreator(operator);
-            topic.setModifier(operator);
-            topic.setCreated(new Date());
-            topic.setModified(new Date());
+            topic.onCreated(operator);
             topicDao.save(topic);
             return topic.getId();
         } catch (Exception e) {
@@ -108,27 +106,20 @@ public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopi
 
     @Override
     public void modify(String tenantId, TopicModifyRq modifyRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(modifyRq.getId())){
+        if (StringUtils.isBlank(modifyRq.getId())) {
             throw new BusinessException("Topic Id不能为空！");
         }
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (StringUtils.isBlank(modifyRq.getTopicShortName())){
+        if (StringUtils.isBlank(modifyRq.getTopicShortName())) {
             throw new BusinessException("Topic类的自定义类目名称不能为空！");
         }
-        if (modifyRq.getOperation()==null){
+        if (modifyRq.getOperation() == null) {
             throw new BusinessException("Topic类的操作权限不能为空！");
         }
         try {
-            TopicFilter filter =new TopicFilter();
-            filter.setId(modifyRq.getId());
-            filter.setTenantId(tenantId);
-            List<PTopic> topics = topicDao.get(filter);
-            if (CollectionUtils.isEmpty(topics)){
-                return;
-            }
-            PTopic topic = topics.get(0);
+            PTopic topic = topicDao.get(PTopic.class, "id", modifyRq.getId(), "tenantId", tenantId);
             topic.setTopicShortName(modifyRq.getTopicShortName());
             topic.setOperation(modifyRq.getOperation().toString());
             topic.setDetails(modifyRq.getDesc());
@@ -142,23 +133,21 @@ public class PrivateTopicServiceImpl  extends BaseService implements PrivateTopi
     }
 
     @Override
-    public void delete(String tenantId, String topicId, String iotInstanceId) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+    public void delete(String tenantId, String topicId, String iotInstanceId, String operator) throws BusinessException {
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (StringUtils.isBlank(topicId)){
+        if (StringUtils.isBlank(topicId)) {
             throw new BusinessException("Topic Id不能为空！");
         }
         try {
-            TopicFilter filter =new TopicFilter();
-            filter.setId(topicId);
-            filter.setTenantId(tenantId);
-            List<PTopic> topics = topicDao.get(filter);
-            if (CollectionUtils.isEmpty(topics)){
+            TopicFilter filter = new TopicFilter();
+            PTopic topic = topicDao.get(PTopic.class, "id", topicId, "tenantId", tenantId);
+            if (topic == null) {
                 return;
             }
-            PTopic topic = topics.get(0);
             topic.setIsDeleted(1);
+            topic.onModified(operator);
             topicDao.save(topic);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
