@@ -111,6 +111,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             perz.setProductSecret(productSecret);
             perz.setProductKey(productKey);
             perz.setNetType(createRq.getNetType());
+            perz.setIsRelease(Product.UN_RELEASE);
             perz.onCreated(operator);
             productDao.save(perz);
             return perz.getId();
@@ -140,6 +141,9 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             if (perz == null) {
                 throw new BusinessException("指定产品不存在或已删除，请确认产品密钥是否正确");
             }
+            if (perz.getIsRelease()==Product.RELEASE){
+                throw new BusinessException("产品已发布，无法修改");
+            }
             perz.setName(modifyRq.getName());
             if (!StringUtil.isNullOrBlank(modifyRq.getDescription())) {
                 perz.setDescription(modifyRq.getDescription());
@@ -161,6 +165,9 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             PProduct perz = doGet(tenantId, productKey);
             if (perz == null) {
                 throw new BusinessException("不存在此产品");
+            }
+            if (perz.getIsRelease()==Product.RELEASE){
+                throw new BusinessException("产品已发布，无法删除");
             }
             EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
             filter.setProductKey(perz.getProductKey());
@@ -205,6 +212,44 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             }
             return new PagingResult<>(productQueryRq.getCurrentPage(), productQueryRq.getPageSize(), count, result);
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void releaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
+        try {
+            PProduct perz = doGet(tenantId, productKey);
+            if (perz == null) {
+                throw new BusinessException("不存在此产品");
+            }
+            if (perz.getIsRelease()==Product.RELEASE){
+                throw new BusinessException("产品已发布！");
+            }
+            perz.setIsRelease(Product.RELEASE);
+            perz.onModified(operator);
+            productDao.save(perz);
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public void cancelReleaseProduct(String tenantId, String productKey, String iotInstanceId, String operator) {
+        try {
+            PProduct perz = doGet(tenantId, productKey);
+            if (perz == null) {
+                throw new BusinessException("不存在此产品");
+            }
+            if (perz.getIsRelease()==Product.UN_RELEASE){
+                throw new BusinessException("产品未发布，不能取消发布！");
+            }
+            perz.setIsRelease(Product.UN_RELEASE);
+            perz.onModified(operator);
+            productDao.save(perz);
+        }catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }

@@ -53,5 +53,20 @@ public interface AliProductService extends BaseProductService {
     PagingResult<Product> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                                 @ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductQueryRq productQueryRq) throws BusinessException;
 
+    @ApiOperation(value = "发布指定产品")
+    @RequestMapping(value = "/releaseProduct", method = RequestMethod.GET)
+    @ResponseBody
+    void releaseProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
+
+    @ApiOperation(value = "取消指定产品的发布")
+    @RequestMapping(value = "/cancelReleaseProduct", method = RequestMethod.GET)
+    @ResponseBody
+    void cancelReleaseProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
 
 }
