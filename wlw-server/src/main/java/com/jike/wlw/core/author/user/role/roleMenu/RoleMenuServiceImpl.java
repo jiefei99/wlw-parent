@@ -33,12 +33,12 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
     private RoleService roleService;
 
     @Override
-    public void saveRoleMenus(RoleMenuCreateRq createRq) throws BusinessException {
+    public void saveRoleMenus(String tenantId, RoleMenuCreateRq createRq) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getRoleId())) {
                 throw new BusinessException("角色id不能为空");
             } else {
-                Role role = roleService.get(createRq.getRoleId());
+                Role role = roleService.get(tenantId, createRq.getRoleId());
                 if (role == null) {
                     throw new BusinessException("指定角色不存在或已删除");
                 }
@@ -54,7 +54,7 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
                 for (RoleMenu roleMenu : createRq.getRoleMenuList()) {
                     PRoleMenu perz = new PRoleMenu();
                     BeanUtils.copyProperties(roleMenu, perz);
-
+                    perz.setTenantId(tenantId);
                     perzList.add(perz);
                 }
 
@@ -69,8 +69,9 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
     }
 
     @Override
-    public PagingResult<RoleMenu> query(AuthFilter filter) throws BusinessException {
+    public PagingResult<RoleMenu> query(String tenantId, AuthFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PRoleMenu> list = roleMenuDao.query(filter);
             long total = roleMenuDao.getCount(filter);
 

@@ -14,6 +14,8 @@ import java.util.List;
 public class PhysicalModelFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 9214479469460671259L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("编号等于")
     private String idEq;
     @ApiModelProperty("名称等于")

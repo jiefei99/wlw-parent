@@ -147,6 +147,7 @@ public class UserServiceImpl implements UserService {
             Assert.assertArgumentNotNullOrBlank(tenantId, "tenantId");
             Assert.assertArgumentNotNull(filter, "filter");
 
+            filter.setTenantIdEq(tenantId);
             List<PUser> list = userDao.query(filter);
             long total = userDao.getCount(filter);
 

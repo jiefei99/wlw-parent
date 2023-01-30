@@ -19,6 +19,8 @@ public class PRoleMenu extends PEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_role_menu";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("角色ID")
     private String roleId;
     @ApiModelProperty("权限ID")

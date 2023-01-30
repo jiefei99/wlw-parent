@@ -27,6 +27,9 @@ public class PhysicalModelDao extends BaseDao {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PPhysicalModel.TABLE_NAME, "o");
 
         //eq查询
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
             q.where("o.id = :id").p("id", filter.getIdEq());
         }

@@ -16,6 +16,8 @@ import java.util.List;
 public class UserFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 312449838906365406L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("用户类型")
     private UserType userTypeEq;
     @ApiModelProperty("在用户id之中")

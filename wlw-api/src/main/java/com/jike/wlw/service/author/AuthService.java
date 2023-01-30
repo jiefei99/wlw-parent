@@ -34,29 +34,34 @@ public interface AuthService {
     @ApiOperation(value = "通过角色列表保存用户角色")
     @RequestMapping(value = "/saveUserRoles", method = RequestMethod.GET)
     @ResponseBody
-    void saveUserRoles(@ApiParam(required = true, value = "用户ID") @RequestParam("userId") String userId,
+    void saveUserRoles(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                       @ApiParam(required = true, value = "用户ID") @RequestParam("userId") String userId,
                        @ApiParam(required = true, value = "角色ID集合Json字符串") @RequestParam("roleIdsJson") String roleIdsJson) throws BusinessException;
 
     @ApiOperation(value = "通过用户列表保存用户角色")
     @RequestMapping(value = "/saveUsersRole", method = RequestMethod.GET)
     @ResponseBody
-    void saveUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
+    void saveUsersRole(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                       @ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
                        @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException;
 
     @ApiOperation(value = "通过用户列表删除用户角色")
     @RequestMapping(value = "/removeUsersRole", method = RequestMethod.GET)
     @ResponseBody
-    void removeUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
-                       @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException;
+    void removeUsersRole(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                         @ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
+                         @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException;
 
     @ApiOperation(value = "获取用户角色")
     @RequestMapping(value = "/getUserRolesByUserId", method = RequestMethod.GET)
     @ResponseBody
-    List<UserRole> getUserRolesByUserId(@ApiParam(value = "用户ID") @RequestParam(value = "userId", defaultValue = " ") String userId) throws BusinessException;
+    List<UserRole> getUserRolesByUserId(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                        @ApiParam(value = "用户ID") @RequestParam(value = "userId", defaultValue = " ") String userId) throws BusinessException;
 
     @ApiOperation(value = "根据条件查询用户角色")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<UserRole> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
+    PagingResult<UserRole> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                 @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
 
 }

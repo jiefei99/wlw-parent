@@ -26,6 +26,9 @@ public class RoleDao extends BaseDao {
     private JdbcEntityQuery getQuery(String name, String select, RoleFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PRole.TABLE_NAME, "o");
 
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getNameLike())) {
             q.where("o.name like :nameLike").p("nameLike", "%" + filter.getNameLike() + "%");
         }

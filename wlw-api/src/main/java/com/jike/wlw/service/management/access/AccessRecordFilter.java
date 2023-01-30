@@ -12,7 +12,9 @@ import java.util.List;
 @Setter
 public class AccessRecordFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 5977997392771443039L;
-    
+
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("ip等于")
     private String ipEq;
     @ApiModelProperty("动作等于")

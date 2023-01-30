@@ -19,6 +19,8 @@ public class PUserRole extends PEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_user_role";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("用户ID")
     private String userId;
     @ApiModelProperty("角色ID")

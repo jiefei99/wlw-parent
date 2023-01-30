@@ -28,9 +28,10 @@ public class SysWebPermissionController extends BaseController {
     @ApiOperation(value = "根据权限ID获取指定的权限")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Permission> get(@ApiParam(required = true, value = "权限ID") @RequestParam(value = "id") String id) throws BusinessException {
+    public ActionResult<Permission> get(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                        @ApiParam(required = true, value = "权限ID") @RequestParam(value = "id") String id) throws BusinessException {
         try {
-            Permission result = permissionFeignClient.get(id);
+            Permission result = permissionFeignClient.get(tenantId, id);
 
             return ActionResult.ok(result);
         } catch (Exception e) {
@@ -41,9 +42,10 @@ public class SysWebPermissionController extends BaseController {
     @ApiOperation(value = "保存权限")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> save(@ApiParam(required = true, value = "新增权限请求参数") @RequestBody PermissionSaveRq saveRq) throws BusinessException {
+    public ActionResult<Void> save(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                   @ApiParam(required = true, value = "新增权限请求参数") @RequestBody PermissionSaveRq saveRq) throws BusinessException {
         try {
-            permissionFeignClient.save(saveRq, getUserName());
+            permissionFeignClient.save(tenantId, saveRq, getUserName());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -54,9 +56,10 @@ public class SysWebPermissionController extends BaseController {
     @ApiOperation(value = "根据查询条件查询权限")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<Permission>> query(@ApiParam(required = true, value = "查询条件") @RequestBody PermissionFilter filter) throws BusinessException {
+    public ActionResult<PagingResult<Permission>> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                                        @ApiParam(required = true, value = "查询条件") @RequestBody PermissionFilter filter) throws BusinessException {
         try {
-            PagingResult<Permission> result = permissionFeignClient.query(filter);
+            PagingResult<Permission> result = permissionFeignClient.query(tenantId, filter);
 
             return ActionResult.ok(result);
         } catch (Exception e) {

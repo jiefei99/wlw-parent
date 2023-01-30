@@ -17,23 +17,27 @@ public interface PermissionService {
     @ApiOperation(value = "根据权限ID获取指定的权限")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    Permission get(@ApiParam(required = true, value = "权限ID") @RequestParam(value = "id") String id) throws BusinessException;
+    Permission get(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                   @ApiParam(required = true, value = "权限ID") @RequestParam(value = "id") String id) throws BusinessException;
 
     @ApiOperation(value = "保存权限")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
-    void save(@ApiParam(required = true, value = "新增权限请求参数") @RequestBody PermissionSaveRq saveRq,
+    void save(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+              @ApiParam(required = true, value = "新增权限请求参数") @RequestBody PermissionSaveRq saveRq,
               @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "修改权限")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
-    void modify(@ApiParam(required = true, value = "修改权限请求参数") @RequestBody PermissionModifyRq modifyRq,
+    void modify(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "修改权限请求参数") @RequestBody PermissionModifyRq modifyRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询权限")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<Permission> query(@ApiParam(required = true, value = "查询条件") @RequestBody PermissionFilter filter) throws BusinessException;
+    PagingResult<Permission> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                   @ApiParam(required = true, value = "查询条件") @RequestBody PermissionFilter filter) throws BusinessException;
 
 }

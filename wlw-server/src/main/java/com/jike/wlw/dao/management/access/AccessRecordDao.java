@@ -36,6 +36,9 @@ public class AccessRecordDao extends BaseDao {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select)
                 .from(PAccessRecord.TABLE_NAME, "o");
 
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getIpEq())) {
             q.where(" o.ip = :ipEq").p("ipEq", filter.getIpEq());
         }

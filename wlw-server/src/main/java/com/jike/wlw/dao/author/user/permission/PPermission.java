@@ -15,6 +15,8 @@ public class PPermission extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_permission";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("应用ID，如：wxa、web...")
     private String appId;
     @ApiModelProperty("权限ID")

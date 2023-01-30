@@ -12,6 +12,8 @@ import lombok.Setter;
 public class IconConfigFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 2885380826749919544L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("应用类型等于")
     private AppType appIdEq;
     @ApiModelProperty("描述类似于")

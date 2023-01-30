@@ -15,6 +15,8 @@ public class PRole extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_role";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("角色名称 ")
     private String name;
     @ApiModelProperty("备注")
