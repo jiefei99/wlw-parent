@@ -26,9 +26,10 @@ public class SysWebAccessRecordController extends BaseController {
     @ApiOperation(value = "根据查询条件查询访问记录")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<AccessRecord>> query(@ApiParam(required = true, value = "查询条件") @RequestBody AccessRecordFilter filter) throws BusinessException {
+    public ActionResult<PagingResult<AccessRecord>> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                                          @ApiParam(required = true, value = "查询条件") @RequestBody AccessRecordFilter filter) throws BusinessException {
         try {
-            PagingResult<AccessRecord> result = accessRecordFeignClient.query(filter);
+            PagingResult<AccessRecord> result = accessRecordFeignClient.query(tenantId, filter);
 
             return ActionResult.ok(result);
         } catch (Exception e) {
