@@ -19,6 +19,7 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreate
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ali.AliConsumerGroupService;
+import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -47,6 +48,9 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public String create(String tenantId, ConsumerGroupCreateRq createRq, String operator) {
         try {
+            if (StringUtils.isBlank(createRq.getGroupName())) {
+                throw new IllegalAccessException("新建消费组名称不能为空");
+            }
             CreateConsumerGroupResponse response = consumerGroup.createConsumerGroup(createRq);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("创建消费组失败：" + response.getBody().getErrorMessage());
@@ -61,6 +65,12 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public void modify(String tenantId, ConsumerGroupModifyRq modifyRq, String operator) {
         try {
+            if (StringUtils.isBlank(modifyRq.getGroupId())) {
+                throw new IllegalAccessException("消费组ID不能为空");
+            }
+            if (StringUtils.isBlank(modifyRq.getGroupName())) {
+                throw new IllegalAccessException("新消费组名称不能为空");
+            }
             UpdateConsumerGroupResponse response = consumerGroup.updateConsumerGroup(modifyRq);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("修改消费组失败：" + response.getBody().getErrorMessage());
@@ -74,6 +84,9 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public ConsumerGroup get(String tenantId, String groupId, String iotInstanceId) {
         try {
+            if (StringUtils.isBlank(groupId)) {
+                throw new IllegalAccessException("消费组ID不能为空");
+            }
             QueryConsumerGroupByGroupIdResponse response = consumerGroup.queryConsumerGroupByGroupId(groupId, iotInstanceId);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("获取消费组失败：" + response.getBody().getErrorMessage());
@@ -116,6 +129,9 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId) {
         try {
+            if (StringUtils.isBlank(groupId)) {
+                throw new IllegalAccessException("消费组ID不能为空");
+            }
             QueryConsumerGroupStatusResponse response = consumerGroup.queryConsumerGroupStatus(groupId, iotInstanceId);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("获取消费组状态失败：" + response.getBody().getErrorMessage());
@@ -131,6 +147,8 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 consumerGroup.setClientIpPort(info.getClientIpPort());
                 consumerGroup.setOnlineTime(info.getOnlineTime());
                 consumerGroup.setRealTimeConsumeCountPerMinute(info.getRealTimeConsumeCountPerMinute());
+                consumerGroup.setGroupId(groupId);
+                consumerGroup.setIotInstanceId(iotInstanceId);
                 consumerGroupList.add(consumerGroup);
             }
             return consumerGroupList;
@@ -143,6 +161,9 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public void resetPosition(String tenantId, String groupId, String iotInstanceId) {
         try {
+            if (StringUtils.isBlank(groupId)) {
+                throw new IllegalAccessException("消费组ID不能为空");
+            }
             ResetConsumerGroupPositionResponse response = consumerGroup.resetConsumerGroupPosition(groupId, iotInstanceId);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("消除消费组堆积消息：" + response.getBody().getErrorMessage());
@@ -154,8 +175,11 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     }
 
     @Override
-    public void delete(String tenantId, String groupId, String iotInstanceId) {
+    public void delete(String tenantId, String groupId, String iotInstanceId, String operator) {
         try {
+            if (StringUtils.isBlank(groupId)) {
+                throw new IllegalAccessException("消费组ID不能为空");
+            }
             DeleteConsumerGroupResponse response = consumerGroup.deleteConsumerGroup(groupId, iotInstanceId);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("删除消费组失败：" + response.getBody().getErrorMessage());

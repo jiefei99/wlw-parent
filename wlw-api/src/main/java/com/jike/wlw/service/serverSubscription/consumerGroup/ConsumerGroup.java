@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 /**
  * @title: ConsumerGroup
  * @Author RS
@@ -19,16 +21,12 @@ public class ConsumerGroup extends StandardEntity {
 
     private static final long serialVersionUID = 6355685899103067787L;
 
-    @ApiModelProperty("产品key")
-    private String productKey;
     @ApiModelProperty("消费组ID")
     private String groupId;
     @ApiModelProperty("消费组名称")
     private String groupName;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
-    @ApiModelProperty("创建时间")
-    private String createTime;
 //状态
     @ApiModelProperty("消费组的单个客户端堆积消息消费速率")
     private Integer accumulatedConsumeCountPerMinute;  //单位 条/分钟

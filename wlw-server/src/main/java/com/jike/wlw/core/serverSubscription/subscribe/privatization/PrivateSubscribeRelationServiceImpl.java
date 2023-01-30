@@ -71,7 +71,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             if (perz == null) {
                 throw new BusinessException("产品不存在！");
             }
-            List<PSubscribe> list = new ArrayList<>();
+            List<PSubscribe> subscribeList = new ArrayList<>();
             for (String info : createRq.getPushMessageType()) {
                 if ("AMQP".equals(createRq.getType())) {
                     for (String groupId : createRq.getConsumerGroupIds()) {
@@ -83,7 +83,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                         amqpSubscribe.setTenantId(tenantId);
                         amqpSubscribe.setType(createRq.getType());
                         amqpSubscribe.setProductKey(createRq.getProductKey());
-                        list.add(amqpSubscribe);
+                        subscribeList.add(amqpSubscribe);
                     }
                 } else if ("MNS".equals(createRq.getType())) {
                     PSubscribe mnsSubscribe = new PSubscribe();
@@ -92,7 +92,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                     }
                 }
             }
-            subscribeDao.save(list);
+            subscribeDao.save(subscribeList);
             return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -184,7 +184,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             Set<String> amqpGroupIds = new HashSet<>();
             for (PSubscribe subscribe : subscribeList) {
                 msgTypes.add(subscribe.getPushMessageType());
-                if ("AMQP".equals(type)) {
+                if ("AMQP".equals(subscribe.getType())) {
                     amqpGroupIds.add(subscribe.getConsumerGroupId());
                 }
             }

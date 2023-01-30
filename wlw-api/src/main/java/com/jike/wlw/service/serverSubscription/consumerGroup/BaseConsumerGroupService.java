@@ -13,17 +13,17 @@ public interface BaseConsumerGroupService {
     void modify(String tenantId, ConsumerGroupModifyRq modifyRq, String operator);
 
     //QueryConsumerGroupByGroupId
-    ConsumerGroup get(String tenantId, String groupId,String iotInstanceId);
+    ConsumerGroup get(String tenantId, String groupId, String iotInstanceId);
 
     //QueryConsumerGroupList
     PagingResult<ConsumerGroup> query(String tenantId, ConsumerGroupFilter filter);
 
     //QueryConsumerGroupStatus
-    List<ConsumerGroup> getStatus(String tenantId, String groupId,String iotInstanceId);
+    List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId);
 
     //ResetConsumerGroupPosition
     void resetPosition(String tenantId, String groupId, String iotInstanceId);
 
     //DeleteConsumerGroup
-    void delete(String tenantId, String groupId, String iotInstanceId);
+    void delete(String tenantId, String groupId, String iotInstanceId, String operator);
 }

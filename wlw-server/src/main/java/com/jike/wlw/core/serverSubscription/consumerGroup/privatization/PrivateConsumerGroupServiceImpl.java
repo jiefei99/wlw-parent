@@ -44,7 +44,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
 
     @Override
     public String create(String tenantId, ConsumerGroupCreateRq createRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(tenantId)){
+        if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
         if (StringUtils.isBlank(createRq.getGroupName())) {
@@ -90,7 +90,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
         try {
             PConsumerGroup group = doGet(tenantId, modifyRq.getGroupId());
             if (group == null) {
-                throw new BusinessException("指定产品不存在或已删除，请确认产品密钥是否正确");
+                throw new BusinessException("指定消费组不存在或已删除，请确认产品密钥是否正确");
             }
             group.setName(modifyRq.getGroupName());
             group.onModified(operator);
@@ -103,7 +103,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
     }
 
     @Override
-    public void delete(String tenantId, String groupId, String iotInstanceId) throws BusinessException {
+    public void delete(String tenantId, String groupId, String iotInstanceId, String operator) throws BusinessException {
         if (StringUtils.isBlank(groupId)) {
             throw new BusinessException("消费组ID不能为空！");
         }
@@ -112,15 +112,16 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
             if (group == null) {
                 return;
             }
-            SubscribeFilter subscribeFilter=new SubscribeFilter();
+            SubscribeFilter subscribeFilter = new SubscribeFilter();
             subscribeFilter.setTenantId(tenantId);
             subscribeFilter.setType(SubscribeRelation.AMQP);
             subscribeFilter.setGroupIdEq(groupId);
             List<PSubscribe> query = subscribeDao.query(subscribeFilter);
-            if (CollectionUtils.isNotEmpty(query)){
+            if (CollectionUtils.isNotEmpty(query)) {
                 throw new BusinessException("需要先删除关联订阅才可以删除消费组！");
             }
             group.setIsDeleted(1);
+            group.onModified(operator);
             consumerGroupDao.save(group);
 //            consumerGroupDao.remove(PConsumerGroup.class, group.getUuid());
         } catch (Exception e) {
@@ -146,10 +147,9 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
         try {
             PConsumerGroup source = doGet(tenantId, groupId);
             ConsumerGroup target = new ConsumerGroup();
-            BeanUtils.copyProperties(source, target);
             target.setGroupId(source.getId());
             target.setGroupName(source.getName());
-            target.setCreateTime(source.getCreated().toString());
+            target.setCreated(source.getCreated());
             return target;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -172,10 +172,9 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
             List<ConsumerGroup> result = new ArrayList<>();
             for (PConsumerGroup source : list) {
                 ConsumerGroup target = new ConsumerGroup();
-                BeanUtils.copyProperties(source, target);
                 target.setGroupName(source.getName());
                 target.setGroupId(source.getId());
-                target.setCreateTime(source.getCreated().toString());
+                target.setCreated(source.getCreated());
                 result.add(target);
             }
             return new PagingResult<>(filter.getPage(), filter.getPageSize(), count, result);
@@ -199,8 +198,8 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
         }
     }
 
-    private PConsumerGroup doGet(String tenantId, String paramValue) throws Exception {
-        PConsumerGroup group = consumerGroupDao.get(PConsumerGroup.class, "id", paramValue, "tenantId", tenantId);
+    private PConsumerGroup doGet(String tenantId, String id) throws Exception {
+        PConsumerGroup group = consumerGroupDao.get(PConsumerGroup.class, "id", id, "tenantId", tenantId,"isDeleted",0);
         return group;
     }
 }

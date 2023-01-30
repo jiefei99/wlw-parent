@@ -41,7 +41,8 @@ public interface PrivateConsumerGroupService extends BaseConsumerGroupService {
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
+                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "清空消费组堆积消息")
     @RequestMapping(value = "/resetConsumerGroupPosition", method = RequestMethod.POST)

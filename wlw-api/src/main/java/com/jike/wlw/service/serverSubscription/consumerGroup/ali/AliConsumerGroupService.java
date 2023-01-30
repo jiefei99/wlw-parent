@@ -27,21 +27,22 @@ public interface AliConsumerGroupService extends BaseConsumerGroupService {
     @ResponseBody
     String create(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                   @ApiParam(required = true, value = "添加消费组请求参数") @RequestBody ConsumerGroupCreateRq createRq,
-                  @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "编辑消费组")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
     void modify(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "编辑消费组请求参数") @RequestBody ConsumerGroupModifyRq modifyRq,
-                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除产品")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator)throws BusinessException;
 
     @ApiOperation(value = "清空消费组堆积消息")
     @RequestMapping(value = "/resetConsumerGroupPosition", method = RequestMethod.POST)
