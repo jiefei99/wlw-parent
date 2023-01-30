@@ -13,6 +13,8 @@ public class PPhysicalModel extends PEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_physical_model";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("物模型编号")
     private String id;
     @ApiModelProperty("物模型名称")

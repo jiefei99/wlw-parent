@@ -14,6 +14,8 @@ import java.util.List;
 public class AuthFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = -4585152361405492174L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("角色id等于")
     private String roleIdEq;
     @ApiModelProperty("角色id在之中")

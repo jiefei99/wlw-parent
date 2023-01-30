@@ -21,10 +21,10 @@ public class UserDao extends BaseDao {
 
     public String insertUser(PUser user) {
         String sql = "insert into " + PUser.TABLE_NAME + " (`creator`,`created`,`modifier`," +
-                "`modified`,`userType`,`name`,`mobile`,`headImage`,`sex`,`status`,`remark`,`uuid`) values (?,?,?,?,?,?,?,?,?,?,?,?)";
+                "`modified`,`tenantId`,`userType`,`name`,`mobile`,`headImage`,`sex`,`status`,`remark`,`uuid`) values (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         jdbcTemplate.update(sql, new Object[]{user.getCreator(), user.getCreated(),
-                user.getModifier(), user.getModified(), user.getUserType(), user.getName(), user.getMobile(), user.getHeadImage(),
+                user.getModifier(), user.getModified(), user.getTenantId(), user.getUserType(), user.getName(), user.getMobile(), user.getHeadImage(),
                 user.getSex(), user.getStatus(), user.getRemark(), user.getUuid()});
 
         return user.getUuid();
@@ -43,6 +43,9 @@ public class UserDao extends BaseDao {
     private JdbcEntityQuery getQuery(String name, String select, UserFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PUser.TABLE_NAME, "o");
 
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (filter.getUserTypeEq() != null) {
             q.where("o.userType = :userTypeEq").p("userTypeEq", filter.getUserTypeEq().name());
         }

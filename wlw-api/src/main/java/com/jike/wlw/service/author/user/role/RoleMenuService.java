@@ -18,6 +18,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 /**
@@ -31,11 +32,13 @@ public interface RoleMenuService {
     @ApiOperation(value = "保存角色权限菜单")
     @RequestMapping(value = "/saveRoleMenus", method = RequestMethod.POST)
     @ResponseBody
-    void saveRoleMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException;
+    void saveRoleMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                       @ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException;
 
     @ApiOperation(value = "根据条件查询角色权限菜单")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<RoleMenu> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
+    PagingResult<RoleMenu> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                 @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
 
 }

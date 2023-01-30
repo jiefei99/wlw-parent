@@ -38,9 +38,9 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     private FlowCodeFeignClient flowCodeFeignClient;
 
     @Override
-    public PhysicalModel get(String id) throws BusinessException {
+    public PhysicalModel get(String tenantId, String id) throws BusinessException {
         try {
-            PPhysicalModel perz = doGet(id);
+            PPhysicalModel perz = doGet(tenantId, id);
             if (perz == null) {
                 return null;
             }
@@ -58,7 +58,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
 
     @TX
     @Override
-    public void create(PhysicalModel createRq, String operator) throws BusinessException {
+    public void create(String tenantId, PhysicalModel createRq, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getName())) {
                 throw new BusinessException("物模型名称不能为空");
@@ -70,13 +70,14 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
             //校验功能是否存在
             FunctionFilter filter = new FunctionFilter();
             filter.setIdIn(createRq.getFunctionIds());
-            List<Function> functionList = functionService.query(filter).getData();
+            List<Function> functionList = functionService.query(tenantId, filter).getData();
             if (functionList.size() != createRq.getFunctionIds().size()) {
                 throw new BusinessException("部分功能不存在或已删除，无法添加");
             }
 
             PPhysicalModel perz = new PPhysicalModel();
             BeanUtils.copyProperties(createRq, perz);
+            perz.setTenantId(tenantId);
             perz.setId(flowCodeFeignClient.next(PPhysicalModel.class.getSimpleName(), "WMX", 6));
             perz.setFunctionIdsJson(JsonUtil.objectToJson(createRq.getFunctionIds()));
 
@@ -89,9 +90,9 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
 
     @TX
     @Override
-    public void modify(PhysicalModel modifyRq, String operator) throws BusinessException {
+    public void modify(String tenantId, PhysicalModel modifyRq, String operator) throws BusinessException {
         try {
-            PPhysicalModel perz = doGet(modifyRq.getId());
+            PPhysicalModel perz = doGet(tenantId, modifyRq.getId());
             if (perz == null) {
                 throw new BusinessException("指定物模型不存在或已删除，无法编辑");
             }
@@ -103,7 +104,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
                 //校验功能是否存在
                 FunctionFilter filter = new FunctionFilter();
                 filter.setIdIn(modifyRq.getFunctionIds());
-                List<Function> functionList = functionService.query(filter).getData();
+                List<Function> functionList = functionService.query(tenantId, filter).getData();
                 if (functionList.size() != modifyRq.getFunctionIds().size()) {
                     throw new BusinessException("部分功能不存在或已删除，无法添加");
                 }
@@ -119,8 +120,9 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     }
 
     @Override
-    public PagingResult<PhysicalModel> query(PhysicalModelFilter filter) throws BusinessException {
+    public PagingResult<PhysicalModel> query(String tenantId, PhysicalModelFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PPhysicalModel> list = physicalModelDao.query(filter);
             long count = physicalModelDao.getCount(filter);
 
@@ -141,10 +143,10 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     }
 
 
-    private PPhysicalModel doGet(String id) throws Exception {
-        PPhysicalModel perz = physicalModelDao.get(PPhysicalModel.class, "id", id);
+    private PPhysicalModel doGet(String tenantId, String id) throws Exception {
+        PPhysicalModel perz = physicalModelDao.get(PPhysicalModel.class, "tenantId", tenantId, "id", id);
         if (perz == null) {
-            perz = physicalModelDao.get(PPhysicalModel.class, id);
+            perz = physicalModelDao.get(PPhysicalModel.class, "tenantId", tenantId, "uuid", id);
         }
 
         return perz;

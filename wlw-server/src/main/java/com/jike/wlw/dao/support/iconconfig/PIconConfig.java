@@ -15,6 +15,8 @@ public class PIconConfig extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_icon_config";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("图标链接")
     private String url;
     @ApiModelProperty("图标描述")

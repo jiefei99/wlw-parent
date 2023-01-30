@@ -26,6 +26,9 @@ public class RoleMenuDao extends BaseDao {
     private JdbcEntityQuery getQuery(String name, String select, AuthFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PRoleMenu.TABLE_NAME, "o");
 
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getRoleIdEq())) {
             q.where("o.roleId = :roleIdEq").p("roleIdEq", filter.getRoleIdEq());
         }

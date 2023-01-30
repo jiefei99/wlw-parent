@@ -13,6 +13,8 @@ public class PAccessRecord extends PStandardEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_access_record";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("ip")
     private String ip;
     @ApiModelProperty("浏览记录状态")

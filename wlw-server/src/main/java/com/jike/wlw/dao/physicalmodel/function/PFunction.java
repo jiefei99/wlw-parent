@@ -14,6 +14,8 @@ public class PFunction extends PEntity implements JdbcEntity {
 
     public static final String TABLE_NAME = "wlw_function";
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("编号")  //identifier
     private String id;
     @ApiModelProperty("名称")

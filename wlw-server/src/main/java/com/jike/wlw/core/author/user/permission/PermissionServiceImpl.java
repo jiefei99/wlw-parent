@@ -27,11 +27,11 @@ public class PermissionServiceImpl extends BaseService implements PermissionServ
     private PermissionDao permissionDao;
 
     @Override
-    public Permission get(String id) throws BusinessException {
+    public Permission get(String tenantId, String id) throws BusinessException {
         try {
-            PPermission perz = permissionDao.get(PPermission.class, "id", id);
+            PPermission perz = permissionDao.get(PPermission.class, "tenantId", tenantId, "id", id);
             if (perz == null) {
-                perz = permissionDao.get(PPermission.class, id);
+                perz = permissionDao.get(PPermission.class, "tenantId", tenantId, "uuid", id);
             }
             if (perz == null) {
                 return null;
@@ -48,13 +48,13 @@ public class PermissionServiceImpl extends BaseService implements PermissionServ
     }
 
     @Override
-    public void modify(PermissionModifyRq modifyRq, String operator) throws BusinessException {
+    public void modify(String tenantId, PermissionModifyRq modifyRq, String operator) throws BusinessException {
 
     }
 
     @TX
     @Override
-    public void save(PermissionSaveRq saveRq, String operator) throws BusinessException {
+    public void save(String tenantId, PermissionSaveRq saveRq, String operator) throws BusinessException {
         try {
             if (CollectionUtils.isEmpty(saveRq.getPermissionRqList())) {
                 throw new BusinessException("请至少上传一条权限参数");
@@ -83,6 +83,7 @@ public class PermissionServiceImpl extends BaseService implements PermissionServ
 
                 PPermission perz = new PPermission();
                 BeanUtils.copyProperties(permissionRq, perz);
+                perz.setTenantId(tenantId);
 //                perz.setRoleId(saveRq.getRoleId());
                 perz.onCreated(operator);
 
@@ -99,8 +100,9 @@ public class PermissionServiceImpl extends BaseService implements PermissionServ
     }
 
     @Override
-    public PagingResult<Permission> query(PermissionFilter filter) throws BusinessException {
+    public PagingResult<Permission> query(String tenantId, PermissionFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PPermission> list = permissionDao.query(filter);
             long total = permissionDao.getCount(filter);
 

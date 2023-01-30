@@ -14,6 +14,8 @@ import java.util.List;
 public class RoleFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 8775665257253140054L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("角色名称类似于")
     private String nameLike;
     @ApiModelProperty("角色名称等于")

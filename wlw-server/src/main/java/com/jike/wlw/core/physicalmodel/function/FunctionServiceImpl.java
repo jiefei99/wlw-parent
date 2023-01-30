@@ -38,9 +38,9 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
     private FlowCodeFeignClient flowCodeFeignClient;
 
     @Override
-    public Function get(String id) throws BusinessException {
+    public Function get(String tenantId, String id) throws BusinessException {
         try {
-            PFunction perz = doGet(id);
+            PFunction perz = doGet(tenantId, id);
             if (perz == null) {
                 return null;
             }
@@ -68,7 +68,7 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
 
     @TX
     @Override
-    public void create(FunctionCreateRq createRq, String operator) throws BusinessException {
+    public void create(String tenantId, FunctionCreateRq createRq, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getName())) {
                 throw new BusinessException("功能名称不能为空");
@@ -100,6 +100,7 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
 
             PFunction perz = new PFunction();
             perz.setId(flowCodeFeignClient.next(PFunction.class.getSimpleName(), "GN", 6));
+            perz.setTenantId(tenantId);
             BeanUtils.copyProperties(createRq, perz);
             perz.setType(createRq.getType().name());
             perz.setAccessMode(createRq.getAccessMode().name());
@@ -125,9 +126,9 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
 
     @TX
     @Override
-    public void modify(FunctionModifyRq modifyRq, String operator) throws BusinessException {
+    public void modify(String tenantId, FunctionModifyRq modifyRq, String operator) throws BusinessException {
         try {
-            PFunction perz = doGet(modifyRq.getUuid());
+            PFunction perz = doGet(tenantId, modifyRq.getUuid());
             if (perz == null) {
                 throw new BusinessException("指定功能不存在或已删除");
             }
@@ -150,8 +151,9 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
     }
 
     @Override
-    public PagingResult<Function> query(FunctionFilter filter) throws BusinessException {
+    public PagingResult<Function> query(String tenantId, FunctionFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PFunction> list = functionDao.query(filter);
             long count = functionDao.getCount(filter);
 
@@ -181,10 +183,10 @@ public class FunctionServiceImpl extends BaseService implements FunctionService 
         }
     }
 
-    private PFunction doGet(String id) throws Exception {
-        PFunction perz = functionDao.get(PFunction.class, "id", id);
+    private PFunction doGet(String tenantId, String id) throws Exception {
+        PFunction perz = functionDao.get(PFunction.class, "tenantId", tenantId, "id", id);
         if (perz == null) {
-            perz = functionDao.get(PFunction.class, id);
+            perz = functionDao.get(PFunction.class, "tenantId", tenantId, "uuid", id);
         }
 
         return perz;

@@ -14,6 +14,8 @@ import java.util.List;
 public class PermissionFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = -3885642703606789033L;
 
+    @ApiModelProperty("租户ID等于")
+    private String tenantIdEq;
     @ApiModelProperty("应用ID等于")
     private String appIdEq;
     @ApiModelProperty("权限ID等于")

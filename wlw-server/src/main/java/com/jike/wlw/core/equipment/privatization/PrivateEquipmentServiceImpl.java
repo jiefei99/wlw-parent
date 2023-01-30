@@ -338,7 +338,7 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
     private PEquipment doGet(String tenantId, String id) throws Exception {
         PEquipment perz = equipmentDao.get(PEquipment.class, "tenantId", tenantId, "id", id);
         if (perz == null) {
-            perz = equipmentDao.get(PEquipment.class, "tenantId", tenantId, "uuid", id);
+            perz = equipmentDao.get(PEquipment.class, id);
         }
         return perz;
     }

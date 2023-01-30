@@ -29,9 +29,9 @@ public class RoleServiceImpl extends BaseService implements RoleService {
     private RoleDao roleDao;
 
     @Override
-    public Role get(String id) throws BusinessException {
+    public Role get(String tenantId, String id) throws BusinessException {
         try {
-            PRole perz = roleDao.get(PRole.class, id);
+            PRole perz = roleDao.get(PRole.class, "tenantId", tenantId, "uuid", id);
             if (perz == null) {
                 return null;
             }
@@ -48,7 +48,7 @@ public class RoleServiceImpl extends BaseService implements RoleService {
 
     @TX
     @Override
-    public void save(Role role, String operator) throws BusinessException {
+    public void save(String tenantId, Role role, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(role.getName())) {
                 throw new BusinessException("请输入角色名称");
@@ -64,6 +64,7 @@ public class RoleServiceImpl extends BaseService implements RoleService {
 
             PRole perz = new PRole();
             BeanUtils.copyProperties(role, perz);
+            perz.setTenantId(tenantId);
             perz.onCreated(operator);
 
             roleDao.save(perz);
@@ -75,13 +76,13 @@ public class RoleServiceImpl extends BaseService implements RoleService {
 
     @TX
     @Override
-    public void modify(Role role, String operator) throws BusinessException {
+    public void modify(String tenantId, Role role, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(role.getUuid())) {
                 throw new BusinessException("角色uuid不能为空");
             }
 
-            PRole perz = roleDao.get(PRole.class, role.getUuid());
+            PRole perz = roleDao.get(PRole.class, "tenantId", tenantId, "uuid", role.getUuid());
             if (perz == null) {
                 throw new BusinessException("指定角色不存在或已删除");
             }
@@ -103,7 +104,7 @@ public class RoleServiceImpl extends BaseService implements RoleService {
 
     @TX
     @Override
-    public void delete(String id) throws BusinessException {
+    public void delete(String tenantId, String id) throws BusinessException {
         try {
             roleDao.remove(PRole.class, id);
         } catch (Exception e) {
@@ -113,8 +114,9 @@ public class RoleServiceImpl extends BaseService implements RoleService {
     }
 
     @Override
-    public PagingResult<Role> query(RoleFilter filter) throws BusinessException {
+    public PagingResult<Role> query(String tenantId, RoleFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PRole> list = roleDao.query(filter);
             long total = roleDao.getCount(filter);
 

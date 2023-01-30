@@ -25,6 +25,9 @@ public class IconConfigDao extends BaseDao {
     private JdbcEntityQuery getQuery(String name, String select, IconConfigFilter filter) {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PIconConfig.TABLE_NAME, "o");
 
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
         if (filter.getAppIdEq() != null) {
             q.where("o.appId =:appIdEq").p("appIdEq", filter.getAppIdEq().name());
         }

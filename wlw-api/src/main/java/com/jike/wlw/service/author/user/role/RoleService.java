@@ -17,27 +17,32 @@ public interface RoleService {
     @ApiOperation(value = "根据角色ID获取指定的角色")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    Role get(@ApiParam(required = true, value = "角色ID") @RequestParam(value = "id") String id) throws BusinessException;
+    Role get(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+             @ApiParam(required = true, value = "角色ID") @RequestParam(value = "id") String id) throws BusinessException;
 
     @ApiOperation(value = "保存角色")
     @RequestMapping(value = "/save", method = RequestMethod.POST)
     @ResponseBody
-    void save(@ApiParam(required = true, value = "新增角色请求参数") @RequestBody Role role,
+    void save(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+              @ApiParam(required = true, value = "新增角色请求参数") @RequestBody Role role,
               @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "修改角色")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
-    void modify(@ApiParam(required = true, value = "修改角色请求参数") @RequestBody Role role,
+    void modify(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "修改角色请求参数") @RequestBody Role role,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据角色ID删除指定的角色")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
-    void delete(@ApiParam(required = true, value = "角色ID") @RequestParam(value = "id") String id) throws BusinessException;
+    void delete(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "角色ID") @RequestParam(value = "id") String id) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询权限")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<Role> query(@ApiParam(required = true, value = "查询条件") @RequestBody RoleFilter filter) throws BusinessException;
+    PagingResult<Role> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                             @ApiParam(required = true, value = "查询条件") @RequestBody RoleFilter filter) throws BusinessException;
 }

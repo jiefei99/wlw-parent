@@ -48,8 +48,8 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public String create(String tenantId, ConsumerGroupCreateRq createRq, String operator) {
         try {
             CreateConsumerGroupResponse response = consumerGroup.createConsumerGroup(createRq);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("创建消费组失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("创建消费组失败：" + response.getBody().getErrorMessage());
             }
             return response.getBody().getGroupId();
         } catch (Exception e) {
@@ -62,8 +62,8 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public void modify(String tenantId, ConsumerGroupModifyRq modifyRq, String operator) {
         try {
             UpdateConsumerGroupResponse response = consumerGroup.updateConsumerGroup(modifyRq);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("修改消费组失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("修改消费组失败：" + response.getBody().getErrorMessage());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -75,12 +75,12 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public ConsumerGroup get(String tenantId, String groupId, String iotInstanceId) {
         try {
             QueryConsumerGroupByGroupIdResponse response = consumerGroup.queryConsumerGroupByGroupId(groupId, iotInstanceId);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("获取消费组失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("获取消费组失败：" + response.getBody().getErrorMessage());
             }
             QueryConsumerGroupByGroupIdResponseBodyData source = response.getBody().getData();
-            ConsumerGroup target=new ConsumerGroup();
-            BeanUtils.copyProperties(source,target);
+            ConsumerGroup target = new ConsumerGroup();
+            BeanUtils.copyProperties(source, target);
             return target;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -92,15 +92,15 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public PagingResult<ConsumerGroup> query(String tenantId, ConsumerGroupFilter filter) {
         try {
             QueryConsumerGroupListResponse response = consumerGroup.queryConsumerGroupList(filter);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("获取消费组列表失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("获取消费组列表失败：" + response.getBody().getErrorMessage());
             }
-            List<ConsumerGroup> consumerGroupList =new ArrayList<>();
-            if (response.getBody().getData()==null||CollectionUtils.isEmpty(response.getBody().getData().getConsumerGroupDTO())){
+            List<ConsumerGroup> consumerGroupList = new ArrayList<>();
+            if (response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getConsumerGroupDTO())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), consumerGroupList);
             }
             for (QueryConsumerGroupListResponseBodyDataConsumerGroupDTO info : response.getBody().getData().getConsumerGroupDTO()) {
-                ConsumerGroup consumerGroup=new ConsumerGroup();
+                ConsumerGroup consumerGroup = new ConsumerGroup();
                 consumerGroup.setGroupId(info.getGroupId());
                 consumerGroup.setGroupName(info.getGroupName());
                 consumerGroup.setCreateTime(info.getCreateTime());
@@ -117,15 +117,15 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId) {
         try {
             QueryConsumerGroupStatusResponse response = consumerGroup.queryConsumerGroupStatus(groupId, iotInstanceId);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("获取消费组状态失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("获取消费组状态失败：" + response.getBody().getErrorMessage());
             }
-            List<ConsumerGroup> consumerGroupList=new ArrayList<>();
-            if (response.getBody().getClientConnectionStatusList()==null||CollectionUtils.isEmpty(response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())){
+            List<ConsumerGroup> consumerGroupList = new ArrayList<>();
+            if (response.getBody().getClientConnectionStatusList() == null || CollectionUtils.isEmpty(response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())) {
                 return consumerGroupList;
             }
             for (QueryConsumerGroupStatusResponseBodyClientConnectionStatusListConsumerGroupClientConnectionInfo info : response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo()) {
-                ConsumerGroup consumerGroup=new ConsumerGroup();
+                ConsumerGroup consumerGroup = new ConsumerGroup();
                 consumerGroup.setAccumulatedConsumeCountPerMinute(info.getAccumulatedConsumeCountPerMinute());
                 consumerGroup.setClientId(info.getClientId());
                 consumerGroup.setClientIpPort(info.getClientIpPort());
@@ -144,8 +144,8 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public void resetPosition(String tenantId, String groupId, String iotInstanceId) {
         try {
             ResetConsumerGroupPositionResponse response = consumerGroup.resetConsumerGroupPosition(groupId, iotInstanceId);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("消除消费组堆积消息："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("消除消费组堆积消息：" + response.getBody().getErrorMessage());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -157,8 +157,8 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     public void delete(String tenantId, String groupId, String iotInstanceId) {
         try {
             DeleteConsumerGroupResponse response = consumerGroup.deleteConsumerGroup(groupId, iotInstanceId);
-            if (!response.getBody().getSuccess()){
-                throw new BusinessException("删除消费组失败："+response.getBody().getErrorMessage());
+            if (!response.getBody().getSuccess()) {
+                throw new BusinessException("删除消费组失败：" + response.getBody().getErrorMessage());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);

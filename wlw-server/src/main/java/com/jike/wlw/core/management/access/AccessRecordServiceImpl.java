@@ -30,9 +30,10 @@ public class AccessRecordServiceImpl extends BaseService implements AccessRecord
     private AccessRecordDao accessRecordDao;
 
     @Override
-    public void add(AccessRecord accessRecord) throws BusinessException {
+    public void add(String tenantId, AccessRecord accessRecord) throws BusinessException {
         try {
             PAccessRecord perz = new PAccessRecord();
+            perz.setTenantId(tenantId);
             perz.onCreated(accessRecord.getLoginUserName());
             perz.setIp(accessRecord.getIp());
             if (accessRecord.getStatus() != null) {
@@ -50,8 +51,9 @@ public class AccessRecordServiceImpl extends BaseService implements AccessRecord
     }
 
     @Override
-    public PagingResult<AccessRecord> query(AccessRecordFilter filter) throws BusinessException {
+    public PagingResult<AccessRecord> query(String tenantId, AccessRecordFilter filter) throws BusinessException {
         try {
+            filter.setTenantIdEq(tenantId);
             List<PAccessRecord> list = accessRecordDao.query(filter);
             long total = accessRecordDao.getCount(filter);
 
