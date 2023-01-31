@@ -7,6 +7,8 @@ import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +31,12 @@ public class SubscribeDao extends BaseDao {
     public long getCount(SubscribeFilter filter) {
         JdbcEntityQuery q = getQuery("getCount", "count(*)", filter);
         return q.count(jdbcTemplate, String.class);
+    }
+
+    public List<String> getCountByGroup(String tenantId,String productKey) {
+        String sql="select pushMessageType from" + PSubscribe.TABLE_NAME + "tenantId= '"+tenantId+"' and productKey ='"+productKey+"' GROUP BY consumerGroupId";
+        RowMapper<String> rowMapper = new BeanPropertyRowMapper<>();
+        return jdbcTemplate.query(sql, rowMapper);
     }
 
     public void removeSubscribe(String tenantId, String type, String productKey) {

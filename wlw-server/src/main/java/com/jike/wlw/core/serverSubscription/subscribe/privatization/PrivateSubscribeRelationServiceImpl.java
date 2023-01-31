@@ -1,12 +1,18 @@
 package com.jike.wlw.core.serverSubscription.subscribe.privatization;
 
+import com.alibaba.fastjson.JSON;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.support.emqx.EmqxClient;
 import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.dao.serverSubscription.subscribe.PSubscribe;
 import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
+import com.jike.wlw.service.equipment.Equipment;
+import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
+import com.jike.wlw.service.equipment.privatization.PrivateEquipmentService;
+import com.jike.wlw.service.product.topic.Topic;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -17,10 +23,13 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.Resource;
 import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,6 +53,11 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
     private SubscribeDao subscribeDao;
     @Autowired
     private ProductDao productDao;
+    @Autowired
+    private PrivateEquipmentService equipmentService;
+    @Resource(name = "mqttClient")
+    private EmqxClient mqtt;
+
 
     @Override
     public String create(String tenantId, SubscribeRelationCreateRq createRq, String operator) throws BusinessException {
@@ -72,6 +86,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                 throw new BusinessException("产品不存在！");
             }
             List<PSubscribe> subscribeList = new ArrayList<>();
+            List<String> pushMsgTypeList = new ArrayList<>();
             for (String info : createRq.getPushMessageType()) {
                 if ("AMQP".equals(createRq.getType())) {
                     for (String groupId : createRq.getConsumerGroupIds()) {
@@ -84,6 +99,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                         amqpSubscribe.setType(createRq.getType());
                         amqpSubscribe.setProductKey(createRq.getProductKey());
                         subscribeList.add(amqpSubscribe);
+                        pushMsgTypeList.add(info);
                     }
                 } else if ("MNS".equals(createRq.getType())) {
                     PSubscribe mnsSubscribe = new PSubscribe();
@@ -93,6 +109,20 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                 }
             }
             subscribeDao.save(subscribeList);
+            //todo 创建MQTT连接
+            if ("AMQP".equals(createRq.getType())) {
+                EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
+                filter.setProductKey(createRq.getProductKey());
+                filter.setPageSize(10000);
+                PagingResult<Equipment> results = equipmentService.queryByProductKey(tenantId, filter);
+                if (CollectionUtils.isEmpty(results.getData())) {
+                    return null;
+                }
+                //订阅topic
+                for (Equipment info : results.getData()) {
+                    mqtt.subscribe(buildTopic(createRq.getProductKey(), info.getId()), 1);
+                }
+            }
             return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -153,7 +183,13 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("租户不能为空！");
         }
         try {
+            List<String> msgTypes = subscribeDao.getCountByGroup(tenantId, productKey);
             subscribeDao.removeSubscribe(tenantId, type, productKey);
+            for (String msgType : msgTypes) {
+                String topic = "";
+                mqtt.cleanTopic(topic);
+            }
+            System.out.println(JSON.toJSONString(mqtt));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -261,12 +297,26 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("ProductKey不能为空！");
         }
         try {
-            subscribeDao.removeSubscribeByGroupId(tenantId,groupId,productKey);
+            subscribeDao.removeSubscribeByGroupId(tenantId, groupId, productKey);
         } catch (Exception e) {
             throw new BusinessException("删除消费组失败：" + e.getMessage());
         }
     }
 
+    //新增/删除 设备后的订阅操作
+    public void operateSubscription(String productKey, String equipmentId, String type) {
+        if (SubscribeRelation.ADD.equals(type)) {
+            mqtt.subscribe(buildTopic(productKey, equipmentId), 1);
+        } else if (SubscribeRelation.DEL.equals(type)) {
+            mqtt.cleanTopic(buildTopic(productKey, equipmentId));
+        } else {
+            return;
+        }
+    }
+
+    public String buildTopic(String productKey, String equipmentId) {
+        return "/" + productKey + "/" + equipmentId + "/event/post";
+    }
 }
 
 

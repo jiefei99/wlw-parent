@@ -6,6 +6,7 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.config.fegin.FlowCodeFeignClient;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.serverSubscription.subscribe.privatization.PrivateSubscribeRelationServiceImpl;
 import com.jike.wlw.dao.TX;
 import com.jike.wlw.dao.equipment.EquipmentDao;
 import com.jike.wlw.dao.equipment.PEquipment;
@@ -20,6 +21,8 @@ import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
 import com.jike.wlw.service.equipment.EquipmentStatus;
 import com.jike.wlw.service.equipment.privatization.PrivateEquipmentService;
 import com.jike.wlw.service.flowcode.FlowCodeService;
+import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
+import com.jike.wlw.service.serverSubscription.subscribe.privatization.PrivateSubscribeRelationService;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -41,6 +44,8 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
     @Qualifier("flowCodeServiceImpl")
     @Autowired
     private FlowCodeService flowCodeService;
+    @Autowired
+    private PrivateSubscribeRelationServiceImpl privateSubscribeRelationService;
 
     @Override
     public ActionResult<Equipment> getDetail(String tenantId, EquipmentGetRq getRq) throws BusinessException {
@@ -92,7 +97,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
                 perz.setId(createRq.getId());
             }
             perz.onCreated(operator);
-
             equipmentDao.save(perz);
             return ActionResult.ok(perz.getUuid());
         } catch (Exception e) {
@@ -112,7 +116,7 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
             if (perz == null) {
                 return ActionResult.ok();
             }
-
+            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.DEL);
             equipmentDao.remove(perz);
             return ActionResult.ok();
         } catch (Exception e) {
@@ -133,8 +137,8 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
                 return ActionResult.fail("指定设备不存在或已删除");
             }
             perz.setStatus(EquipmentStatus.ONLINE.name());
-
             equipmentDao.save(perz);
+            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.ADD);
             return ActionResult.ok();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -154,7 +158,7 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
                 return ActionResult.fail("指定设备不存在或已删除");
             }
             perz.setStatus(EquipmentStatus.DISABLE.name());
-
+            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.DEL);
             equipmentDao.save(perz);
             return ActionResult.ok();
         } catch (Exception e) {
@@ -179,7 +183,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
             result.setName(perz.getName());
             result.setStatus(EquipmentStatus.valueOf(perz.getStatus()));
             result.setTimestamp(perz.getTimestamp());
-
             return ActionResult.ok(result);
         } catch (Exception e) {
             log.error(e.getMessage(), e);

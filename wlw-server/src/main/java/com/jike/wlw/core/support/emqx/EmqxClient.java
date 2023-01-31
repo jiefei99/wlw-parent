@@ -148,6 +148,22 @@ public class EmqxClient {
     }
 
     /**
+     * 取消订阅某个主题
+     *
+     * @param topic 主题
+     */
+    public void cleanTopic(String topic) {
+        logger.info("==============取消订阅主题=========" + topic);
+        if ( EmqxClient.getClient() != null && EmqxClient.getClient().isConnected()){
+            try {
+                EmqxClient.getClient().unsubscribe(topic);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    /**
      * 断开连接
      *
      * @param quiesceTimeout 延迟时间

@@ -51,14 +51,13 @@ public class EmqxConfig {
      */
     private int keepalive;
 
-    @Bean
+    @Bean("mqttClient")
     public EmqxClient getMqttPushClient() {
         emqxClient.connect(hostUrl, clientId, username, password, timeout, keepalive,defaultTopic);
         // 以/#结尾表示订阅所有以test开头的主题
-        emqxClient.subscribe(defaultTopic, 1);
-
-
-        emqxClient.publish(1,false,"topic-test","sb223");
+//        emqxClient.subscribe(defaultTopic, 1);
+//        emqxClient.publish(1,false,"topic-test","sb223");
+        //重启服务时做一次连接， 连接之前的消息订阅
         return emqxClient;
     }
 }

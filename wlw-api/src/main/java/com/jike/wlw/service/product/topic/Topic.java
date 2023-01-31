@@ -1,10 +1,14 @@
 package com.jike.wlw.service.product.topic;
 
 import com.geeker123.rumba.jpa.api.entity.StandardEntity;
+import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @title: Topic
@@ -32,6 +36,13 @@ public class Topic extends StandardEntity {
     private String iotInstanceId;
     @ApiModelProperty("描述")
     private String desc;
+
+    public final static Map<String,Integer> msgTypeQosMap = new HashMap<String,Integer>() {{
+        put(SubscribeRelation.DEVICE_DATA_FLAG, 1);
+        put(SubscribeRelation.DEVICE_STATUS_CHANGE_FLAG, 1);
+        put(SubscribeRelation.DEVICE_LIFE_CYCLE_FLAG, 1);
+    }};
+
 }
 
 

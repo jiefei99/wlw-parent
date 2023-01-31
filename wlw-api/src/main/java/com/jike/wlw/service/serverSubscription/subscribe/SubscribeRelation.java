@@ -30,6 +30,8 @@ public class SubscribeRelation extends StandardEntity {
     public static final String OTA_VERSION_FLAG = "otaVersionFlag";//否选择OTA模块版本号上报（仅当Type为AMQP时有效。）
     public static final String OTA_JOB_FLAG = "otaJobFlag";//否选择OTA升级批次状态通知（仅当Type为AMQP时有效。）
     public static final String AMQP = "AMQP";
+    public static final String ADD = "add";
+    public static final String DEL = "del";
 
     @ApiModelProperty("productKey")
     private String productKey;
