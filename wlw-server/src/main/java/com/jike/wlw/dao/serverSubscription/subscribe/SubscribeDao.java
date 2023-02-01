@@ -2,8 +2,6 @@ package com.jike.wlw.dao.serverSubscription.subscribe;
 
 import com.geeker123.rumba.commons.paging.AbstractQueryFilter;
 import com.geeker123.rumba.commons.util.StringUtil;
-import com.geeker123.rumba.jdbc.JdbcEntityManager;
-import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
@@ -33,8 +31,14 @@ public class SubscribeDao extends BaseDao {
         return q.count(jdbcTemplate, String.class);
     }
 
-    public List<String> getCountByGroup(String tenantId,String productKey) {
-        String sql="select pushMessageType from" + PSubscribe.TABLE_NAME + "tenantId= '"+tenantId+"' and productKey ='"+productKey+"' GROUP BY consumerGroupId";
+    public List<String> getPushMsgTypeByGroup(String tenantId, String productKey) {
+        String sql="select pushMessageType from" + PSubscribe.TABLE_NAME + "where tenantId= '"+tenantId+"' and productKey ='"+productKey+"' GROUP BY consumerGroupId";
+        RowMapper<String> rowMapper = new BeanPropertyRowMapper<>();
+        return jdbcTemplate.query(sql, rowMapper);
+    }
+
+    public List<String> getProductKey() {
+        String sql="select distinct productKey from" + PSubscribe.TABLE_NAME;
         RowMapper<String> rowMapper = new BeanPropertyRowMapper<>();
         return jdbcTemplate.query(sql, rowMapper);
     }

@@ -12,7 +12,6 @@ import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
 import com.jike.wlw.service.equipment.Equipment;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.privatization.PrivateEquipmentService;
-import com.jike.wlw.service.product.topic.Topic;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -23,21 +22,16 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.security.PublicKey;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @title: PrivateSubscribeRelationServiceImpl
@@ -183,7 +177,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("租户不能为空！");
         }
         try {
-            List<String> msgTypes = subscribeDao.getCountByGroup(tenantId, productKey);
+            List<String> msgTypes = subscribeDao.getPushMsgTypeByGroup(tenantId, productKey);
             subscribeDao.removeSubscribe(tenantId, type, productKey);
             for (String msgType : msgTypes) {
                 String topic = "";
@@ -303,6 +297,13 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         }
     }
 
+    public void restartSubscription(){
+        //查询出所有订阅  productkey分组
+//        List<String> productKey = subscribeDao.getProductKey();
+        //根据productkey查询每个设备
+        //进行拼接订阅
+    }
+
     //新增/删除 设备后的订阅操作
     public void operateSubscription(String productKey, String equipmentId, String type) {
         if (SubscribeRelation.ADD.equals(type)) {
@@ -314,8 +315,8 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         }
     }
 
-    public String buildTopic(String productKey, String equipmentId) {
-        return "/" + productKey + "/" + equipmentId + "/event/post";
+    private String buildTopic(String productKey, String equipmentId) {
+        return  productKey + "/" + equipmentId + "/event/post";
     }
 }
 
