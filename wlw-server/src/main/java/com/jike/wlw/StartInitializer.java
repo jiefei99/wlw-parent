@@ -22,7 +22,7 @@ public class StartInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         System.out.println("项目启动,重新启动消息订阅。。。");
-        privateSubscribeRelationService.restartSubscription();
+//        privateSubscribeRelationService.restartSubscription();
     }
 }
 
