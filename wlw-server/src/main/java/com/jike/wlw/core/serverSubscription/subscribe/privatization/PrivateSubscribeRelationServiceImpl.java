@@ -47,8 +47,6 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
     private SubscribeDao subscribeDao;
     @Autowired
     private ProductDao productDao;
-    @Autowired
-    private PrivateEquipmentService equipmentService;
     @Resource(name = "mqttClient")
     private EmqxClient mqtt;
 
@@ -103,19 +101,8 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                 }
             }
             subscribeDao.save(subscribeList);
-            //todo 创建MQTT连接
             if ("AMQP".equals(createRq.getType())) {
-                EquipmentQueryByProductRq filter = new EquipmentQueryByProductRq();
-                filter.setProductKey(createRq.getProductKey());
-                filter.setPageSize(10000);
-                PagingResult<Equipment> results = equipmentService.queryByProductKey(tenantId, filter);
-                if (CollectionUtils.isEmpty(results.getData())) {
-                    return null;
-                }
-                //订阅topic
-                for (Equipment info : results.getData()) {
-                    mqtt.subscribe(buildTopic(createRq.getProductKey(), info.getId()), 1);
-                }
+                mqtt.subscribe(buildTopic(createRq.getProductKey()), 1);
             }
             return null;
         } catch (Exception e) {
@@ -179,11 +166,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         try {
             List<String> msgTypes = subscribeDao.getPushMsgTypeByGroup(tenantId, productKey);
             subscribeDao.removeSubscribe(tenantId, type, productKey);
-            for (String msgType : msgTypes) {
-                String topic = "";
-                mqtt.cleanTopic(topic);
-            }
-            System.out.println(JSON.toJSONString(mqtt));
+            mqtt.cleanTopic(buildTopic(productKey));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -297,26 +280,8 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         }
     }
 
-    public void restartSubscription(){
-        //查询出所有订阅  productkey分组
-//        List<String> productKey = subscribeDao.getProductKey();
-        //根据productkey查询每个设备
-        //进行拼接订阅
-    }
-
-    //新增/删除 设备后的订阅操作
-    public void operateSubscription(String productKey, String equipmentId, String type) {
-        if (SubscribeRelation.ADD.equals(type)) {
-            mqtt.subscribe(buildTopic(productKey, equipmentId), 1);
-        } else if (SubscribeRelation.DEL.equals(type)) {
-            mqtt.cleanTopic(buildTopic(productKey, equipmentId));
-        } else {
-            return;
-        }
-    }
-
-    private String buildTopic(String productKey, String equipmentId) {
-        return  productKey + "/" + equipmentId + "/event/post";
+    private String buildTopic(String productKey) {
+        return  productKey + "/+/event/post";
     }
 }
 

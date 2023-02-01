@@ -44,8 +44,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
     @Qualifier("flowCodeServiceImpl")
     @Autowired
     private FlowCodeService flowCodeService;
-    @Autowired
-    private PrivateSubscribeRelationServiceImpl privateSubscribeRelationService;
 
     @Override
     public ActionResult<Equipment> getDetail(String tenantId, EquipmentGetRq getRq) throws BusinessException {
@@ -116,7 +114,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
             if (perz == null) {
                 return ActionResult.ok();
             }
-            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.DEL);
             equipmentDao.remove(perz);
             return ActionResult.ok();
         } catch (Exception e) {
@@ -138,7 +135,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
             }
             perz.setStatus(EquipmentStatus.ONLINE.name());
             equipmentDao.save(perz);
-            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.ADD);
             return ActionResult.ok();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -158,7 +154,6 @@ public class PrivateEquipmentServiceImpl extends BaseService implements PrivateE
                 return ActionResult.fail("指定设备不存在或已删除");
             }
             perz.setStatus(EquipmentStatus.DISABLE.name());
-            privateSubscribeRelationService.operateSubscription(perz.getProductKey(),getRq.getId(), SubscribeRelation.DEL);
             equipmentDao.save(perz);
             return ActionResult.ok();
         } catch (Exception e) {
