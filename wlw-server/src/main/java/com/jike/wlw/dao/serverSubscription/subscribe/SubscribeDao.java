@@ -31,16 +31,9 @@ public class SubscribeDao extends BaseDao {
         return q.count(jdbcTemplate, String.class);
     }
 
-    public List<String> getPushMsgTypeByGroup(String tenantId, String productKey) {
-        String sql="select pushMessageType from" + PSubscribe.TABLE_NAME + "where tenantId= '"+tenantId+"' and productKey ='"+productKey+"' GROUP BY consumerGroupId";
-        RowMapper<String> rowMapper = new BeanPropertyRowMapper<>();
-        return jdbcTemplate.query(sql, rowMapper);
-    }
-
-    public List<String> getProductKey() {
-        String sql="select distinct productKey from" + PSubscribe.TABLE_NAME;
-        RowMapper<String> rowMapper = new BeanPropertyRowMapper<>();
-        return jdbcTemplate.query(sql, rowMapper);
+    public List<String> queryProductKeys() {
+        String sql="SELECT DISTINCT productKey FROM "+PSubscribe.TABLE_NAME;
+        return jdbcTemplate.queryForList(sql,String.class);
     }
 
     public void removeSubscribe(String tenantId, String type, String productKey) {

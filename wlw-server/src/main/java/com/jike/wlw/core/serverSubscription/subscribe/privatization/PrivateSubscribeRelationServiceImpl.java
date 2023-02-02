@@ -164,7 +164,6 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("租户不能为空！");
         }
         try {
-            List<String> msgTypes = subscribeDao.getPushMsgTypeByGroup(tenantId, productKey);
             subscribeDao.removeSubscribe(tenantId, type, productKey);
             mqtt.cleanTopic(buildTopic(productKey));
         } catch (Exception e) {
@@ -278,6 +277,17 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         } catch (Exception e) {
             throw new BusinessException("删除消费组失败：" + e.getMessage());
         }
+    }
+
+    public void startSubscription(){
+        List<String> productKeys = subscribeDao.queryProductKeys();
+        if (CollectionUtils.isEmpty(productKeys)){
+            return;
+        }
+        for (String productKey : productKeys) {
+            mqtt.subscribe(buildTopic(productKey), 1);
+        }
+
     }
 
     private String buildTopic(String productKey) {
