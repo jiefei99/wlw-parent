@@ -1,5 +1,6 @@
 package com.jike.wlw.core.support.emqx;
 
+import com.geeker123.rumba.commons.exception.BusinessException;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 import org.slf4j.Logger;
@@ -154,7 +155,7 @@ public class EmqxClient {
      */
     public void cleanTopic(String topic) {
         logger.info("==============取消订阅主题=========" + topic);
-        if ( EmqxClient.getClient() != null && EmqxClient.getClient().isConnected()){
+        if (EmqxClient.getClient() != null && EmqxClient.getClient().isConnected()) {
             try {
                 EmqxClient.getClient().unsubscribe(topic);
             } catch (MqttException e) {

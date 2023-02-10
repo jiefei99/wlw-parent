@@ -26,15 +26,16 @@ public interface SourceService {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     void create(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "新建资源请求参数") @RequestBody Source createRq,
+                @ApiParam(required = true, value = "新建资源请求参数") @RequestBody SourceCreateRq createRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+
 
     @ApiOperation(value = "编辑资源")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
     void modify(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                @ApiParam(required = true, value = "编辑资源请求参数") @RequestBody Source modifyRq,
+                @ApiParam(required = true, value = "编辑资源请求参数") @RequestBody SourceModifyRq modifyRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除资源")
@@ -54,14 +55,16 @@ public interface SourceService {
     @ApiOperation(value = "资源断接")
     @RequestMapping(value = "/disConnect", method = RequestMethod.POST)
     @ResponseBody
-    void disConnect(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
+    void disConnect(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
+                    @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
                     @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "测试资源是否连接正常")
     @RequestMapping(value = "/checkConnecting", method = RequestMethod.POST)
     @ResponseBody
     void checkConnecting(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
-                                 @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException;
+                         @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
+                         @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询资源")
     @RequestMapping(value = "/query", method = RequestMethod.POST)

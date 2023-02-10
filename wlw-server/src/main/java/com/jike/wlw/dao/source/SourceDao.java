@@ -28,7 +28,7 @@ public class SourceDao extends BaseDao {
 
         //eq查询
         if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
-            q.where("(o.name like :keywords)").p("keywords", filter.getKeywords());
+            q.where("(o.name like :keywords)").p("keywords", "%" + filter.getKeywords() + "%");
         }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());

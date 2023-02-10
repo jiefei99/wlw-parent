@@ -41,6 +41,4 @@ public class SourceFilter extends AbstractQueryFilter {
     @ApiModelProperty("类型在之中")
     private List<String> typeIn;
 
-    @ApiModelProperty("名称类似")
-    private String nameLike;
 }

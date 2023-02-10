@@ -9,11 +9,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serializable;
+
 @Setter
 @Getter
 @ApiModel("资源信息")
-public class Source extends StandardEntity {
-    private static final long serialVersionUID = 664293227949105584L;
+public class SourceCreateRq implements Serializable {
+    private static final long serialVersionUID = 6220488135956881319L;
 
     @ApiModelProperty("名称")
     private String name;
@@ -21,10 +23,6 @@ public class Source extends StandardEntity {
     private SourceEvns environment;
     @ApiModelProperty("类型")
     private SourceTypes type;
-    @ApiModelProperty("是否删除")
-    private Boolean deleted;
-    @ApiModelProperty("是否连接")
-    private Boolean connected;
 
     @ApiModelProperty("阿里云连接参数")
     private AliyunSource aliyunSource;
