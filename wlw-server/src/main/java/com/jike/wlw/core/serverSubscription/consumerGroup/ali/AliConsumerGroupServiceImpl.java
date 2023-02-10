@@ -28,6 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -116,7 +117,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 ConsumerGroup consumerGroup = new ConsumerGroup();
                 consumerGroup.setGroupId(info.getGroupId());
                 consumerGroup.setGroupName(info.getGroupName());
-                consumerGroup.setCreateTime(info.getCreateTime());
+                consumerGroup.setCreated(new Date(info.getCreateTime()));
                 consumerGroupList.add(consumerGroup);
             }
             return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), consumerGroupList);

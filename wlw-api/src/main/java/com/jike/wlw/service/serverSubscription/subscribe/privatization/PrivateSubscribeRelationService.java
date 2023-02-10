@@ -76,5 +76,6 @@ public interface PrivateSubscribeRelationService extends BaseSubscribeRelationSe
                                  @ApiParam(required = true, value = "operator") @RequestParam(value = "operator") String operator,
                                  @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
-
+    @ApiOperation(value = "重启项目启动数据库订阅")
+    void startSubscription();
 }

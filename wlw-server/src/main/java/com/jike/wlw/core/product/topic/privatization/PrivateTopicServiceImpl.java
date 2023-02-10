@@ -154,6 +154,7 @@ public class PrivateTopicServiceImpl extends BaseService implements PrivateTopic
             throw new BusinessException(e.getMessage(), e);
         }
     }
+
 }
 
 

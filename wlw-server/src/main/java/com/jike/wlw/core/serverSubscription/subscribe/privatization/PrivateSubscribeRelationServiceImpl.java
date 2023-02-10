@@ -1,12 +1,17 @@
 package com.jike.wlw.core.serverSubscription.subscribe.privatization;
 
+import com.alibaba.fastjson.JSON;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.support.emqx.EmqxClient;
 import com.jike.wlw.dao.product.info.PProduct;
 import com.jike.wlw.dao.product.info.ProductDao;
 import com.jike.wlw.dao.serverSubscription.subscribe.PSubscribe;
 import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
+import com.jike.wlw.service.equipment.Equipment;
+import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
+import com.jike.wlw.service.equipment.privatization.PrivateEquipmentService;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -21,14 +26,12 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.security.PublicKey;
+import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * @title: PrivateSubscribeRelationServiceImpl
@@ -44,6 +47,9 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
     private SubscribeDao subscribeDao;
     @Autowired
     private ProductDao productDao;
+    @Resource(name = "mqttClient")
+    private EmqxClient mqtt;
+
 
     @Override
     public String create(String tenantId, SubscribeRelationCreateRq createRq, String operator) throws BusinessException {
@@ -72,6 +78,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                 throw new BusinessException("产品不存在！");
             }
             List<PSubscribe> subscribeList = new ArrayList<>();
+            List<String> pushMsgTypeList = new ArrayList<>();
             for (String info : createRq.getPushMessageType()) {
                 if ("AMQP".equals(createRq.getType())) {
                     for (String groupId : createRq.getConsumerGroupIds()) {
@@ -84,6 +91,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                         amqpSubscribe.setType(createRq.getType());
                         amqpSubscribe.setProductKey(createRq.getProductKey());
                         subscribeList.add(amqpSubscribe);
+                        pushMsgTypeList.add(info);
                     }
                 } else if ("MNS".equals(createRq.getType())) {
                     PSubscribe mnsSubscribe = new PSubscribe();
@@ -93,6 +101,9 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
                 }
             }
             subscribeDao.save(subscribeList);
+            if ("AMQP".equals(createRq.getType())) {
+                mqtt.subscribe(buildTopic(createRq.getProductKey()), 1);
+            }
             return null;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -154,6 +165,7 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
         }
         try {
             subscribeDao.removeSubscribe(tenantId, type, productKey);
+            mqtt.cleanTopic(buildTopic(productKey));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -261,12 +273,26 @@ public class PrivateSubscribeRelationServiceImpl extends BaseService implements 
             throw new BusinessException("ProductKey不能为空！");
         }
         try {
-            subscribeDao.removeSubscribeByGroupId(tenantId,groupId,productKey);
+            subscribeDao.removeSubscribeByGroupId(tenantId, groupId, productKey);
         } catch (Exception e) {
             throw new BusinessException("删除消费组失败：" + e.getMessage());
         }
     }
 
+    public void startSubscription(){
+        List<String> productKeys = subscribeDao.queryProductKeys();
+        if (CollectionUtils.isEmpty(productKeys)){
+            return;
+        }
+        for (String productKey : productKeys) {
+            mqtt.subscribe(buildTopic(productKey), 1);
+        }
+
+    }
+
+    private String buildTopic(String productKey) {
+        return  productKey + "/+/event/post";
+    }
 }
 
 

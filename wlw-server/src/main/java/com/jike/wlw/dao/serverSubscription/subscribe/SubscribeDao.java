@@ -2,11 +2,11 @@ package com.jike.wlw.dao.serverSubscription.subscribe;
 
 import com.geeker123.rumba.commons.paging.AbstractQueryFilter;
 import com.geeker123.rumba.commons.util.StringUtil;
-import com.geeker123.rumba.jdbc.JdbcEntityManager;
-import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,6 +29,11 @@ public class SubscribeDao extends BaseDao {
     public long getCount(SubscribeFilter filter) {
         JdbcEntityQuery q = getQuery("getCount", "count(*)", filter);
         return q.count(jdbcTemplate, String.class);
+    }
+
+    public List<String> queryProductKeys() {
+        String sql="SELECT DISTINCT productKey FROM "+PSubscribe.TABLE_NAME;
+        return jdbcTemplate.queryForList(sql,String.class);
     }
 
     public void removeSubscribe(String tenantId, String type, String productKey) {

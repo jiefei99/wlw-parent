@@ -30,6 +30,7 @@ public class ServerApplication extends SpringBootServletInitializer {
 
     public static void main(String[] args) {
         SpringApplication springApplication = new SpringApplication(ServerApplication.class);
+        springApplication.setAllowCircularReferences(Boolean.TRUE);
         springApplication.addListeners(new ApplicationStartUp());
         springApplication.run(args);
     }
