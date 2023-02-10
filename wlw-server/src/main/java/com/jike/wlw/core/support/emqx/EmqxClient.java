@@ -41,7 +41,7 @@ public class EmqxClient {
                         int keepalive, String mqttTopic) {
         MqttClient client;
         try {
-            client = new MqttClient(host, clientID, new MemoryPersistence());
+            client = new MqttClient(host, MqttClient.generateClientId(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setCleanSession(true);
             options.setUserName(username);
@@ -161,6 +161,7 @@ public class EmqxClient {
                 EmqxClient.getClient().disconnect(quiesceTimeout);
             }
             logger.info("==============成功断开连接=========" + quiesceTimeout);
+
         } catch (MqttException e) {
             e.printStackTrace();
         }

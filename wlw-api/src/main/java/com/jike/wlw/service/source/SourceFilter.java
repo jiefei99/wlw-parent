@@ -14,9 +14,12 @@ import java.util.List;
 public class SourceFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = -4931433135204298027L;
 
+    @ApiModelProperty("关键字")
+    private String keywords;
+
     @ApiModelProperty("租户编号等于")
     private String tenantIdEq;
-    @ApiModelProperty("编号等于")
+    @ApiModelProperty("uuid等于")
     private String uuidEq;
     @ApiModelProperty("名称等于")
     private String nameEq;
@@ -29,7 +32,7 @@ public class SourceFilter extends AbstractQueryFilter {
     @ApiModelProperty("连接状态等于")
     private Boolean connectedEq;
 
-    @ApiModelProperty("编号在之中")
+    @ApiModelProperty("uuid在之中")
     private List<String> uuidIn;
     @ApiModelProperty("名称在之中")
     private List<String> nameIn;
@@ -37,7 +40,6 @@ public class SourceFilter extends AbstractQueryFilter {
     private List<String> environmentIn;
     @ApiModelProperty("类型在之中")
     private List<String> typeIn;
-
 
     @ApiModelProperty("名称类似")
     private String nameLike;

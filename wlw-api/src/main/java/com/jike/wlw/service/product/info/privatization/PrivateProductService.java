@@ -7,7 +7,6 @@ import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
-import com.jike.wlw.service.product.info.ProductQueryRq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -72,7 +71,6 @@ public interface PrivateProductService extends BaseProductService {
                           @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey")String productKey,
                           @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId")String iotInstanceId,
                           @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator")String operator) throws BusinessException;
-
 
     @ApiOperation(value = "保存Influx")
     @RequestMapping(value = "/saveInflux", method = RequestMethod.POST)

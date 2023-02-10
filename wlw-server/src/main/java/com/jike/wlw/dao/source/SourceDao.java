@@ -27,8 +27,8 @@ public class SourceDao extends BaseDao {
         JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PSource.TABLE_NAME, "o");
 
         //eq查询
-        if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
-            q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
+        if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
+            q.where("(o.name like :keywords)").p("keywords", filter.getKeywords());
         }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
@@ -50,10 +50,10 @@ public class SourceDao extends BaseDao {
             q.where("o.name in  (:nameIn)").p("nameIn", filter.getNameIn());
         }
         if (!CollectionUtils.isEmpty(filter.getEnvironmentIn())) {
-            q.where("o.id in  (:environmentIn)").p("environmentIn", filter.getEnvironmentIn());
+            q.where("o.environment in  (:environmentIn)").p("environmentIn", filter.getEnvironmentIn());
         }
         if (!CollectionUtils.isEmpty(filter.getTypeIn())) {
-            q.where("o.id in  (:typeIn)").p("typeIn", filter.getTypeIn());
+            q.where("o.type in  (:typeIn)").p("typeIn", filter.getTypeIn());
         }
 
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {

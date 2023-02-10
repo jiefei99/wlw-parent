@@ -38,6 +38,7 @@ public class ProductQueryRq extends Entity implements Serializable {
     private String resourceGroupId;
     @ApiModelProperty("产品类型")
     private String aliyunCommodityCode;
+
 }
 
 

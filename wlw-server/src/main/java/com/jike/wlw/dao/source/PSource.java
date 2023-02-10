@@ -33,6 +33,6 @@ public class PSource extends PStandardEntity implements JdbcEntity {
 
     @Override
     public String getTableName() {
-        return this.TABLE_NAME;
+        return TABLE_NAME;
     }
 }
