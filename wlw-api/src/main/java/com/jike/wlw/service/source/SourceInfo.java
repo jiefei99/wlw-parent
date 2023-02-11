@@ -10,18 +10,15 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
+/**
+ * @author wza
+ * @create 2023/2/11
+ */
 @Setter
 @Getter
-@ApiModel("资源信息")
-public class SourceModifyRq implements Serializable {
-    private static final long serialVersionUID = 1306691284026022248L;
-
-    @ApiModelProperty("名称")
-    private String name;
-    @ApiModelProperty("环境")
-    private SourceEvns environment;
-    @ApiModelProperty("类型")
-    private SourceTypes type;
+@ApiModel("资源连接参数")
+public class SourceInfo implements Serializable {
+    private static final long serialVersionUID = 917901972597828049L;
 
     @ApiModelProperty("阿里云连接参数")
     private AliyunSource aliyunSource;

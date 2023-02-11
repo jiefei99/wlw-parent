@@ -7,7 +7,7 @@ import java.io.Serializable;
  * @create 2023/2/10
  */
 public enum SourceEvns implements Serializable {
-    CLOUD("云环境"),LOCAL("本地环境");
+    CLOUD("云"),LOCAL("本地");
     private String caption;
 
     private SourceEvns(String caption) {

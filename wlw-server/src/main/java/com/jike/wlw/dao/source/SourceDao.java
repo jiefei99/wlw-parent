@@ -30,6 +30,12 @@ public class SourceDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
             q.where("(o.name like :keywords)").p("keywords", "%" + filter.getKeywords() + "%");
         }
+        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        }
+        if (!StringUtil.isNullOrBlank(filter.getUuidEq())) {
+            q.where("o.uuid = :uuidEq").p("uuidEq", filter.getUuidEq());
+        }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
         }
@@ -46,6 +52,9 @@ public class SourceDao extends BaseDao {
             q.where("o.connected = :connectedEq").p("connectedEq", filter.getConnectedEq());
         }
         //in查询
+        if (!CollectionUtils.isEmpty(filter.getUuidIn())) {
+            q.where("o.uuid in  (:uuidIn)").p("uuidIn", filter.getUuidIn());
+        }
         if (!CollectionUtils.isEmpty(filter.getNameIn())) {
             q.where("o.name in  (:nameIn)").p("nameIn", filter.getNameIn());
         }

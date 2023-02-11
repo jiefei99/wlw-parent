@@ -1,6 +1,5 @@
 package com.jike.wlw.service.source;
 
-import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import io.swagger.annotations.Api;
@@ -26,7 +25,7 @@ public interface SourceService {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     void create(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "新建资源请求参数") @RequestBody SourceCreateRq createRq,
+                @ApiParam(required = true, value = "新建资源请求参数") @RequestBody SourceSaveRq createRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 
@@ -35,7 +34,7 @@ public interface SourceService {
     @ResponseBody
     void modify(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                @ApiParam(required = true, value = "编辑资源请求参数") @RequestBody SourceModifyRq modifyRq,
+                @ApiParam(required = true, value = "编辑资源请求参数") @RequestBody SourceSaveRq modifyRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除资源")
