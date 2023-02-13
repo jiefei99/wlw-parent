@@ -39,7 +39,7 @@ public class EmqxClient {
      * @param keepalive 保留数
      */
     public void connect(String host, String clientID, String username, String password, int timeout,
-                        int keepalive, String mqttTopic) {
+                        int keepalive, String mqttTopic) throws BusinessException {
         MqttClient client;
         try {
             client = new MqttClient(host, MqttClient.generateClientId(), new MemoryPersistence());
@@ -92,9 +92,11 @@ public class EmqxClient {
                 client.connect(options);
             } catch (Exception e) {
                 e.printStackTrace();
+                throw new BusinessException(e.getMessage(), e);
             }
         } catch (Exception e) {
             e.printStackTrace();
+            throw new BusinessException(e.getMessage(), e);
         }
     }
 
