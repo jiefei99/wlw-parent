@@ -58,13 +58,6 @@ public interface SourceService {
                     @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
                     @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
-    @ApiOperation(value = "测试资源是否连接正常")
-    @RequestMapping(value = "/checkConnecting", method = RequestMethod.POST)
-    @ResponseBody
-    void checkConnecting(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
-                         @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                         @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
-
     @ApiOperation(value = "根据查询条件查询资源")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody

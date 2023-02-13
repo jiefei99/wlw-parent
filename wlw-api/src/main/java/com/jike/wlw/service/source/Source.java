@@ -20,8 +20,8 @@ public class Source extends StandardEntity {
     private SourceTypes type;
     @ApiModelProperty("是否删除")
     private Boolean deleted;
-    @ApiModelProperty("是否连接")
-    private Boolean connected;
+    @ApiModelProperty("连接状态")
+    private SourceStatus status;
     @ApiModelProperty("资源连接参数")
     private SourceInfo sourceInfo;
 }

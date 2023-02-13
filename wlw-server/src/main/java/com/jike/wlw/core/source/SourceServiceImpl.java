@@ -18,6 +18,7 @@ import com.jike.wlw.service.source.SourceFilter;
 import com.jike.wlw.service.source.SourceInfo;
 import com.jike.wlw.service.source.SourceSaveRq;
 import com.jike.wlw.service.source.SourceService;
+import com.jike.wlw.service.source.SourceStatus;
 import com.jike.wlw.service.source.SourceTypes;
 import com.jike.wlw.service.source.iot.AliyunSource;
 import com.jike.wlw.service.source.local.InfluxSource;
@@ -41,8 +42,6 @@ import java.util.concurrent.TimeUnit;
 @RestController
 @ApiModel("资源服务实现")
 public class SourceServiceImpl extends BaseService implements SourceService {
-    public static final String OPT_CREATE = "create";
-    public static final String OPT_MODIFY = "modify";
 
     @Autowired
     private SourceDao sourceDao;
@@ -165,41 +164,17 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     @Override
-    public void connecting(String tenantId, String uuid, String operator) throws BusinessException {
-        try {
-            PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId, "deleted", false);
-            if (perz == null) {
-                throw new BusinessException("指定资源信息不存在或已删除，无法编辑");
-            }
-            if (perz.getConnected()) {
-                return;
-            }
-
-            perz.setConnected(true);
-            perz.onModified(operator);
-            String oldConnectId = getConnecting(tenantId);
-            if (StringUtils.isNotBlank(oldConnectId)) {
-                disConnect(tenantId, oldConnectId, operator);
-            }
-            sourceDao.save(perz);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new BusinessException(e.getMessage(), e);
-        }
-    }
-
-    @Override
     public void disConnect(String tenantId, String uuid, String operator) throws BusinessException {
         try {
             PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId, "deleted", false);
             if (perz == null) {
                 throw new BusinessException("指定资源信息不存在或已删除，无法编辑");
             }
-            if (!perz.getConnected()) {
+            if (SourceStatus.DISCONNECT.name().equals(perz.getStatus())) {
                 return;
             }
 
-            perz.setConnected(false);
+            perz.setStatus(SourceStatus.DISCONNECT.name());
             perz.onModified(operator);
             sourceDao.save(perz);
         } catch (Exception e) {
@@ -209,32 +184,23 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     @Override
-    public void checkConnecting(String tenantId, String uuid, String operator) throws BusinessException {
+    public void connecting(String tenantId, String uuid, String operator) throws BusinessException {
         try {
             Source source = get(tenantId, uuid);
-            if (source == null ){
+            if (source == null) {
                 throw new BusinessException("指定资源信息不存在或已删除");
             }
             if (SourceEvns.CLOUD.equals(source.getEnvironment())) {
                 if (SourceTypes.ALIYUN.equals(source.getType())) {
-                    if (source.getSourceInfo() == null || source.getSourceInfo().getAliyunSource() == null) {
-                        throw new BusinessException("参数丢失");
-                    }
-                    connectToNewAliyun(source.getSourceInfo().getAliyunSource(), tenantId, uuid, operator);
+                    connectToAliyun(source, tenantId, uuid, operator);
                 } else {
                     throw new BusinessException(SourceEvns.CLOUD.name() + "环境不支持的类型：" + source.getType().name());
                 }
             } else if (SourceEvns.LOCAL.equals(source.getEnvironment())) {
                 if (SourceTypes.MQTT.equals(source.getType())) {
-                    if (source.getSourceInfo() == null || source.getSourceInfo().getMqttSource() == null) {
-                        throw new BusinessException("参数丢失");
-                    }
-                    connectToNewMqtt(source.getSourceInfo().getMqttSource(), tenantId, uuid, operator);
+                    connectToMqtt(source, tenantId, uuid, operator);
                 } else if (SourceTypes.INFLUXDB.equals(source.getType())) {
-                    if (source.getSourceInfo() == null || source.getSourceInfo().getInfluxSource() == null) {
-                        throw new BusinessException("参数丢失");
-                    }
-                    connectToNewInfluxDB(source.getSourceInfo().getInfluxSource(), tenantId, uuid, operator);
+                    connectToInfluxDB(source, tenantId, uuid, operator);
                 } else {
                     throw new BusinessException(SourceEvns.LOCAL.name() + "环境不支持的类型：" + source.getType().name());
                 }
@@ -304,7 +270,11 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
 
-    private void connectToNewAliyun(AliyunSource aliyunSource, String tenantId, String targetId, String operator) throws Exception {
+    private void connectToAliyun(Source source, String tenantId, String targetId, String operator) throws Exception {
+        if (source.getSourceInfo() == null || source.getSourceInfo().getAliyunSource() == null) {
+            throw new BusinessException("参数丢失");
+        }
+        AliyunSource aliyunSource = source.getSourceInfo().getAliyunSource();
         if (aliyunSource == null) {
             throw new BusinessException("阿里云资源连接参数不能为空");
         }
@@ -315,66 +285,94 @@ public class SourceServiceImpl extends BaseService implements SourceService {
             throw new BusinessException("阿里云资源连接参数AccessSecret不能为空");
         }
 
-        AliIotClientByConfig config = SpringUtil.getBean(AliIotClientByConfig.class);
-        config.setAccessKeyId(aliyunSource.getAccessKey());
-        config.setAccessKeySecret(aliyunSource.getAccessSecret());
-        AliIotClient client = new AliIotClient(config);
-        QueryProductListRequest request = new QueryProductListRequest();
-        request.setCurrentPage(1);
-        request.setPageSize(10);
-        QueryProductListResponse response = client.queryProductList(request);
-        if (response != null && response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
-            changeConnecting(client, "aliIotClient", tenantId, targetId, operator);
-        } else {
-            throw new BusinessException("连接失败！失败原因：" + response.getBody().getErrorMessage());
+        try {
+            AliIotClientByConfig config = SpringUtil.getBean(AliIotClientByConfig.class);
+            config.setAccessKeyId(aliyunSource.getAccessKey());
+            config.setAccessKeySecret(aliyunSource.getAccessSecret());
+            AliIotClient client = new AliIotClient(config);
+            QueryProductListRequest request = new QueryProductListRequest();
+            request.setCurrentPage(1);
+            request.setPageSize(10);
+            QueryProductListResponse response = client.queryProductList(request);
+            if (response != null && response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
+                changeConnecting(client, "aliIotClient", tenantId, targetId, operator);
+            } else {
+                changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+                throw new BusinessException("连接失败原因：" + response.getBody().getErrorMessage());
+            }
+        } catch (Exception e) {
+            changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+            throw new BusinessException("连接失败原因：" + e.getMessage(), e);
         }
     }
 
-    private void connectToNewMqtt(MqttSource mqttSource, String tenantId, String targetId, String operator) throws Exception {//// TODO: 2023/2/10
-        EmqxClient emqxClient = new EmqxClient();
-        emqxClient.connect(mqttSource.getHostUrl(), mqttSource.getClientId(), mqttSource.getUsername(), mqttSource.getPassword(), mqttSource.getTimeout(), mqttSource.getKeepalive(), mqttSource.getTopic());
-        if (emqxClient.isConnected()) {
-            emqxClient.disconnect(null);
-            changeConnecting(emqxClient, "emqxClient", tenantId, targetId, operator);
-        } else {
-            throw new BusinessException("连接失败！");
+    private void connectToMqtt(Source source, String tenantId, String targetId, String operator) throws Exception {//// TODO: 2023/2/10
+        if (source.getSourceInfo() == null || source.getSourceInfo().getMqttSource() == null) {
+            throw new BusinessException("参数丢失");
+        }
+
+        try {
+            MqttSource mqttSource = source.getSourceInfo().getMqttSource();
+            EmqxClient emqxClient = new EmqxClient();
+            emqxClient.connect(mqttSource.getHostUrl(), mqttSource.getClientId(), mqttSource.getUsername(), mqttSource.getPassword(), mqttSource.getTimeout(), mqttSource.getKeepalive(), mqttSource.getTopic());
+            if (emqxClient.isConnected()) {
+                emqxClient.disconnect(null);
+                changeConnecting(emqxClient, "emqxClient", tenantId, targetId, operator);
+            } else {
+                changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+                throw new BusinessException("连接失败！");
+            }
+        } catch (Exception e) {
+            changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+            throw new BusinessException("连接失败原因：" + e.getMessage(), e);
         }
     }
 
 
-    private void connectToNewInfluxDB(InfluxSource influxSource, String tenantId, String targetId, String operator) throws Exception {
-        InfluxDB influxDB = InfluxDBFactory.connect(influxSource.getInfluxDBUrl(), influxSource.getUserName(), influxSource.getPassword());
-        influxDB.setDatabase(influxSource.getDatabase()).enableBatch(100, 2000, TimeUnit.MILLISECONDS);
-        if (influxSource.getRetentionPolicy() != null) {
-            influxDB.setRetentionPolicy(influxSource.getRetentionPolicy());
-        } else {
-            influxDB.setRetentionPolicy("autogen");
+    private void connectToInfluxDB(Source source, String tenantId, String targetId, String operator) throws Exception {
+        if (source.getSourceInfo() == null || source.getSourceInfo().getInfluxSource() == null) {
+            throw new BusinessException("参数丢失");
         }
-        boolean hasLogLevel = false;
-        if (influxSource.getLogLevel() != null) {
-            for (InfluxDB.LogLevel logLevel : InfluxDB.LogLevel.values()) {
-                if (logLevel.name().equals(influxSource.getLogLevel())) {
-                    hasLogLevel = true;
-                    influxDB.setLogLevel(logLevel);
+
+        try {
+            InfluxSource influxSource = source.getSourceInfo().getInfluxSource();
+            InfluxDB influxDB = InfluxDBFactory.connect(influxSource.getInfluxDBUrl(), influxSource.getUserName(), influxSource.getPassword());
+            influxDB.setDatabase(influxSource.getDatabase()).enableBatch(100, 2000, TimeUnit.MILLISECONDS);
+            if (influxSource.getRetentionPolicy() != null) {
+                influxDB.setRetentionPolicy(influxSource.getRetentionPolicy());
+            } else {
+                influxDB.setRetentionPolicy("autogen");
+            }
+            boolean hasLogLevel = false;
+            if (influxSource.getLogLevel() != null) {
+                for (InfluxDB.LogLevel logLevel : InfluxDB.LogLevel.values()) {
+                    if (logLevel.name().equals(influxSource.getLogLevel())) {
+                        hasLogLevel = true;
+                        influxDB.setLogLevel(logLevel);
+                    }
                 }
             }
-        }
-        if (!hasLogLevel) {
-            influxDB.setLogLevel(InfluxDB.LogLevel.BASIC);
-        }
+            if (!hasLogLevel) {
+                influxDB.setLogLevel(InfluxDB.LogLevel.BASIC);
+            }
 
-        if (influxDB.databaseExists(influxSource.getDatabase())) {
-            influxDB.close();
-            changeConnecting(influxDB, "influxDB", tenantId, targetId, operator);
-        } else {
-            throw new BusinessException("连接失败！");
+            if (influxDB.databaseExists(influxSource.getDatabase())) {
+                influxDB.close();
+                changeConnecting(influxDB, "influxDB", tenantId, targetId, operator);
+            } else {
+                changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+                throw new BusinessException("连接失败！");
+            }
+        } catch (Exception e) {
+            changeConnectStatus(tenantId, targetId, SourceStatus.CONNECTFAILED, operator);
+            throw new BusinessException("连接失败原因：" + e.getMessage(), e);
         }
     }
 
     private String getConnecting(String tenantId) {
         SourceFilter filter = new SourceFilter();
         filter.setTenantIdEq(tenantId);
-        filter.setConnectedEq(true);
+        filter.setStatusEq(SourceStatus.CONNECTED);
         filter.setDeletedEq(false);
         List<PSource> list = sourceDao.query(filter);
         if (CollectionUtils.isEmpty(list)) {
@@ -384,13 +382,32 @@ public class SourceServiceImpl extends BaseService implements SourceService {
     }
 
     private void changeConnecting(Object targetObject, String beanName, String tenantId, String id, String operator) throws Exception {
+        //查询已连接资源，存在则修改为未连接
         String oldConnectId = getConnecting(tenantId);
         if (StringUtils.isNotBlank(oldConnectId)) {
             disConnect(tenantId, oldConnectId, operator);
         }
 
         SpringUtil.replaceBean(beanName, targetObject);
-        connecting(tenantId, id, operator);
+        //修改当前资源为已连接
+        changeConnectStatus(tenantId, id, SourceStatus.CONNECTED, operator);
+    }
+
+    private void changeConnectStatus(String tenantId, String uuid, SourceStatus status, String operator) throws Exception {
+        if (status == null) {
+            throw new BusinessException("连接状态不能为空");
+        }
+        PSource perz = sourceDao.get(PSource.class, "uuid", uuid, "tenantId", tenantId, "deleted", false);
+        if (perz == null) {
+            throw new BusinessException("指定资源信息不存在或已删除");
+        }
+        if (status.name().equals(perz.getStatus())) {
+            return;
+        }
+
+        perz.setStatus(status.name());
+        perz.onModified(operator);
+        sourceDao.save(perz);
     }
 
     private SourceInfo convertSourceInfo(SourceTypes type, String parameter) {

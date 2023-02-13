@@ -24,13 +24,13 @@ public class SourceFilter extends AbstractQueryFilter {
     @ApiModelProperty("名称等于")
     private String nameEq;
     @ApiModelProperty("环境等于")
-    private String environmentEq;
+    private SourceEvns environmentEq;
     @ApiModelProperty("类型等于")
-    private String typeEq;
+    private SourceTypes typeEq;
+    @ApiModelProperty("状态等于")
+    private SourceStatus statusEq;
     @ApiModelProperty("删除等于")
     private Boolean deletedEq;
-    @ApiModelProperty("连接状态等于")
-    private Boolean connectedEq;
 
     @ApiModelProperty("uuid在之中")
     private List<String> uuidIn;
@@ -40,5 +40,7 @@ public class SourceFilter extends AbstractQueryFilter {
     private List<String> environmentIn;
     @ApiModelProperty("类型在之中")
     private List<String> typeIn;
+    @ApiModelProperty("状态在之中")
+    private List<String> statusIn;
 
 }

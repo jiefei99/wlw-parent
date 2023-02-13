@@ -28,8 +28,8 @@ public class PSource extends PStandardEntity implements JdbcEntity {
     private String parameter;
     @ApiModelProperty("是否删除")
     private Boolean deleted = false;
-    @ApiModelProperty("是否连接")
-    private Boolean connected = false;
+    @ApiModelProperty("连接状态")
+    private String Status;
 
     @Override
     public String getTableName() {
