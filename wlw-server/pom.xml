@@ -176,7 +176,7 @@
         <dependency>
             <groupId>com.aliyun</groupId>
             <artifactId>iot20180120</artifactId>
-            <version>3.0.5</version>
+            <version>3.0.16</version>
         </dependency>
 
         <dependency>
