@@ -4,7 +4,7 @@
  * 修改历史：
  * 2023年01月05日 11:26 - ASUS - 创建。
  */
-package com.jike.wlw.core.physicalmodel.iot;
+package com.jike.wlw.core.physicalmodel.ali.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
@@ -31,7 +31,7 @@ import com.aliyun.iot20180120.models.SetDevicesPropertyResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.core.physicalmodel.iot.entity.DevicePropertyRq;
+import com.jike.wlw.core.physicalmodel.ali.iot.entity.DevicePropertyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -49,7 +49,7 @@ import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
-public class PhysicalModeUse {
+public class PhysicalModelUse {
     @Autowired
     private AliIotClient client;
     @Autowired
@@ -88,7 +88,7 @@ public class PhysicalModeUse {
 //        modelUseRq.setDeviceNameList(nameList);
 //        List<String> identifierList= Arrays.asList("rs1","rs2");
 //        modelUseRq.setIdentifierList(identifierList);
-        PhysicalModeUse physicalModeUse=new PhysicalModeUse();
+        PhysicalModelUse physicalModeUse=new PhysicalModelUse();
         try {
 //            physicalModeUse.queryDevicePropertyData(modelUseRq);
         }catch (Exception e){

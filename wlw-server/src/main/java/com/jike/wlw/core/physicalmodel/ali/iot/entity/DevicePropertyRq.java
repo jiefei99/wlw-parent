@@ -1,4 +1,4 @@
-package com.jike.wlw.core.physicalmodel.iot.entity;
+package com.jike.wlw.core.physicalmodel.ali.iot.entity;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;

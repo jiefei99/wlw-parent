@@ -16,12 +16,7 @@ public class PhysicalModelFilter extends AbstractQueryFilter {
 
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;
-    @ApiModelProperty("编号等于")
-    private String idEq;
-    @ApiModelProperty("名称等于")
-    private String nameEq;
-
-    @ApiModelProperty("编号在之中")
-    private List<String> idIn;
+    @ApiModelProperty("productKey")
+    private String productKey;
 
 }

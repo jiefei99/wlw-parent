@@ -4,34 +4,39 @@ import com.geeker123.rumba.commons.paging.AbstractQueryFilter;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
-import com.jike.wlw.service.physicalmodel.PhysicalModelFilter;
+import com.jike.wlw.service.physicalmodel.PhysicalModelDataFilter;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
-@Repository
-public class PhysicalModelDao extends BaseDao {
+/**
+ * @title: PhysicalModelDataDao
+ * @Author RS
+ * @Date: 2023/2/16 17:38
+ * @Version 1.0
+ */
 
-    public List<PPhysicalModel> query(PhysicalModelFilter filter) {
+@Repository
+public class PhysicalModelDataDao extends BaseDao {
+    public List<PPhysicalModelData> query(PhysicalModelDataFilter filter) {
         JdbcEntityQuery q = getQuery("query", "*", filter);
-        return q.list(jdbcTemplate, PPhysicalModel.class, filter.getPage(), filter.getPageSize());
+        return q.list(jdbcTemplate, PPhysicalModelData.class, filter.getPage(), filter.getPageSize());
     }
 
-    public long getCount(PhysicalModelFilter filter) {
+    public long getCount(PhysicalModelDataFilter filter) {
         JdbcEntityQuery q = getQuery("getCount", "count(*)", filter);
         return q.count(jdbcTemplate, String.class);
     }
 
-    private JdbcEntityQuery getQuery(String name, String select, PhysicalModelFilter filter) {
-        JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PPhysicalModel.TABLE_NAME, "o");
+    private JdbcEntityQuery getQuery(String name, String select, PhysicalModelDataFilter filter) {
+        JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PPhysicalModelData.TABLE_NAME, "o");
 
         //eq查询
         if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
             q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
         }
-        if (!StringUtil.isNullOrBlank(filter.getProductKey())) {
-            q.where("o.productKey = :productKey").p("productKey", filter.getProductKey());
+        if (!StringUtil.isNullOrBlank(filter.getBelongToId())) {
+            q.where("o.belongToId = :belongToId").p("belongToId", filter.getBelongToId());
         }
 
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
@@ -49,3 +54,5 @@ public class PhysicalModelDao extends BaseDao {
         return q;
     }
 }
+
+

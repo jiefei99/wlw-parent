@@ -78,7 +78,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
             PPhysicalModel perz = new PPhysicalModel();
             BeanUtils.copyProperties(createRq, perz);
             perz.setTenantId(tenantId);
-            perz.setId(flowCodeFeignClient.next(PPhysicalModel.class.getSimpleName(), "WMX", 6));
+//            perz.setId(flowCodeFeignClient.next(PPhysicalModel.class.getSimpleName(), "WMX", 6));
             perz.setFunctionIdsJson(JsonUtil.objectToJson(createRq.getFunctionIds()));
 
             physicalModelDao.save(perz);

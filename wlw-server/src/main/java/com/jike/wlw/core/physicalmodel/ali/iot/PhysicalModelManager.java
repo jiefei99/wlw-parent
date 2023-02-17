@@ -4,16 +4,45 @@
  * 修改历史：
  * 2023年01月05日 14:49 - ASUS - 创建。
  */
-package com.jike.wlw.core.physicalmodel.iot;
+package com.jike.wlw.core.physicalmodel.ali.iot;
 
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
-import com.aliyun.iot20180120.models.*;
+import com.aliyun.iot20180120.models.CopyThingModelRequest;
+import com.aliyun.iot20180120.models.CopyThingModelResponse;
+import com.aliyun.iot20180120.models.CreateThingModelRequest;
+import com.aliyun.iot20180120.models.CreateThingModelResponse;
+import com.aliyun.iot20180120.models.DeleteThingModelRequest;
+import com.aliyun.iot20180120.models.DeleteThingModelResponse;
+import com.aliyun.iot20180120.models.GetThingModelTslPublishedRequest;
+import com.aliyun.iot20180120.models.GetThingModelTslPublishedResponse;
+import com.aliyun.iot20180120.models.GetThingModelTslRequest;
+import com.aliyun.iot20180120.models.GetThingModelTslResponse;
+import com.aliyun.iot20180120.models.GetThingTemplateRequest;
+import com.aliyun.iot20180120.models.GetThingTemplateResponse;
+import com.aliyun.iot20180120.models.ListThingModelVersionRequest;
+import com.aliyun.iot20180120.models.ListThingModelVersionResponse;
+import com.aliyun.iot20180120.models.ListThingTemplatesRequest;
+import com.aliyun.iot20180120.models.ListThingTemplatesResponse;
+import com.aliyun.iot20180120.models.PublishThingModelRequest;
+import com.aliyun.iot20180120.models.PublishThingModelResponse;
+import com.aliyun.iot20180120.models.QueryThingModelPublishedRequest;
+import com.aliyun.iot20180120.models.QueryThingModelPublishedResponse;
+import com.aliyun.iot20180120.models.QueryThingModelRequest;
+import com.aliyun.iot20180120.models.QueryThingModelResponse;
+import com.aliyun.iot20180120.models.UpdateThingModelRequest;
+import com.aliyun.iot20180120.models.UpdateThingModelResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.core.physicalmodel.iot.entity.PhysicalModelRq;
-import com.jike.wlw.core.physicalmodel.iot.entity.PublishThingModelRq;
-import com.jike.wlw.core.physicalmodel.iot.entity.ThingTemplateRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelCopyRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelDelRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelGetRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelModifyRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelPubTslGetRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelPublishQueryRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelPublishRq;
+import com.jike.wlw.service.physicalmodel.PhysicalModelTslGetRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -22,9 +51,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.*;
-
 /**
  * @author rs
  * @since 1.0
@@ -32,7 +58,7 @@ import java.util.*;
 
 @Slf4j
 @Service
-public class PhysicalModeManager {
+public class PhysicalModelManager {
 
     @Autowired
     private AliIotClient client;
@@ -50,11 +76,8 @@ public class PhysicalModeManager {
         return new Client(config);
     }
 
-    public static void main(String[] args) throws Exception {
-    }
-
     //CreateThingModel
-    public CreateThingModelResponse createThingModel(PhysicalModelRq model) throws Exception {
+    public CreateThingModelResponse createThingModel(PhysicalModelCreateRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("物模型产品的ProductKey属性值不能为空");
         }
@@ -63,7 +86,7 @@ public class PhysicalModeManager {
         CreateThingModelRequest request = new CreateThingModelRequest();
         request.setProductKey(model.getProductKey());
         request.setIotInstanceId(model.getIotInstanceId());
-        request.setThingModelJson(new JSONObject(model.getThingModelJson()).toString());
+        request.setThingModelJson(model.getThingModelJson());
         request.setFunctionBlockId(model.getFunctionBlockId());
         request.setFunctionBlockName(model.getFunctionBlockName());
         CreateThingModelResponse response = client.createThingModel(request);
@@ -72,7 +95,7 @@ public class PhysicalModeManager {
     }
 
     //UpdateThingModel
-    public UpdateThingModelResponse updateThingModel(PhysicalModelRq model) throws Exception {
+    public UpdateThingModelResponse updateThingModel(PhysicalModelModifyRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("物模型产品的ProductKey属性值不能为空");
         }
@@ -91,7 +114,7 @@ public class PhysicalModeManager {
     }
 
     //QueryThingModel
-    public QueryThingModelResponse queryThingModel(PhysicalModelRq model) throws Exception {
+    public QueryThingModelResponse queryThingModel(PhysicalModelGetRq model) throws Exception {
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         QueryThingModelRequest request = new QueryThingModelRequest();
@@ -106,8 +129,8 @@ public class PhysicalModeManager {
     }
 
     //CopyThingModel
-    public CopyThingModelResponse copyThingModel(PhysicalModelRq model) throws Exception {
-        if (StringUtils.isBlank(model.getProductKey()) || StringUtils.isBlank(model.getTargetProductKey())) {
+    public CopyThingModelResponse copyThingModel(PhysicalModelCopyRq model) throws Exception {
+        if (StringUtils.isBlank(model.getSourceProductKey()) || StringUtils.isBlank(model.getTargetProductKey())) {
             throw new IllegalAccessException("复制的物模型所属产品或目标物模型productKey不能为空");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
@@ -115,8 +138,8 @@ public class PhysicalModeManager {
         CopyThingModelRequest request = new CopyThingModelRequest();
         request.setIotInstanceId(model.getIotInstanceId());
         request.setResourceGroupId(model.getResourceGroupId());
-        request.setSourceModelVersion(model.getModelVersion());
-        request.setSourceProductKey(model.getProductKey());
+        request.setSourceModelVersion(model.getSourceModelVersion());
+        request.setSourceProductKey(model.getSourceProductKey());
         request.setTargetProductKey(model.getTargetProductKey());
         CopyThingModelResponse response = client.copyThingModel(request);
         System.out.println("复制指定产品的物模型到目标产品：" + JSON.toJSONString(response));
@@ -124,7 +147,7 @@ public class PhysicalModeManager {
     }
 
     //DeleteThingModel
-    public DeleteThingModelResponse deleteThingModel(PhysicalModelRq model) throws Exception {
+    public DeleteThingModelResponse deleteThingModel(PhysicalModelDelRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
@@ -153,34 +176,34 @@ public class PhysicalModeManager {
     }
 
     //ListThingTemplates
-    public ListThingTemplatesResponse listThingTemplates(ThingTemplateRq model) throws Exception {
+    public ListThingTemplatesResponse listThingTemplates(String iotInstanceId) throws Exception {
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         ListThingTemplatesRequest request = new ListThingTemplatesRequest();
-        request.setIotInstanceId(model.getIotInstanceId());
+        request.setIotInstanceId(iotInstanceId);
         ListThingTemplatesResponse response = client.listThingTemplates(request);
         System.out.println("获取物联网平台预定义的标准产品品类列表：" + JSON.toJSONString(response));
         return response;
     }
 
     //GetThingTemplate
-    public GetThingTemplateResponse getThingTemplate(ThingTemplateRq model) throws Exception {
-        if (StringUtils.isBlank(model.getCategoryKey())) {
+    public GetThingTemplateResponse getThingTemplate(String categoryKey, String resourceGroupId, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(categoryKey)) {
             throw new IllegalAccessException("查询的品类的标识符不能为空");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingTemplateRequest request = new GetThingTemplateRequest();
-        request.setIotInstanceId(model.getIotInstanceId());
-        request.setResourceGroupId(model.getResourceGroupId());
-        request.setCategoryKey(model.getCategoryKey());
+        request.setIotInstanceId(iotInstanceId);
+        request.setResourceGroupId(resourceGroupId);
+        request.setCategoryKey(categoryKey);
         GetThingTemplateResponse response = client.getThingTemplate(request);
         System.out.println("指定品类的物模型信息：" + JSON.toJSONString(response));
         return response;
     }
 
     //GetThingModelTsl
-    public GetThingModelTslResponse getThingModelTsl(PhysicalModelRq model) throws Exception {
+    public GetThingModelTslResponse getThingModelTsl(PhysicalModelTslGetRq model) throws Exception {
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         GetThingModelTslRequest request = new GetThingModelTslRequest();
@@ -195,7 +218,7 @@ public class PhysicalModeManager {
     }
 
     //QueryThingModelPublished
-    public QueryThingModelPublishedResponse queryThingModelPublished(PhysicalModelRq model) throws Exception {
+    public QueryThingModelPublishedResponse queryThingModelPublished(PhysicalModelPublishQueryRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
@@ -208,12 +231,12 @@ public class PhysicalModeManager {
         request.setModelVersion(model.getModelVersion());
         request.setProductKey(model.getProductKey());
         QueryThingModelPublishedResponse response = client.queryThingModelPublished(request);
-        System.out.println("指定产品的物模型扩展描述配置：" + JSON.toJSONString(response));
+        System.out.println("调用该接口查看指定产品的已发布物模型中的功能定义详情：" + JSON.toJSONString(response));
         return response;
     }
 
     //GetThingModelTslPublished
-    public GetThingModelTslPublishedResponse getThingModelTslPublished(PhysicalModelRq model) throws
+    public GetThingModelTslPublishedResponse getThingModelTslPublished(PhysicalModelPubTslGetRq model) throws
             Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
@@ -233,22 +256,22 @@ public class PhysicalModeManager {
     }
 
     //    ListThingModelVersion
-    public ListThingModelVersionResponse listThingModelVersion(PhysicalModelRq model) throws Exception {
-        if (StringUtils.isBlank(model.getProductKey())) {
+    public ListThingModelVersionResponse listThingModelVersion(String productKey, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(productKey)) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
         ListThingModelVersionRequest request = new ListThingModelVersionRequest();
-        request.setIotInstanceId(model.getIotInstanceId());
-        request.setProductKey(model.getProductKey());
+        request.setIotInstanceId(iotInstanceId);
+        request.setProductKey(productKey);
         ListThingModelVersionResponse response = client.listThingModelVersion(request);
         System.out.println("获取指定产品的物模型版本：" + JSON.toJSONString(response));
         return response;
     }
 
     //    PublishThingModel
-    public PublishThingModelResponse publishThingModel(PublishThingModelRq model) throws Exception {
+    public PublishThingModelResponse publishThingModel(PhysicalModelPublishRq model) throws Exception {
         if (StringUtils.isBlank(model.getProductKey())) {
             throw new IllegalAccessException("产品的ProductKey不能为空");
         }

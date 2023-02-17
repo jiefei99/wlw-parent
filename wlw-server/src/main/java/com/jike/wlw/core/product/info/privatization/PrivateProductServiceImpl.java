@@ -113,6 +113,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             }
             perz = ProductConverter.ProductCover(createRq, tenantId, productKey, operator);
             productDao.save(perz);
+
             return perz.getId();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
