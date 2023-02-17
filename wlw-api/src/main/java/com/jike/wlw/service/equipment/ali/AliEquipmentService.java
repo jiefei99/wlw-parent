@@ -4,9 +4,12 @@ import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.equipment.BaseEquipmentService;
+import com.jike.wlw.service.equipment.BatchCheckImportDeviceRq;
+import com.jike.wlw.service.equipment.BatchVehicleDeviceRq;
 import com.jike.wlw.service.equipment.Equipment;
 import com.jike.wlw.service.equipment.EquipmentCreateRq;
 import com.jike.wlw.service.equipment.EquipmentGetRq;
+import com.jike.wlw.service.equipment.EquipmentImportDeviceRq;
 import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
@@ -80,4 +83,25 @@ public interface AliEquipmentService extends BaseEquipmentService {
     @RequestMapping(value = "/queryByProductKey", method = RequestMethod.POST)
     @ResponseBody
     PagingResult<Equipment> queryByProductKey(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody EquipmentQueryByProductRq queryRq) throws BusinessException;
+
+    @ApiOperation(value = "云网关产品下单个导入设备")
+    @RequestMapping(value = "/importDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<ImportDeviceResult> importDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody EquipmentImportDeviceRq importRq) throws BusinessException;
+
+
+    @ApiOperation(value = "批量校验导入的设备")
+    @RequestMapping(value = "/batchCheckImportDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<BatchCheckImportDeviceResult> batchCheckImportDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody BatchCheckImportDeviceRq importRq) throws BusinessException;
+
+    @ApiOperation(value = "云网关产品下批量导入设备")
+    @RequestMapping(value = "/batchImportVehicleDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<BatchImportVehicleDeviceResult> batchImportVehicleDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody BatchVehicleDeviceRq importRq) throws BusinessException;
+
+    @ApiOperation(value = "批量校验导入的云网关设备")
+    @RequestMapping(value = "/batchCheckVehicleDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<BatchCheckVehicleDeviceResult> batchCheckVehicleDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody BatchVehicleDeviceRq importRq) throws BusinessException;
 }

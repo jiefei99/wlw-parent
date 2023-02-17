@@ -1,6 +1,15 @@
 package com.jike.wlw.core.equipment.ali.iot;
 
 import com.alibaba.fastjson.JSON;
+import com.aliyun.iot20180120.models.BatchCheckImportDeviceRequest;
+import com.aliyun.iot20180120.models.BatchCheckImportDeviceResponse;
+import com.aliyun.iot20180120.models.BatchCheckImportDeviceResponseBody;
+import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceRequest;
+import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceResponse;
+import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceResponseBody;
+import com.aliyun.iot20180120.models.BatchImportVehicleDeviceRequest;
+import com.aliyun.iot20180120.models.BatchImportVehicleDeviceResponse;
+import com.aliyun.iot20180120.models.BatchImportVehicleDeviceResponseBody;
 import com.aliyun.iot20180120.models.DeleteDeviceRequest;
 import com.aliyun.iot20180120.models.DeleteDeviceResponse;
 import com.aliyun.iot20180120.models.DeleteDeviceResponseBody;
@@ -13,6 +22,9 @@ import com.aliyun.iot20180120.models.EnableThingResponseBody;
 import com.aliyun.iot20180120.models.GetDeviceStatusRequest;
 import com.aliyun.iot20180120.models.GetDeviceStatusResponse;
 import com.aliyun.iot20180120.models.GetDeviceStatusResponseBody;
+import com.aliyun.iot20180120.models.ImportDeviceRequest;
+import com.aliyun.iot20180120.models.ImportDeviceResponse;
+import com.aliyun.iot20180120.models.ImportDeviceResponseBody;
 import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceRequest;
 import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceResponse;
 import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceResponseBody;
@@ -36,8 +48,11 @@ import com.aliyun.iot20180120.models.RegisterDeviceResponse;
 import com.aliyun.iot20180120.models.RegisterDeviceResponseBody;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.config.client.AliIotClient;
+import com.jike.wlw.service.equipment.BatchCheckImportDeviceRq;
+import com.jike.wlw.service.equipment.BatchVehicleDeviceRq;
 import com.jike.wlw.service.equipment.EquipmentCreateRq;
 import com.jike.wlw.service.equipment.EquipmentGetRq;
+import com.jike.wlw.service.equipment.EquipmentImportDeviceRq;
 import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
@@ -46,6 +61,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -278,6 +297,125 @@ public class IemEquipmentManager {
             } else {
                 log.error("获取设备的详细信息失败：" + JSON.toJSONString(queryRq));
                 throw new BusinessException("获取设备的详细信息失败：" + JSON.toJSONString(queryRq));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 调用该接口在MQTT云网关产品下单个导入设备
+     */
+    public ImportDeviceResponseBody importDevice(EquipmentImportDeviceRq importRq) {
+        ImportDeviceRequest request = new ImportDeviceRequest();
+        BeanUtils.copyProperties(importRq, request);
+
+        try {
+            ImportDeviceResponse response = client.importDevice(request);
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                log.error("云网关产品下单个导入设备失败：" + JSON.toJSONString(importRq));
+                throw new BusinessException("云网关产品下单个导入设备失败：" + JSON.toJSONString(importRq));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 调用该接口批量校验导入的设备
+     */
+    public BatchCheckImportDeviceResponseBody batchCheckImportDevice(BatchCheckImportDeviceRq importRq) {
+        BatchCheckImportDeviceRequest request = new BatchCheckImportDeviceRequest();
+        BeanUtils.copyProperties(importRq, request);
+        if (!CollectionUtils.isEmpty(importRq.getDeviceList())) {
+            List<BatchCheckImportDeviceRequest.BatchCheckImportDeviceRequestDeviceList> deviceLists = new ArrayList<>();
+            for (BatchCheckImportDeviceRq.DeviceList device : importRq.getDeviceList()) {
+                BatchCheckImportDeviceRequest.BatchCheckImportDeviceRequestDeviceList requestDevice = new BatchCheckImportDeviceRequest.BatchCheckImportDeviceRequestDeviceList();
+                requestDevice.setDeviceName(device.getDeviceName());
+                requestDevice.setDeviceSecret(device.getDeviceSecret());
+                requestDevice.setSn(device.getSn());
+                deviceLists.add(requestDevice);
+            }
+            request.setDeviceList(deviceLists);
+        }
+
+        try {
+            BatchCheckImportDeviceResponse response = client.batchCheckImportDevice(request);
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                log.error("批量校验导入设备失败：" + JSON.toJSONString(importRq));
+                throw new BusinessException("批量校验导入设备失败：" + JSON.toJSONString(importRq));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+
+    /**
+     * 调用该接口在云网关产品下批量导入设备
+     */
+    public BatchImportVehicleDeviceResponseBody batchImportVehicleDevice(BatchVehicleDeviceRq importRq) {
+        BatchImportVehicleDeviceRequest request = new BatchImportVehicleDeviceRequest();
+        BeanUtils.copyProperties(importRq, request);
+        if (!CollectionUtils.isEmpty(importRq.getDeviceList())) {
+            List<BatchImportVehicleDeviceRequest.BatchImportVehicleDeviceRequestDeviceList> deviceLists = new ArrayList<>();
+            for (BatchVehicleDeviceRq.DeviceList device : importRq.getDeviceList()) {
+                BatchImportVehicleDeviceRequest.BatchImportVehicleDeviceRequestDeviceList requestDevice = new BatchImportVehicleDeviceRequest.BatchImportVehicleDeviceRequestDeviceList();
+                requestDevice.setDeviceId(device.getDeviceId());
+                requestDevice.setDeviceModel(device.getDeviceModel());
+                requestDevice.setManufacturer(device.getManufacturer());
+                deviceLists.add(requestDevice);
+            }
+            request.setDeviceList(deviceLists);
+        }
+
+        try {
+            BatchImportVehicleDeviceResponse response = client.batchImportVehicleDevice(request);
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                log.error("云网关产品下批量导入设备失败：" + JSON.toJSONString(importRq));
+                throw new BusinessException("云网关产品下批量导入设备失败：" + JSON.toJSONString(importRq));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 调用该接口批量校验导入的云网关设备。
+     */
+    public BatchCheckVehicleDeviceResponseBody batchCheckVehicleDevice(BatchVehicleDeviceRq importRq) {
+        BatchCheckVehicleDeviceRequest request = new BatchCheckVehicleDeviceRequest();
+        BeanUtils.copyProperties(importRq, request);
+
+        if (!CollectionUtils.isEmpty(importRq.getDeviceList())) {
+            List<BatchCheckVehicleDeviceRequest.BatchCheckVehicleDeviceRequestDeviceList> deviceLists = new ArrayList<>();
+            for (BatchVehicleDeviceRq.DeviceList device : importRq.getDeviceList()) {
+                BatchCheckVehicleDeviceRequest.BatchCheckVehicleDeviceRequestDeviceList requestDevice = new BatchCheckVehicleDeviceRequest.BatchCheckVehicleDeviceRequestDeviceList();
+                requestDevice.setDeviceId(device.getDeviceId());
+                requestDevice.setDeviceModel(device.getDeviceModel());
+                requestDevice.setManufacturer(device.getManufacturer());
+                deviceLists.add(requestDevice);
+            }
+            request.setDeviceList(deviceLists);
+        }
+
+        try {
+            BatchCheckVehicleDeviceResponse response = client.batchCheckVehicleDevice(request);
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                log.error("批量校验导入的云网关设备失败：" + JSON.toJSONString(importRq));
+                throw new BusinessException("批量校验导入的云网关设备失败：" + JSON.toJSONString(importRq));
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
