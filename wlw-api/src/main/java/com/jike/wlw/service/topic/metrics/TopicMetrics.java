@@ -19,8 +19,7 @@ public class TopicMetrics extends Entity {
     @ApiModelProperty("时间")
     private Date createTime;
     @ApiModelProperty("Topic")
-    private  String topic;
+    private String topic;
     @ApiModelProperty("metrics")
     private Metrics metrics;
-
 }

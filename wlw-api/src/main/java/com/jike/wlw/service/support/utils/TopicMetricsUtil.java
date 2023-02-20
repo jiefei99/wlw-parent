@@ -5,9 +5,11 @@ import com.alibaba.fastjson.JSONArray;
 import com.geeker123.rumba.commons.util.JsonUtil;
 import com.jike.wlw.service.topic.metrics.Metrics;
 import com.jike.wlw.service.topic.metrics.TopicMetrics;
+import org.apache.commons.codec.binary.Base64;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,26 +17,30 @@ import java.util.Map;
 
 public class TopicMetricsUtil {
 
-    private static final String HOST = "http://192.168.1.17:18083";
-    private static final String PATH = "/api/v5/mqtt/topic_metrics";
+    private static final String HOST = "http://118.31.189.96:18081";
+    private static final String PATH = "/api/v4/topic-metrics";
     private static final String METHOD = "GET";
+    private static final String APP_KEY = "admin";
+    private static final String SECRET_KEY = "public";
 
     public List<TopicMetrics> getTopicMetrics() {
         Map<String, String> headerMap = new HashMap<>();
-        String token = login("admin", "11111111.");
         headerMap.put("Content-type", "application/json");
-        headerMap.put("Authorization", token);
-
-        List<TopicMetrics> topicMetricsList = new ArrayList<>();
+        String auth = getHeader();
+        headerMap.put("Authorization", auth);
         Map<String, String> queryMap = new HashMap<>();
+        List<TopicMetrics> topicMetrics = new ArrayList<>();
         try {
             HttpResponse response = HttpUtils.doGet(HOST, PATH, METHOD, headerMap, queryMap);
             String resBody = EntityUtils.toString(response.getEntity());
-            topicMetricsList = JSONArray.parseArray(resBody, TopicMetrics.class);
-            JSONArray objects = JSON.parseArray(resBody);
+            System.out.println(resBody);
+            String data = JSON.parseObject(resBody).getString("data");
+            System.out.println(data);
+            topicMetrics = JSONArray.parseArray(data, TopicMetrics.class);
+            System.out.println();
             int i = 0;
-            for (TopicMetrics topicMetric : topicMetricsList) {
-                String metricsString = JSON.parseObject(objects.get(i).toString()).getString("metrics");
+            for (TopicMetrics topicMetric : topicMetrics) {
+                String metricsString = JSON.parseArray(data).get(0).toString();
                 Metrics metrics = getMetrice(metricsString);
                 topicMetric.setMetrics(metrics);
                 i++;
@@ -42,7 +48,7 @@ public class TopicMetricsUtil {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return topicMetricsList;
+        return topicMetrics;
     }
 
     private Metrics getMetrice(String data) {
@@ -67,6 +73,13 @@ public class TopicMetricsUtil {
         return metrics;
     }
 
+    private String getHeader() {
+        String auth = APP_KEY + ":" + SECRET_KEY;
+        byte[] encodeAuth = Base64.encodeBase64(auth.getBytes(StandardCharsets.UTF_8));
+        String authHeader = "Basic "+new String(encodeAuth);
+        return  authHeader;
+    }
+
     public String login(String name, String password) {
         Map<String, String> userMap = new HashMap<>();
         userMap.put("username",name);
@@ -76,7 +89,7 @@ public class TopicMetricsUtil {
         StringBuilder token = new StringBuilder();
         token.append("Bearer ");
         try {
-            HttpResponse httpResponse = HttpUtils.doPost("http://192.168.1.17:18083", "/api/v5/login","POST",headerMap, new HashMap<>(), JsonUtil.objectToJson(userMap));
+            HttpResponse httpResponse = HttpUtils.doPost("http://118.31.189.96:18081", "/api/v4/login","POST",headerMap, new HashMap<>(), JsonUtil.objectToJson(userMap));
 
 //            HttpResponse httpResponse = HttpUtils.doPost("http://localhost:18083", "/api/v5/login",headerMap,new HashMap<>(),userMap);
             System.out.println(httpResponse);
