@@ -40,7 +40,7 @@ public class TopicMetricsUtil {
             System.out.println();
             int i = 0;
             for (TopicMetrics topicMetric : topicMetrics) {
-                String metricsString = JSON.parseArray(data).get(0).toString();
+                String metricsString = JSON.parseObject(JSON.parseArray(data).get(i).toString()).getString("metrics");
                 Metrics metrics = getMetrice(metricsString);
                 topicMetric.setMetrics(metrics);
                 i++;
