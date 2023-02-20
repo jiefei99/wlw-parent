@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -17,38 +18,40 @@ import java.util.List;
 public class Metrics extends Entity {
 
     @ApiModelProperty("QoS 2消息五秒内平均发送速率")
-    private  int messagesQos2OutRate;
+    private BigDecimal messagesQos2OutRate;
     @ApiModelProperty("QoS 2消息发送数量统计")
-    private  int messagesQos2OutCount;
+    private int messagesQos2OutCount;
     @ApiModelProperty("QoS 2消息五秒内平均接收速率")
-    private  int messagesQos2InRate;
+    private BigDecimal messagesQos2InRate;
     @ApiModelProperty("QoS 2消息接收数量统计")
-    private  int messagesQos2InCount;
+    private int messagesQos2InCount;
     @ApiModelProperty("QoS 1消息发送数量统计")
-    private  int messagesQos1OutCount;
+    private int messagesQos1OutCount;
     @ApiModelProperty("QoS 1消息五秒内平均接收速率")
-    private  int messagesQos1InRate;
+    private BigDecimal messagesQos1InRate;
     @ApiModelProperty("QoS 1消息五秒内平均发送速率")
-    private  int messagesQos1OutRate;
+    private BigDecimal messagesQos1OutRate;
     @ApiModelProperty("QoS 1消息接收数量统计")
-    private  int messagesQos1InCount;
+    private int messagesQos1InCount;
     @ApiModelProperty("QoS 0消息发送数量统计")
-    private  int messagesQos0OutCount;
+    private int messagesQos0OutCount;
     @ApiModelProperty("QoS 0消息五秒内平均接收速率")
-    private  int messagesQos0InRate;
+    private BigDecimal messagesQos0InRate;
     @ApiModelProperty("QoS 0消息五秒内平均发送速率")
-    private  int messagesQos0OutRate;
+    private BigDecimal messagesQos0OutRate;
     @ApiModelProperty("QoS 0消息接收数量统计")
-    private  int messagesQos0InCount;
+    private int messagesQos0InCount;
     @ApiModelProperty("QoS MQTT消息发送数量统计")
-    private  int messagesOutCount;
+    private int messagesOutCount;
     @ApiModelProperty("QoS MQTT消息五秒内平均接收速率")
-    private  int messagesInRate;
+    private BigDecimal messagesInRate;
     @ApiModelProperty("Qo SMQTT消息五秒内平均发送速率")
-    private  int messagesOutRate;
+    private BigDecimal messagesOutRate;
     @ApiModelProperty("QoS MQTT消息接收数量统计")
-    private  int messagesInCount;
+    private int messagesInCount;
     @ApiModelProperty("QoS MQTT消息5秒平均丢弃速率")
-    private  int messagesDroppedRate;
+    private BigDecimal messagesDroppedRate;
+    @ApiModelProperty("QoS MQTT消息丢弃数量统计")
+    private int messagesDroppedCount;
 
 }

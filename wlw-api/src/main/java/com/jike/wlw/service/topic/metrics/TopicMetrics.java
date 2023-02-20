@@ -7,17 +7,12 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Date;
-import java.util.List;
-
 @Getter
 @Setter
 @ApiModel("指标数据")
 @ToString
 public class TopicMetrics extends Entity {
 
-    @ApiModelProperty("时间")
-    private Date createTime;
     @ApiModelProperty("Topic")
     private String topic;
     @ApiModelProperty("metrics")
