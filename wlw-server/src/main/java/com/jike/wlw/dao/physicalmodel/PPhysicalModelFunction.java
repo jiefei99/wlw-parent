@@ -29,24 +29,31 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     private String modelDeviceId;
     @ApiModelProperty("名称")
     private String name;
-    @ApiModelProperty("功能类型")
-    private String type;
-    @ApiModelProperty("事件类型")
-    private EventType eventType;
     @ApiModelProperty("标识符")
     private String identifier;
+    @ApiModelProperty("功能类型")
+    private String type;
+    @ApiModelProperty("描述")
+    private String details;
+    @ApiModelProperty("是否必填 （阿里数据结构中的字段）")
+    private boolean required;
+    @ApiModelProperty("逻辑删除")
+    private boolean deleted;
+
+    //属性
     @ApiModelProperty("读写类型")
     private String rwFlag;
+
+    //事件
+    @ApiModelProperty("事件类型")
+    private EventType eventType;
+
+    //服务
     @ApiModelProperty("方法")
     private String method;
     @ApiModelProperty("服务调用类型")
     private CallType callType;
-    @ApiModelProperty("描述")
-    private String details;
-    @ApiModelProperty("是否是标准功能的必选事件")
-    private boolean required;
-    @ApiModelProperty("逻辑删除")
-    private boolean isDeleted;
+
     @Override
     public String getTableName() {
         return TABLE_NAME;

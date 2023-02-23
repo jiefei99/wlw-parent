@@ -13,7 +13,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "资源信息服务")
 @RequestMapping(value = "service/source", produces = "application/json;charset=utf-8")
-public interface SourceService {
+public interface
+SourceService {
 
     @ApiOperation(value = "获取指定资源")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
