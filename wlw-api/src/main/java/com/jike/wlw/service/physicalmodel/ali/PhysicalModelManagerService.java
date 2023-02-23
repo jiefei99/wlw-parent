@@ -97,7 +97,7 @@ public interface PhysicalModelManagerService {
                       @ApiParam(required = true, value = "请求参数") @RequestBody PhysicalModelPublishQueryRq filter) throws BusinessException;
 
     @ApiOperation(value = "复制物模型")
-    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @RequestMapping(value = "/copy", method = RequestMethod.POST)
     @ResponseBody
     void copy(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
               @ApiParam(required = true, value = "复制请求参数") @RequestBody PhysicalModelCopyRq modifyRq,
@@ -109,7 +109,4 @@ public interface PhysicalModelManagerService {
     void publish(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
               @ApiParam(required = true, value = "复制请求参数") @RequestBody PhysicalModelPublishRq publishRq,
               @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
-
-
-
 }

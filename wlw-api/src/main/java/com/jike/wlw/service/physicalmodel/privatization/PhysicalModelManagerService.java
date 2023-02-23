@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "私有物模型管理")
-@RequestMapping(value = "service/physicalModeManager", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "service/physicalModeManagerPrivate", produces = "application/json;charset=utf-8")
 public interface PhysicalModelManagerService {
 
     @ApiOperation(value = "新建物模型")
