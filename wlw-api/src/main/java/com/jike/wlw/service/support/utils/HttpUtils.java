@@ -1,5 +1,4 @@
 package com.jike.wlw.service.support.utils;
-import cn.hutool.http.HttpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;

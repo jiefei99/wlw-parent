@@ -63,8 +63,8 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
             if (productService.get(tenantId,createRq.getProductKey(),null)==null){
                 throw new BusinessException("产品不存在，请重新选择");
             }
-            pPhysicalModel.setIdentifier(createRq.getFunctionBlockId());
-            pPhysicalModel.setName(createRq.getFunctionBlockName());
+            pPhysicalModel.setModelIdentifier(createRq.getFunctionBlockId());
+            pPhysicalModel.setModelName(createRq.getFunctionBlockName());
             pPhysicalModel.setProductKey(createRq.getProductKey());
             pPhysicalModel.setDetails(createRq.getDetails());
             pPhysicalModel.setTenantId(tenantId);

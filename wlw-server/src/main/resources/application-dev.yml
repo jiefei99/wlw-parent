@@ -12,11 +12,11 @@ spring:
     password: jk123
     database: Test
   mqtt:
-    username: mq-dky-081333                            # 账号
-    password: public                        # 密码
+    username: emqx                           # 账号
+    password: 123456                       # 密码
     host-url: tcp://118.31.189.96:11883    # mqtt连接tcp地址
     client-id: mq-dky-0813        # 客户端Id，每个启动的id要不同
-    default-topic: t/#       # 默认主题
+    default-topic: $SYS/#       # 默认主题
     timeout: 100                            # 超时时间
     keepalive: 100
 

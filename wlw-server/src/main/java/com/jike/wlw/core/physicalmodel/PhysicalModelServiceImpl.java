@@ -47,7 +47,8 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
 
             PhysicalModel result = new PhysicalModel();
             BeanUtils.copyProperties(perz, result);
-            result.setFunctionIds(JsonUtil.jsonToArrayList(perz.getFunctionIdsJson(), String.class));
+            //应该要删掉的 TODO
+//            result.setFunctionIds(JsonUtil.jsonToArrayList(perz.getFunctionIdsJson(), String.class));
 
             return result;
         } catch (Exception e) {
@@ -79,7 +80,8 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
             BeanUtils.copyProperties(createRq, perz);
             perz.setTenantId(tenantId);
 //            perz.setId(flowCodeFeignClient.next(PPhysicalModel.class.getSimpleName(), "WMX", 6));
-            perz.setFunctionIdsJson(JsonUtil.objectToJson(createRq.getFunctionIds()));
+            //应该要删掉的 TODO
+//            perz.setFunctionIdsJson(JsonUtil.objectToJson(createRq.getFunctionIds()));
 
             physicalModelDao.save(perz);
         } catch (Exception e) {
@@ -98,7 +100,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
             }
 
             if (!StringUtil.isNullOrBlank(modifyRq.getName())) {
-                perz.setName(modifyRq.getName());
+                perz.setModelName(modifyRq.getName());
             }
             if (!CollectionUtils.isEmpty(modifyRq.getFunctionIds())) {
                 //校验功能是否存在
@@ -108,8 +110,8 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
                 if (functionList.size() != modifyRq.getFunctionIds().size()) {
                     throw new BusinessException("部分功能不存在或已删除，无法添加");
                 }
-
-                perz.setFunctionIdsJson(JsonUtil.objectToJson(modifyRq.getFunctionIds()));
+                //这个设计再考虑一下。应该是整块代码都要删掉的 TODO
+//                perz.setFunctionIdsJson(JsonUtil.objectToJson(modifyRq.getFunctionIds()));
             }
 
             physicalModelDao.save(perz);
@@ -130,7 +132,8 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
             for (PPhysicalModel perz : list) {
                 PhysicalModel physicalModel = new PhysicalModel();
                 BeanUtils.copyProperties(perz, physicalModel);
-                physicalModel.setFunctionIds(JsonUtil.jsonToArrayList(perz.getFunctionIdsJson(), String.class));
+                //应该要删掉的 TODO
+//                physicalModel.setFunctionIds(JsonUtil.jsonToArrayList(perz.getFunctionIdsJson(), String.class));
 
                 result.add(physicalModel);
             }
