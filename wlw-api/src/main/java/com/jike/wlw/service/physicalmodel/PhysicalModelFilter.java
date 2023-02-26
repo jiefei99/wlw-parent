@@ -10,7 +10,7 @@ import java.util.List;
 
 @Getter
 @Setter
-@ApiModel("物模型查询条件")
+@ApiModel("物模型模块查询条件")
 public class PhysicalModelFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 9214479469460671259L;
 
@@ -18,5 +18,7 @@ public class PhysicalModelFilter extends AbstractQueryFilter {
     private String tenantIdEq;
     @ApiModelProperty("productKey")
     private String productKey;
+    @ApiModelProperty("物模型模块标识符等于")
+    private String identifierEq="default";
 
 }

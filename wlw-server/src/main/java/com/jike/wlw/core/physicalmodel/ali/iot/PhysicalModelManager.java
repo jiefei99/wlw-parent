@@ -65,16 +65,6 @@ public class PhysicalModelManager {
     @Autowired
     private Environment env;
 
-    public static Client createClient(String accessKeyId, String accessKeySecret) throws Exception {
-        Config config = new Config();
-        // 您的 AccessKey ID
-        config.setAccessKeyId(accessKeyId);
-        // 您的 AccessKey Secret
-        config.setAccessKeySecret(accessKeySecret);
-        // 访问的域名
-        config.endpoint = "iot.cn-shanghai.aliyuncs.com";
-        return new Client(config);
-    }
 
     //CreateThingModel
     public CreateThingModelResponse createThingModel(PhysicalModelCreateRq model) throws Exception {

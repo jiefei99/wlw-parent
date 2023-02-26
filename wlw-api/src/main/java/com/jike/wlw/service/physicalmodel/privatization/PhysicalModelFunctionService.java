@@ -2,8 +2,8 @@ package com.jike.wlw.service.physicalmodel.privatization;
 
 
 import com.geeker123.rumba.commons.exception.BusinessException;
-import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
-import com.jike.wlw.service.physicalmodel.privatization.entity.PhysicalModelFunctionCreateRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionCreateRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionDelRq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -21,6 +21,14 @@ public interface PhysicalModelFunctionService {
     @ResponseBody
     void create(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "添加物模型请求参数") @RequestBody PhysicalModelFunctionCreateRq createRq,
+                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+
+
+    @ApiOperation(value = "删除物模型")
+    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                @ApiParam(required = true, value = "删除请求参数") @RequestBody PhysicalModelFunctionDelRq delRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
 }

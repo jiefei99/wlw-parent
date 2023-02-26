@@ -21,7 +21,7 @@ public class PhysicalModelDataFilter extends AbstractQueryFilter {
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;
     @ApiModelProperty("父类Id")
-    private String belongToId;
+    private String parentIdEq;
 }
 
 

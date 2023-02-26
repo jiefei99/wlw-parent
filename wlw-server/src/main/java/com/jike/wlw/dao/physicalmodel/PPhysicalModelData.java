@@ -18,18 +18,16 @@ import lombok.Setter;
 public class PPhysicalModelData  extends PStandardEntity implements JdbcEntity {
     private static final long serialVersionUID = -6795778097141439297L;
 
-    public static final String TABLE_NAME = "wlw_model_device_data";
+    public static final String TABLE_NAME = "wlw_physical_model_data";
 
     @ApiModelProperty("租户ID")
     private String tenantId;
     @ApiModelProperty("父类Id")
-    private String belongToId;
+    private String parentId;
     @ApiModelProperty("数据")
     private String data;
     @ApiModelProperty("数据范围")
     private String dataRange;
-    @ApiModelProperty("逻辑删除")
-    private boolean isDeleted;
 
     @Override
     public String getTableName() {

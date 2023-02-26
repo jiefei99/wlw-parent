@@ -22,8 +22,6 @@ import java.util.List;
 public class PhysicalModelDelRq extends Entity implements Serializable {
     private static final long serialVersionUID = -2618859554236354115L;
 
-    @ApiModelProperty("租户")
-    private String tenantId;
     @ApiModelProperty("productKey")
     private String productKey;
     @ApiModelProperty("实例ID")
@@ -32,11 +30,11 @@ public class PhysicalModelDelRq extends Entity implements Serializable {
     private String resourceGroupId;
     @ApiModelProperty("标识符")
     private String functionBlockId;
-    @ApiModelProperty("标识符")
+    @ApiModelProperty("属性标识符")
     private List<String> propertyIdentifier;
-    @ApiModelProperty("标识符")
+    @ApiModelProperty("服务标识符")
     private List<String> serviceIdentifier;
-    @ApiModelProperty("标识符")
+    @ApiModelProperty("事件标识符")
     private List<String> eventIdentifier;
 }
 

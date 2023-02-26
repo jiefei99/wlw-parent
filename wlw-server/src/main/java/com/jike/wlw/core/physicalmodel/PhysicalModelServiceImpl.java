@@ -7,8 +7,8 @@ import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.config.fegin.FlowCodeFeignClient;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.TX;
-import com.jike.wlw.dao.physicalmodel.PPhysicalModel;
-import com.jike.wlw.dao.physicalmodel.PhysicalModelDao;
+import com.jike.wlw.dao.physicalmodel.PPhysicalModelModule;
+import com.jike.wlw.dao.physicalmodel.PhysicalModelModuleDao;
 import com.jike.wlw.service.physicalmodel.PhysicalModel;
 import com.jike.wlw.service.physicalmodel.PhysicalModelFilter;
 import com.jike.wlw.service.physicalmodel.PhysicalModelService;
@@ -31,7 +31,7 @@ import java.util.List;
 public class PhysicalModelServiceImpl extends BaseService implements PhysicalModelService {
 
     @Autowired
-    private PhysicalModelDao physicalModelDao;
+    private PhysicalModelModuleDao physicalModelDao;
     @Autowired
     private FunctionService functionService;
     @Autowired
@@ -40,7 +40,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     @Override
     public PhysicalModel get(String tenantId, String id) throws BusinessException {
         try {
-            PPhysicalModel perz = doGet(tenantId, id);
+            PPhysicalModelModule perz = doGet(tenantId, id);
             if (perz == null) {
                 return null;
             }
@@ -76,7 +76,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
                 throw new BusinessException("部分功能不存在或已删除，无法添加");
             }
 
-            PPhysicalModel perz = new PPhysicalModel();
+            PPhysicalModelModule perz = new PPhysicalModelModule();
             BeanUtils.copyProperties(createRq, perz);
             perz.setTenantId(tenantId);
 //            perz.setId(flowCodeFeignClient.next(PPhysicalModel.class.getSimpleName(), "WMX", 6));
@@ -94,7 +94,7 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     @Override
     public void modify(String tenantId, PhysicalModel modifyRq, String operator) throws BusinessException {
         try {
-            PPhysicalModel perz = doGet(tenantId, modifyRq.getId());
+            PPhysicalModelModule perz = doGet(tenantId, modifyRq.getId());
             if (perz == null) {
                 throw new BusinessException("指定物模型不存在或已删除，无法编辑");
             }
@@ -125,11 +125,11 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     public PagingResult<PhysicalModel> query(String tenantId, PhysicalModelFilter filter) throws BusinessException {
         try {
             filter.setTenantIdEq(tenantId);
-            List<PPhysicalModel> list = physicalModelDao.query(filter);
+            List<PPhysicalModelModule> list = physicalModelDao.query(filter);
             long count = physicalModelDao.getCount(filter);
 
             List<PhysicalModel> result = new ArrayList<>();
-            for (PPhysicalModel perz : list) {
+            for (PPhysicalModelModule perz : list) {
                 PhysicalModel physicalModel = new PhysicalModel();
                 BeanUtils.copyProperties(perz, physicalModel);
                 //应该要删掉的 TODO
@@ -146,10 +146,10 @@ public class PhysicalModelServiceImpl extends BaseService implements PhysicalMod
     }
 
 
-    private PPhysicalModel doGet(String tenantId, String id) throws Exception {
-        PPhysicalModel perz = physicalModelDao.get(PPhysicalModel.class, "tenantId", tenantId, "id", id);
+    private PPhysicalModelModule doGet(String tenantId, String id) throws Exception {
+        PPhysicalModelModule perz = physicalModelDao.get(PPhysicalModelModule.class, "tenantId", tenantId, "id", id);
         if (perz == null) {
-            perz = physicalModelDao.get(PPhysicalModel.class, "tenantId", tenantId, "uuid", id);
+            perz = physicalModelDao.get(PPhysicalModelModule.class, "tenantId", tenantId, "uuid", id);
         }
 
         return perz;

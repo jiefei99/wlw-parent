@@ -1,11 +1,16 @@
 package com.jike.wlw.service.physicalmodel.privatization.entity;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
+import com.jike.wlw.service.physicalmodel.DataType;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.ModelIOParm;
 import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @title: PhysicalModelDataStandardCreateRq
@@ -19,7 +24,18 @@ import java.io.Serializable;
 @ApiModel
 public class PhysicalModelDataStandardCreateRq extends Entity implements Serializable {
     private static final long serialVersionUID = -1698859554278354115L;
-
+    @ApiModelProperty("父类Id")
+    private String parentId;
+    @ApiModelProperty("数据类型")
+    private DataType dataType;
+    @ApiModelProperty("数据")
+    private String dataSpecs;  //INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
+    @ApiModelProperty("数据")
+    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
+    @ApiModelProperty("输入参数")
+    private ModelIOParm inputParams;
+    @ApiModelProperty("输出参数")
+    private ModelIOParm outputParams;
 }
 
 

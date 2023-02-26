@@ -2,6 +2,7 @@ package com.jike.wlw.dao.physicalmodel;
 
 import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import com.geeker123.rumba.jdbc.entity.PStandardEntity;
+import com.jike.wlw.service.physicalmodel.DataType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -22,11 +23,10 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
 
     @ApiModelProperty("租户ID")
     private String tenantId;
-
     @ApiModelProperty("父类Id")
     private String parentId;
     @ApiModelProperty("属性类型")
-    private String type;
+    private DataType type;
     @ApiModelProperty("输入输出参数类型")
     private String ioParmType;
     @ApiModelProperty("最小值")
@@ -39,16 +39,16 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
     private String unitName;
     @ApiModelProperty("数组元素的个数")
     private String size;
+    @ApiModelProperty("数组元素类型")
+    private DataType arrayType;
     @ApiModelProperty("步长")
     private String step;
     @ApiModelProperty("数据长度")
-    private String length;
+    private Long length;
     @ApiModelProperty("布尔0描述")
     private String boolZeroRemark;
     @ApiModelProperty("布尔1描述")
     private String boolOneRemark;
-    @ApiModelProperty("逻辑删除")
-    private boolean isDeleted;
 
     @Override
     public String getTableName() {

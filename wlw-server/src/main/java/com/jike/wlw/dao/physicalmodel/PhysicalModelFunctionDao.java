@@ -6,6 +6,7 @@ import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.physicalmodel.PhysicalModelFunctionFilter;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -35,13 +36,16 @@ public class PhysicalModelFunctionDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
             q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
         }
-        if (!StringUtil.isNullOrBlank(filter.getModelDeviceId())) {
-            q.where("o.modelDeviceId = :modelDeviceId").p("modelDeviceId", filter.getModelDeviceId());
+        if (!StringUtil.isNullOrBlank(filter.getModelModuleIdEq())) {
+            q.where("o.modelModuleId = :modelModuleIdEq").p("modelModuleIdEq", filter.getModelModuleIdEq());
         }
         if (filter.getType()!=null) {
             q.where("o.type = :type").p("type", filter.getType());
         }
-
+        if (!CollectionUtils.isEmpty(filter.getIdentifierIn())) {
+            q.where("o.identifier in (:identifierIn)").p("identifierIn", filter.getIdentifierIn());
+        }
+        q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {
                 if (order != null && !StringUtil.isNullOrBlank(order.getSortKey())) {

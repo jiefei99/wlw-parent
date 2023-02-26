@@ -5,35 +5,41 @@ import com.geeker123.rumba.commons.util.StringUtil;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.physicalmodel.PhysicalModelFilter;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleFilter;
 import org.springframework.stereotype.Repository;
-import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
 @Repository
-public class PhysicalModelDao extends BaseDao {
+public class PhysicalModelModuleDao extends BaseDao {
 
-    public List<PPhysicalModel> query(PhysicalModelFilter filter) {
+    public List<PPhysicalModelModule> query(PhysicalModelModuleFilter filter) {
         JdbcEntityQuery q = getQuery("query", "*", filter);
-        return q.list(jdbcTemplate, PPhysicalModel.class, filter.getPage(), filter.getPageSize());
+        return q.list(jdbcTemplate, PPhysicalModelModule.class, filter.getPage(), filter.getPageSize());
     }
 
-    public long getCount(PhysicalModelFilter filter) {
+    public long getCount(PhysicalModelModuleFilter filter) {
         JdbcEntityQuery q = getQuery("getCount", "count(*)", filter);
         return q.count(jdbcTemplate, String.class);
     }
 
-    private JdbcEntityQuery getQuery(String name, String select, PhysicalModelFilter filter) {
-        JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PPhysicalModel.TABLE_NAME, "o");
+    private JdbcEntityQuery getQuery(String name, String select, PhysicalModelModuleFilter filter) {
+        JdbcEntityQuery q = new JdbcEntityQuery(name).select(select).from(PPhysicalModelModule.TABLE_NAME, "o");
 
         //eq查询
-        if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
-            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
+        if (!StringUtil.isNullOrBlank(filter.getTenantId())) {
+            q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantId());
         }
         if (!StringUtil.isNullOrBlank(filter.getProductKey())) {
             q.where("o.productKey = :productKey").p("productKey", filter.getProductKey());
         }
-
+        if (!StringUtil.isNullOrBlank(filter.getIdentifierEq())) {
+            q.where("o.identifier = :identifierEq").p("identifierEq", filter.getIdentifierEq());
+        }
+        if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
+            q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());
+        }
+        q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {
                 if (order != null && !StringUtil.isNullOrBlank(order.getSortKey())) {
