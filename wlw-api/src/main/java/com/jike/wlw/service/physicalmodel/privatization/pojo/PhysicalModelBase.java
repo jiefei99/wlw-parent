@@ -1,6 +1,7 @@
 package com.jike.wlw.service.physicalmodel.privatization.pojo;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
+import com.jike.wlw.service.physicalmodel.DataType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -22,8 +23,8 @@ public class PhysicalModelBase extends Entity {
     private String name;
     @ApiModelProperty("标识符")
     private String identifier;
-    @ApiModelProperty("数据类型")
-    private String dataType;
+//    @ApiModelProperty("数据类型")
+//    private DataType dataType;
     @ApiModelProperty("productKey")
     private String productKey;
     @ApiModelProperty("是否是自定义功能")

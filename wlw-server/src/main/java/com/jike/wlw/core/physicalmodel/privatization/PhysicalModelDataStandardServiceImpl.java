@@ -12,6 +12,7 @@ import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelDataStandar
 import com.jike.wlw.service.physicalmodel.privatization.entity.PhysicalModelDataStandardCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.ArrayDataStandards;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.DateTextDataStandards;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.EnumBoolDataStandards;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.NumberDataStandards;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
@@ -46,20 +47,12 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
             throw new BusinessException("父类Id不能为空");
         }
         try {
-            if (StringUtils.isNotBlank(createRq.getDataSpecs())){//INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
-                if (DataType.INT.equals(createRq.getDataType())||DataType.FLOAT.equals(createRq.getDataType())||DataType.DOUBLE.equals(createRq.getDataType())){
-                    saveNumberDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
-                } else if(DataType.TEXT.equals(createRq.getDataType())||DataType.DATE.equals(createRq.getDataType())){
-                    saveDateTextDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
-                }else if (DataType.ARRAY.equals(createRq.getDataType())){
-                    saveArrayDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
-                }
-            }else if (CollectionUtils.isNotEmpty(createRq.getDataSpecsList())){
-                if (DataType.ENUM.equals(createRq.getDataType())||DataType.BOOL.equals(createRq.getDataType())){
-                    saveEnumBoolDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
-                }else if (DataType.STRUCT.equals(createRq.getDataType())){
-                    saveStructDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
-                }
+            if (DataType.INT.equals(createRq.getDataType())||DataType.FLOAT.equals(createRq.getDataType())||DataType.DOUBLE.equals(createRq.getDataType())){
+                saveNumberDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
+            } else if(DataType.TEXT.equals(createRq.getDataType())||DataType.DATE.equals(createRq.getDataType())){
+                saveDateTextDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
+            }if (DataType.ENUM.equals(createRq.getDataType())||DataType.BOOL.equals(createRq.getDataType())){
+                saveEnumBoolDataStandard(tenantId,createRq.getParentId(),createRq.getDataSpecs(),operator);
             }
             PPhysicalModelDataStandard pDataStandard=new PPhysicalModelDataStandard();
             dataStandardDao.save(pDataStandard);
@@ -115,59 +108,14 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
         }
     }
 
-    private void saveArrayDataStandard(String tenantId,String parentId,String dataSpecs,String operator){
-        PPhysicalModelDataStandard pPhysicalModelDataStandard=new PPhysicalModelDataStandard();
-        try {
-            ArrayDataStandards arrayDataStandards = JSON.parseObject(dataSpecs, ArrayDataStandards.class);
-            pPhysicalModelDataStandard.setTenantId(tenantId);
-            pPhysicalModelDataStandard.onCreated(operator);
-            pPhysicalModelDataStandard.setParentId(parentId);
-            pPhysicalModelDataStandard.setArrayType(arrayDataStandards.getChildDataType());
-            pPhysicalModelDataStandard.setType(arrayDataStandards.getDataType());
-            dataStandardDao.save(pPhysicalModelDataStandard);
-            if (DataType.STRUCT.equals(arrayDataStandards.getChildDataType())){
-                if (StringUtils.isNotBlank(arrayDataStandards.getDataSpecs())||CollectionUtils.isNotEmpty(arrayDataStandards.getDataSpecsList())){
-                    PhysicalModelDataStandardCreateRq createRq=new PhysicalModelDataStandardCreateRq();
-                    createRq.setDataSpecs(arrayDataStandards.getDataSpecs());
-                    createRq.setDataSpecsList(arrayDataStandards.getDataSpecsList());
-                    createRq.setParentId(pPhysicalModelDataStandard.getUuid());
-                    create(tenantId,createRq,operator);
-                }
-            }
-        } catch (Exception e) {
-            throw new BusinessException(e.getMessage());
-        }
-    }
-
     private void saveEnumBoolDataStandard(String tenantId,String parentId,String dataSpecs,String operator){
         PPhysicalModelDataStandard pPhysicalModelDataStandard=new PPhysicalModelDataStandard();
         try {
-            ArrayDataStandards arrayDataStandards = JSON.parseObject(dataSpecs, ArrayDataStandards.class);
             pPhysicalModelDataStandard.setTenantId(tenantId);
             pPhysicalModelDataStandard.onCreated(operator);
             pPhysicalModelDataStandard.setParentId(parentId);
-            pPhysicalModelDataStandard.setArrayType(arrayDataStandards.getChildDataType());
-            pPhysicalModelDataStandard.setType(arrayDataStandards.getDataType());
+            pPhysicalModelDataStandard.setBoolEnumRemark(dataSpecs);
             dataStandardDao.save(pPhysicalModelDataStandard);
-            if (DataType.STRUCT.equals(arrayDataStandards.getChildDataType())){
-            }
-        } catch (Exception e) {
-            throw new BusinessException(e.getMessage());
-        }
-    }
-
-    private void saveStructDataStandard(String tenantId,String parentId,String dataSpecs,String operator){
-        PPhysicalModelDataStandard pPhysicalModelDataStandard=new PPhysicalModelDataStandard();
-        try {
-            ArrayDataStandards arrayDataStandards = JSON.parseObject(dataSpecs, ArrayDataStandards.class);
-            pPhysicalModelDataStandard.setTenantId(tenantId);
-            pPhysicalModelDataStandard.onCreated(operator);
-            pPhysicalModelDataStandard.setParentId(parentId);
-            pPhysicalModelDataStandard.setArrayType(arrayDataStandards.getChildDataType());
-            pPhysicalModelDataStandard.setType(arrayDataStandards.getDataType());
-            dataStandardDao.save(pPhysicalModelDataStandard);
-            if (DataType.STRUCT.equals(arrayDataStandards.getChildDataType())){
-            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }

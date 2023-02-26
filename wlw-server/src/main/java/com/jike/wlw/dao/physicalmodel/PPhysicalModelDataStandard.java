@@ -27,8 +27,6 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
     private String parentId;
     @ApiModelProperty("属性类型")
     private DataType type;
-    @ApiModelProperty("输入输出参数类型")
-    private String ioParmType;
     @ApiModelProperty("最小值")
     private String min;
     @ApiModelProperty("最大值")
@@ -49,6 +47,8 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
     private String boolZeroRemark;
     @ApiModelProperty("布尔1描述")
     private String boolOneRemark;
+    @ApiModelProperty("布尔1描述")
+    private String boolEnumRemark;
 
     @Override
     public String getTableName() {

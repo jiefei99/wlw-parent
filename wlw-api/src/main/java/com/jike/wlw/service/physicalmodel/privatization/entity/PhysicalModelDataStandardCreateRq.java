@@ -24,18 +24,20 @@ import java.util.Map;
 @ApiModel
 public class PhysicalModelDataStandardCreateRq extends Entity implements Serializable {
     private static final long serialVersionUID = -1698859554278354115L;
+    @ApiModelProperty("租户Id")
+    private String tenantId;
     @ApiModelProperty("父类Id")
     private String parentId;
     @ApiModelProperty("数据类型")
     private DataType dataType;
     @ApiModelProperty("数据")
-    private String dataSpecs;  //INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
-    @ApiModelProperty("数据")
-    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
-    @ApiModelProperty("输入参数")
-    private ModelIOParm inputParams;
-    @ApiModelProperty("输出参数")
-    private ModelIOParm outputParams;
+    private String dataSpecs;
+//    @ApiModelProperty("数据")
+//    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
+//    @ApiModelProperty("输入参数")
+//    private List<ModelIOParm> inputParams;
+//    @ApiModelProperty("输出参数")
+//    private List<ModelIOParm> outputParams;
 }
 
 

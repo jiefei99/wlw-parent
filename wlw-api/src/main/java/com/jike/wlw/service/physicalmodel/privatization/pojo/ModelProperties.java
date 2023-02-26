@@ -22,15 +22,14 @@ import java.util.List;
 @ApiModel
 public class ModelProperties extends PhysicalModelBase {
     private static final long serialVersionUID = 130312029722547611L;
-
     @ApiModelProperty("读写")
     private String rwFlag;
     @ApiModelProperty("数据类型")
-    private DataType dataType;
+    private DataType type;
     @ApiModelProperty("数据")
-    private String dataSpecs;  //INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
-    @ApiModelProperty("数据")
-    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
+    private String dataType;
+//    @ApiModelProperty("数据")
+//    private List<String> dataSpecsList;
 }
 
 

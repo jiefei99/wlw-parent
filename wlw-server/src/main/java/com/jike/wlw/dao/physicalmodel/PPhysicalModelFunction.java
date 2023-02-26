@@ -24,7 +24,6 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     private static final long serialVersionUID = -6747778097141439297L;
 
     public static final String TABLE_NAME = "wlw_physical_model_function";
-
     @ApiModelProperty("租户ID")
     private String tenantId;
     @ApiModelProperty("物模型Id")
@@ -39,6 +38,12 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     private String details;
     @ApiModelProperty("是否必填 （阿里数据结构中的字段）")
     private boolean required;
+    @ApiModelProperty("从属id")
+    private String parentId;
+    @ApiModelProperty("数组大小")
+    private int arraySize;
+    @ApiModelProperty("数组类型")
+    private DataType arrayType;
     @ApiModelProperty("是否删除")
     private int isDeleted;
     //属性
@@ -57,6 +62,8 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     @ApiModelProperty("服务调用类型")
     private CallType callType;
 
+    @ApiModelProperty("输入输出参数类型")
+    private String ioParmType;
     @Override
     public String getTableName() {
         return TABLE_NAME;

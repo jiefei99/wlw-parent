@@ -1,5 +1,6 @@
 package com.jike.wlw.service.physicalmodel.privatization.pojo;
 
+import com.jike.wlw.service.physicalmodel.DataType;
 import com.jike.wlw.service.physicalmodel.EventType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,15 +21,16 @@ import java.util.List;
 @ApiModel
 public class ModelIOParm extends PhysicalModelBase {
     private static final long serialVersionUID = 130312029722547641L;
-
+    @ApiModelProperty("数据类型")
+    private String dataType;
     @ApiModelProperty("输入|输出参数")
     private String direction;
     @ApiModelProperty("参数的序号")
     private Integer paraOrder;
-    @ApiModelProperty("数据")
-    private String dataSpecs;  //INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
-    @ApiModelProperty("数据")
-    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
+//    @ApiModelProperty("数据")
+//    private String dataSpecs;  //INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY
+//    @ApiModelProperty("数据")
+//    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
 }
 
 

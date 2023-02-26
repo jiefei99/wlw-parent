@@ -21,6 +21,8 @@ public class PhysicalModelFunctionFilter extends AbstractQueryFilter {
     private static final long serialVersionUID = 9214479469461671259L;
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;
+    @ApiModelProperty("从属ID等于")
+    private String parentIdEq;
     @ApiModelProperty("模块等于")
     private String modelModuleIdEq;
     @ApiModelProperty("标识符等于")

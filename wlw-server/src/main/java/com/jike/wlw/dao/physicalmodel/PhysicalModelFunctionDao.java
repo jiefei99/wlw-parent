@@ -5,6 +5,7 @@ import com.geeker123.rumba.commons.util.StringUtil;
 import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.physicalmodel.PhysicalModelFunctionFilter;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 
@@ -38,6 +39,11 @@ public class PhysicalModelFunctionDao extends BaseDao {
         }
         if (!StringUtil.isNullOrBlank(filter.getModelModuleIdEq())) {
             q.where("o.modelModuleId = :modelModuleIdEq").p("modelModuleIdEq", filter.getModelModuleIdEq());
+        }
+        if (StringUtils.isNotBlank(filter.getParentIdEq())){
+            q.where("o.parentId = :parentIdEq").p("parentIdEq", filter.getParentIdEq());
+        }else{
+            q.where("o.parentId is null");
         }
         if (filter.getType()!=null) {
             q.where("o.type = :type").p("type", filter.getType());
