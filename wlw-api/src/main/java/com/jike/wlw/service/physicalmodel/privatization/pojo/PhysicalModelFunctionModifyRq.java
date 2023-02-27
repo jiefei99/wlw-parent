@@ -7,6 +7,7 @@
 package com.jike.wlw.service.physicalmodel.privatization.pojo;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
+import com.jike.wlw.service.physicalmodel.ThingModelJsonType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -34,4 +35,12 @@ public class PhysicalModelFunctionModifyRq extends Entity implements Serializabl
     private String moduleIdentifier;
     @ApiModelProperty("标识符")
     private String identifier;
+    @ApiModelProperty("类型")
+    private ThingModelJsonType type;
+    @ApiModelProperty("属性")
+    private ModelProperties properties;
+    @ApiModelProperty("服务")
+    private ModelService services;
+    @ApiModelProperty("事件")
+    private ModelEvent events;
 }
