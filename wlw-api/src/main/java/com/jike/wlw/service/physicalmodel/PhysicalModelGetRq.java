@@ -33,6 +33,8 @@ public class PhysicalModelGetRq extends Entity implements Serializable {
     private String functionBlockId;
     @ApiModelProperty("物模型版本号")
     private String modelVersion;
+    @ApiModelProperty("物模型标识符")
+    private String identifier;
 
 }
 

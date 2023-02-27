@@ -15,6 +15,7 @@ import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelFunctionSer
 import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelManagerService;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionDelRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.function.Model;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModule;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleFilter;
@@ -96,8 +97,9 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
     }
 
     @Override
-    public PhysicalModel get(String tenantId, PhysicalModelGetRq modelGetRq) throws BusinessException {
-        return null;
+    public Model get(String tenantId, PhysicalModelGetRq modelGetRq) throws BusinessException {
+        Model model = functionService.get(tenantId, modelGetRq.getProductKey(), modelGetRq.getFunctionBlockId(), modelGetRq.getIdentifier());
+        return model;
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelDelRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelGetRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelModifyRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.function.Model;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModule;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleModifyRq;
@@ -34,8 +35,8 @@ public interface PhysicalModelManagerService {
     @ApiOperation(value = "指定产品物模型中的功能定义详情")
     @RequestMapping(value = "/get", method = RequestMethod.POST)
     @ResponseBody
-    PhysicalModel get(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                      @ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelGetRq modelGetRq) throws BusinessException;
+    Model get(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+              @ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelGetRq modelGetRq) throws BusinessException;
 
     @ApiOperation(value = "编辑物模型")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
