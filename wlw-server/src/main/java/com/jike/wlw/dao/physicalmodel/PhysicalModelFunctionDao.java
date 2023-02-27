@@ -51,6 +51,9 @@ public class PhysicalModelFunctionDao extends BaseDao {
         if (!CollectionUtils.isEmpty(filter.getIdentifierIn())) {
             q.where("o.identifier in (:identifierIn)").p("identifierIn", filter.getIdentifierIn());
         }
+        if (!CollectionUtils.isEmpty(filter.getParentIdIn())) {
+            q.where("o.parentId in (:parentIdIn)").p("parentIdIn", filter.getParentIdIn());
+        }
         q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {

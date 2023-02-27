@@ -28,14 +28,10 @@ import java.util.List;
 public class PhysicalModelFunctionModifyRq extends Entity implements Serializable {
     private static final long serialVersionUID = -1698859554276354145L;
 
-    @ApiModelProperty("物模型模块Id")
-    private String modelModuleId;
     @ApiModelProperty("productKey")
     private String productKey;
-    @ApiModelProperty("属性")
-    private List<ModelProperties> properties;
-    @ApiModelProperty("服务")
-    private List<ModelService> services;
-    @ApiModelProperty("事件")
-    private List<ModelEvent> events;
+    @ApiModelProperty("物模型模块表示符号")
+    private String moduleIdentifier;
+    @ApiModelProperty("标识符")
+    private String identifier;
 }

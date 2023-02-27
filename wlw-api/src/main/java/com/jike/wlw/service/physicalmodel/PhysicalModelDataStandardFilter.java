@@ -6,6 +6,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * @title: PhysicalModelDataTypeStandardFilter
  * @Author RS
@@ -20,8 +22,10 @@ public class PhysicalModelDataStandardFilter extends AbstractQueryFilter {
 
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;
-    @ApiModelProperty("父类Id")
+    @ApiModelProperty("父类Id等于")
     private String parentIdEq;
+    @ApiModelProperty("父类Id包含")
+    private List<String> parentIdIn;
 }
 
 

@@ -1,30 +1,30 @@
-package com.jike.wlw.dao.physicalmodel;
+package com.jike.wlw.service.physicalmodel.privatization.pojo;
 
-import com.geeker123.rumba.jdbc.entity.JdbcEntity;
-import com.geeker123.rumba.jdbc.entity.PStandardEntity;
+import com.geeker123.rumba.jpa.api.entity.Entity;
 import com.jike.wlw.service.physicalmodel.CallType;
 import com.jike.wlw.service.physicalmodel.DataType;
 import com.jike.wlw.service.physicalmodel.DirectionType;
 import com.jike.wlw.service.physicalmodel.EventType;
 import com.jike.wlw.service.physicalmodel.ThingModelJsonType;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import okhttp3.Cache;
 
 /**
- * @title: PPhysicalModelService
+ * @title: PhysicalModelFunction
  * @Author RS
- * @Date: 2023/2/16 17:37
+ * @Date: 2023/2/27 11:22
  * @Version 1.0
  */
 
 @Getter
 @Setter
-public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntity {
-    private static final long serialVersionUID = -6747778097141439297L;
+@ApiModel
+public class PhysicalModelFunction extends Entity {
 
-    public static final String TABLE_NAME = "wlw_physical_model_function";
+    private static final long serialVersionUID = 130322429721547201L;
+
     @ApiModelProperty("租户ID")
     private String tenantId;
     @ApiModelProperty("物模型Id")
@@ -65,10 +65,6 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
 
     @ApiModelProperty("输入输出参数类型")
     private DirectionType direction;
-    @Override
-    public String getTableName() {
-        return TABLE_NAME;
-    }
 }
 
 

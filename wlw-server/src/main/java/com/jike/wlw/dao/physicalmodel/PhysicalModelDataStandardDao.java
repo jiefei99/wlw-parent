@@ -6,6 +6,7 @@ import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.service.physicalmodel.PhysicalModelDataStandardFilter;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.CollectionUtils;
 
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class PhysicalModelDataStandardDao extends BaseDao {
         }
         if (!StringUtil.isNullOrBlank(filter.getParentIdEq())) {
             q.where("o.parentId = :parentId").p("parentId", filter.getParentIdEq());
+        }
+        if (!CollectionUtils.isEmpty(filter.getParentIdIn())) {
+            q.where("o.parentId in (:parentIdIn)").p("parentIdIn", filter.getParentIdIn());
         }
         q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {

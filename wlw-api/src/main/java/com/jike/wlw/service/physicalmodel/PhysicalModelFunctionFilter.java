@@ -23,6 +23,8 @@ public class PhysicalModelFunctionFilter extends AbstractQueryFilter {
     private String tenantIdEq;
     @ApiModelProperty("从属ID等于")
     private String parentIdEq;
+    @ApiModelProperty("从属ID包含")
+    private List<String> parentIdIn;
     @ApiModelProperty("模块等于")
     private String modelModuleIdEq;
     @ApiModelProperty("标识符等于")

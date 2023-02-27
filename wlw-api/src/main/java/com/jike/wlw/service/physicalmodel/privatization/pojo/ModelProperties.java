@@ -26,10 +26,10 @@ public class ModelProperties extends PhysicalModelBase {
     private String rwFlag;
     @ApiModelProperty("数据类型")
     private DataType type;
-    @ApiModelProperty("数据")
+    @ApiModelProperty("数据和类型")
     private String dataType;
-//    @ApiModelProperty("数据")
-//    private List<String> dataSpecsList;
+    @ApiModelProperty("是否必须")
+    private boolean required;
 }
 
 
