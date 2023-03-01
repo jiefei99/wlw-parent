@@ -80,7 +80,7 @@ public class SysWebEmployeeController extends BaseController {
 
             AccountUserModifyPwd modifyPwd = new AccountUserModifyPwd();
             modifyPwd.setNewPassword("123456");
-            loginFeignClient.modifyPwd(modifyPwd, getUserName());
+            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -111,27 +111,13 @@ public class SysWebEmployeeController extends BaseController {
             if (currentUser == null) {
                 return ActionResult.fail("当前用户信息不存在或已删除");
             }
-            loginFeignClient.modifyPwd(modifyPwd, getUserName());
-
+            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
         }
     }
 
-    @ApiOperation(value = "登陆用户修改密码")
-    @RequestMapping(value = "/employeeModifyPwdEmployee", method = RequestMethod.POST)
-    @ResponseBody
-    public ActionResult<Void> employeeModifyPwdEmployee() {
-        try {
-            //调用 base的修改密码接口 TODO
-//            modifyRq.setUserId(getUserId());
-//            loginFeignClient.reset(modifyRq);
-            return ActionResult.ok();
-        } catch (Exception e) {
-            return dealWithError(e);
-        }
-    }
 
     @ApiOperation(value = "修改用户信息")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
