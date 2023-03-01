@@ -1,7 +1,7 @@
 package com.jike.wlw.service.physicalmodel.privatization;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
-import com.jike.wlw.service.physicalmodel.privatization.entity.PhysicalModelDataStandardCreateRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.PhysicalModelDataStandardCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.PhysicalModelDataStandard;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

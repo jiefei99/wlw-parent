@@ -8,7 +8,7 @@ import com.jike.wlw.dao.physicalmodel.PhysicalModelDataStandardDao;
 import com.jike.wlw.service.physicalmodel.DataType;
 import com.jike.wlw.service.physicalmodel.PhysicalModelDataStandardFilter;
 import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelDataStandardService;
-import com.jike.wlw.service.physicalmodel.privatization.entity.PhysicalModelDataStandardCreateRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.PhysicalModelDataStandardCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.DateTextDataStandards;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.NumberDataStandards;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard.PhysicalModelDataStandard;

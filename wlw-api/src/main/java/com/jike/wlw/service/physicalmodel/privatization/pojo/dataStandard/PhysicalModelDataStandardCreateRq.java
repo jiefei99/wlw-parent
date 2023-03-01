@@ -1,4 +1,4 @@
-package com.jike.wlw.service.physicalmodel.privatization.entity;
+package com.jike.wlw.service.physicalmodel.privatization.pojo.dataStandard;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
 import com.jike.wlw.service.physicalmodel.DataType;
@@ -32,12 +32,6 @@ public class PhysicalModelDataStandardCreateRq extends Entity implements Seriali
     private DataType dataType;
     @ApiModelProperty("数据")
     private String dataSpecs;
-//    @ApiModelProperty("数据")
-//    private List<String> dataSpecsList; //ENUM、BOOL、STRUCT
-//    @ApiModelProperty("输入参数")
-//    private List<ModelIOParm> inputParams;
-//    @ApiModelProperty("输出参数")
-//    private List<ModelIOParm> outputParams;
 }
 
 

@@ -2,10 +2,9 @@ package com.jike.wlw.service.physicalmodel.privatization;
 
 
 import com.geeker123.rumba.commons.exception.BusinessException;
-import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelBase;
-import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionCreateRq;
-import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionDelRq;
-import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionModifyRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.function.PhysicalModelFunctionCreateRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.function.PhysicalModelFunctionDelRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.function.PhysicalModelFunctionModifyRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.function.Model;
 import com.jike.wlw.service.physicalmodel.privatization.vo.PhysicalModelFunctionVO;
 import io.swagger.annotations.Api;

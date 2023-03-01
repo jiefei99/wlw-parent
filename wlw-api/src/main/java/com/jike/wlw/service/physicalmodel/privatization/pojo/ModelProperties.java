@@ -1,14 +1,10 @@
 package com.jike.wlw.service.physicalmodel.privatization.pojo;
 
 import com.jike.wlw.service.physicalmodel.DataType;
-import com.jike.wlw.service.physicalmodel.privatization.entity.PhysicalModelDataStandardCreateRq;
-import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelBase;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.List;
 
 /**
  * @title: ModelProperties

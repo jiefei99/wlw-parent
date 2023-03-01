@@ -1,4 +1,4 @@
-package com.jike.wlw.service.physicalmodel.privatization.pojo;
+package com.jike.wlw.service.physicalmodel.privatization.pojo.function;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.ModelEvent;

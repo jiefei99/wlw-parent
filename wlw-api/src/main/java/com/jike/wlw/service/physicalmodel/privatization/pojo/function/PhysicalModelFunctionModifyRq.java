@@ -4,10 +4,13 @@
  * 修改历史：
  * 2023年02月26日 23:16 - ASUS - 创建。
  */
-package com.jike.wlw.service.physicalmodel.privatization.pojo;
+package com.jike.wlw.service.physicalmodel.privatization.pojo.function;
 
 import com.geeker123.rumba.jpa.api.entity.Entity;
 import com.jike.wlw.service.physicalmodel.ThingModelJsonType;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.ModelEvent;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.ModelProperties;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.ModelService;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
