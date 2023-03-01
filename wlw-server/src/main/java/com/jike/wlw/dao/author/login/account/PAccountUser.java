@@ -26,7 +26,7 @@ import lombok.Setter;
 public class PAccountUser extends PStandardEntity implements JdbcEntity {
     private static final long serialVersionUID = -323870501267400567L;
 
-    public static final String TABLE_NAME = "eguard_account_user";
+    public static final String TABLE_NAME = "wlw_account_user";
 
     @ApiModelProperty("用户类型")
     private String tenantId;
