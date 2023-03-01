@@ -7,7 +7,6 @@
 package com.jike.wlw.core.physicalmodel.ali.iot;
 
 import com.alibaba.fastjson.JSON;
-import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.CopyThingModelRequest;
 import com.aliyun.iot20180120.models.CopyThingModelResponse;
 import com.aliyun.iot20180120.models.CreateThingModelRequest;
@@ -32,7 +31,6 @@ import com.aliyun.iot20180120.models.QueryThingModelRequest;
 import com.aliyun.iot20180120.models.QueryThingModelResponse;
 import com.aliyun.iot20180120.models.UpdateThingModelRequest;
 import com.aliyun.iot20180120.models.UpdateThingModelResponse;
-import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCopyRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
@@ -57,7 +55,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Slf4j
-@Service
+@Service("AliPhysicalModelManager")
 public class PhysicalModelManager {
 
     @Autowired

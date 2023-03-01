@@ -21,8 +21,6 @@ import java.util.Map;
 public class PhysicalModelModifyRq extends Entity implements Serializable {
     private static final long serialVersionUID = -2698859554276354115L;
 
-    @ApiModelProperty("租户")
-    private String tenantId;
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
     @ApiModelProperty("实例ID")
@@ -30,7 +28,7 @@ public class PhysicalModelModifyRq extends Entity implements Serializable {
     @ApiModelProperty("标识符")
     private String identifier;
     @ApiModelProperty("功能定义详情")
-    private Map<String,Object> thingModelJson;
+    private String thingModelJson;
     @ApiModelProperty("物模型自定义模块标识符")
     private String functionBlockId;
     @ApiModelProperty("物模型的自定义模块名称")

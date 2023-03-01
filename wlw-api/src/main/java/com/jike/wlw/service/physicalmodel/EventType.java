@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public enum EventType implements Serializable {
     INFO("信息"),
-    WARNING("告警"),
-    FAULT("故障");
+    ALERT("告警"),
+    ERROR("故障");
 
     private String caption;
 

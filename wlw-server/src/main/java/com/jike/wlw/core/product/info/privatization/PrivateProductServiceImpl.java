@@ -16,6 +16,8 @@ import com.jike.wlw.service.equipment.Equipment;
 import com.jike.wlw.service.equipment.EquipmentFilter;
 import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
 import com.jike.wlw.service.equipment.privatization.PrivateEquipmentService;
+import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelManagerService;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleCreateRq;
 import com.jike.wlw.service.product.info.AuthType;
 import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
@@ -54,6 +56,8 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
     @Autowired
     private PrivateEquipmentService equipmentService;
     @Autowired
+    private PhysicalModelManagerService modelManagerService;
+    @Autowired
     private InfluxDao influxDao;
     @Autowired
     private PrivateSubscribeRelationService subscribeRelationService;
@@ -71,7 +75,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             if (perz == null) {
                 return null;
             }
-            Product result=ProductConverter.coverProduct(perz);
+            Product result = ProductConverter.coverProduct(perz);
             return result;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -113,7 +117,11 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
             }
             perz = ProductConverter.ProductCover(createRq, tenantId, productKey, operator);
             productDao.save(perz);
-
+            PhysicalModelModuleCreateRq moduleCreateRq = new PhysicalModelModuleCreateRq();
+            moduleCreateRq.setProductKey(perz.getProductKey());
+            moduleCreateRq.setName("默认模块");
+            moduleCreateRq.setIdentifier("default");
+            modelManagerService.createModule(tenantId, moduleCreateRq, operator);
             return perz.getId();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -222,7 +230,7 @@ public class PrivateProductServiceImpl extends BaseService implements PrivatePro
                 product.setProductKey(perz.getProductKey());
                 product.setName(perz.getName());
 
-                EquipmentFilter equipmentFilter=new EquipmentFilter();
+                EquipmentFilter equipmentFilter = new EquipmentFilter();
                 equipmentFilter.setTenantIdEq(tenantId);
                 equipmentFilter.setProductKeyEq(perz.getProductKey());
                 product.setDeviceCount((int) equipmentDao.getCount(equipmentFilter));

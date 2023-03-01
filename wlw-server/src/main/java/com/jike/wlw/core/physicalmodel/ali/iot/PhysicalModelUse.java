@@ -48,7 +48,7 @@ import org.springframework.stereotype.Service;
  */
 
 @Slf4j
-@Service
+@Service("AliPhysicalModelUse")
 public class PhysicalModelUse {
     @Autowired
     private AliIotClient client;

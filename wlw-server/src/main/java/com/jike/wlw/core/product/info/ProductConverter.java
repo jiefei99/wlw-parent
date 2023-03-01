@@ -12,6 +12,7 @@ import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProtocolType;
 import com.jike.wlw.service.product.info.PublishStateType;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 
 /**
@@ -53,10 +54,18 @@ public class ProductConverter {
         if (!StringUtil.isNullOrBlank(pProduct.getPhysicalModelIdsJson())) {
             product.setPhysicalModelIds(JsonUtil.jsonToArrayList(pProduct.getPhysicalModelIdsJson(), String.class));
         }
-        product.setAuthType(AuthType.valueOf(pProduct.getAuthType()));
-        product.setNetType(NetType.valueOf(pProduct.getNetType()));
-        product.setProtocolType(ProtocolType.valueOf(pProduct.getProtocolType()));
-        product.setProductStatus(PublishStateType.valueOf(pProduct.getProductStatus()));
+        if (StringUtils.isNotBlank(pProduct.getAuthType())){
+            product.setAuthType(AuthType.valueOf(pProduct.getAuthType()));
+        }
+        if (StringUtils.isNotBlank(pProduct.getNetType())){
+            product.setNetType(NetType.valueOf(pProduct.getNetType()));
+        }
+        if (StringUtils.isNotBlank(pProduct.getProtocolType())){
+            product.setProtocolType(ProtocolType.valueOf(pProduct.getProtocolType()));
+        }
+        if (StringUtils.isNotBlank(pProduct.getProductStatus())){
+            product.setProductStatus(PublishStateType.valueOf(pProduct.getProductStatus()));
+        }
         return product;
     }
 

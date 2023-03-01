@@ -34,7 +34,7 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     @ApiModelProperty("标识符")
     private String identifier;
     @ApiModelProperty("功能类型")
-    private ThingModelJsonType type;
+    private String type;
     @ApiModelProperty("描述")
     private String details;
     @ApiModelProperty("是否必填 （阿里数据结构中的字段）")
@@ -44,27 +44,27 @@ public class PPhysicalModelFunction extends PStandardEntity implements JdbcEntit
     @ApiModelProperty("数组大小")
     private int arraySize;
     @ApiModelProperty("数组类型")
-    private DataType arrayType;
+    private String arrayType;
     @ApiModelProperty("是否删除")
     private int isDeleted;
     //属性
     @ApiModelProperty("读写类型")
     private String rwFlag;
     @ApiModelProperty("数据类型")
-    private DataType dataType;
+    private String dataType;
 
     //事件
     @ApiModelProperty("事件类型")
-    private EventType eventType;
+    private String eventType;
 
     //服务
     @ApiModelProperty("方法")
     private String method;
     @ApiModelProperty("服务调用类型")
-    private CallType callType;
+    private String callType;
 
     @ApiModelProperty("输入输出参数类型")
-    private DirectionType direction;
+    private String direction;
     @Override
     public String getTableName() {
         return TABLE_NAME;

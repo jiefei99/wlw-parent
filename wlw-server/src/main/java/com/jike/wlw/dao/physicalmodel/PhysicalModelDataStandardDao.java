@@ -50,10 +50,10 @@ public class PhysicalModelDataStandardDao extends BaseDao {
                 }
             }
             if (q.getOrderBys().isEmpty()) {
-                q.orderBy("o.id", "desc");
+                q.orderBy("o.uuid", "desc");
             }
         } else {
-            q.orderBy("o.id", "desc");
+            q.orderBy("o.uuid", "desc");
         }
         return q;
     }

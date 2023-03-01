@@ -18,11 +18,6 @@ import java.util.List;
 @Getter
 @Setter
 public class EventModel extends Model {
-    private DataType type;
-    private String details;
-    private String name;
-    private String identifier;
-    private boolean required;
     private EventType eventType;
     private List<InOutputData> outputData;
 }

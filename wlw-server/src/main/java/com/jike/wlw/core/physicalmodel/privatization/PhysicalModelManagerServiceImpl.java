@@ -15,6 +15,7 @@ import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelFunctionSer
 import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelManagerService;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionCreateRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionDelRq;
+import com.jike.wlw.service.physicalmodel.privatization.pojo.PhysicalModelFunctionModifyRq;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.function.Model;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModule;
 import com.jike.wlw.service.physicalmodel.privatization.pojo.module.PhysicalModelModuleCreateRq;
@@ -61,35 +62,22 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
         if (StringUtil.isNullOrBlank(createRq.getProductKey())) {
             throw new BusinessException("物模型所属productKey不能为空");
         }
+        //创建相应的属性、事件、服务
+        if (StringUtils.isBlank(createRq.getThingModelJson())){
+            throw new BusinessException("物模型模块功能不能为空");
+        }
         try {
             //判断是否需要创建模块
             if (productService.get(tenantId,createRq.getProductKey(),null)==null){
                 throw new BusinessException("产品不存在，请重新选择");
             }
-            String moduleUuid=null;
-            if (StringUtils.isNotBlank(createRq.getFunctionBlockId()) && StringUtils.isNotBlank(createRq.getFunctionBlockName())){
-                PhysicalModelModuleCreateRq modelModuleCreateRq=new PhysicalModelModuleCreateRq();
-                modelModuleCreateRq.setIdentifier(createRq.getFunctionBlockId());
-                modelModuleCreateRq.setName(createRq.getFunctionBlockName());
-                modelModuleCreateRq.setProductKey(createRq.getProductKey());
-                moduleUuid = createModule(tenantId, modelModuleCreateRq, operator);
-            }else{
-                String identifier="default";
-                if (StringUtils.isNotBlank(createRq.getFunctionBlockId())){
-                    identifier=createRq.getFunctionBlockId();
-                }
-                PPhysicalModelModule modelModule = doGetModule(tenantId, createRq.getProductKey(), identifier);
-                if (modelModule==null){
-                    throw new BusinessException("物模型模块不存在");
-                }
-                moduleUuid=modelModule.getUuid();
-            }
-            //创建相应的属性、事件、服务
-            if (StringUtils.isBlank(createRq.getThingModelJson())){
-                throw new BusinessException("物模型模块功能不能为空");
+            PPhysicalModelModule modelModule = doGetModule(tenantId, createRq.getProductKey(), createRq.getFunctionBlockId());
+            if (modelModule==null){
+                throw new BusinessException("产品物模型模块不存在");
             }
             PhysicalModelFunctionCreateRq functionCreateRq = JSON.parseObject(createRq.getThingModelJson(), PhysicalModelFunctionCreateRq.class);
-            functionCreateRq.setModelModuleId(moduleUuid);
+            functionCreateRq.setModelModuleId(modelModule.getUuid());
+            functionCreateRq.setProductKey(createRq.getProductKey());
             functionService.create(tenantId,functionCreateRq,operator);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
@@ -98,13 +86,50 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
 
     @Override
     public Model get(String tenantId, PhysicalModelGetRq modelGetRq) throws BusinessException {
+        if (modelGetRq==null){
+            throw new BusinessException("查询物模型参数不能为空");
+        }
+        if (StringUtil.isNullOrBlank(modelGetRq.getProductKey())) {
+            throw new BusinessException("物模型所属productKey不能为空");
+        }
+        if (StringUtils.isBlank(modelGetRq.getFunctionBlockId())){
+            throw new BusinessException("物模型模块标识符不能为空");
+        }
+        if (StringUtils.isBlank(modelGetRq.getIdentifier())){
+            throw new BusinessException("物模型标识符不能为空");
+        }
         Model model = functionService.get(tenantId, modelGetRq.getProductKey(), modelGetRq.getFunctionBlockId(), modelGetRq.getIdentifier());
         return model;
     }
 
     @Override
     public void modify(String tenantId, PhysicalModelModifyRq modifyRq, String operator) throws BusinessException {
-
+        if (modifyRq==null){
+            throw new BusinessException("修改物模型参数不能为空");
+        }
+        if (StringUtil.isNullOrBlank(modifyRq.getProductKey())) {
+            throw new BusinessException("物模型所属productKey不能为空");
+        }
+        if (StringUtils.isBlank(modifyRq.getFunctionBlockId())){
+            throw new BusinessException("物模型模块标识符不能为空");
+        }
+        if (StringUtils.isBlank(modifyRq.getIdentifier())){
+            throw new BusinessException("物模型标识符不能为空");
+        }
+        if (StringUtils.isBlank(modifyRq.getThingModelJson())){
+            throw new BusinessException("物模型标识符不能为空");
+        }
+        try {
+            PPhysicalModelModule modelModule = doGetModule(tenantId, modifyRq.getProductKey(), modifyRq.getFunctionBlockId());
+            if (modelModule==null){
+                throw new BusinessException("产品物模型模块不存在");
+            }
+            PhysicalModelFunctionModifyRq functionModifyRq = JSON.parseObject(modifyRq.getThingModelJson(), PhysicalModelFunctionModifyRq.class);
+            functionModifyRq.setModelModuleId(modelModule.getUuid());
+            functionService.modify(tenantId,functionModifyRq,operator);
+        } catch (Exception e) {
+            throw new BusinessException(e.getMessage());
+        }
     }
 
     @Override
@@ -168,6 +193,10 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
         //保存
         PPhysicalModelModule modelModule=new PPhysicalModelModule();
         try {
+            PhysicalModelModule module = getModule(tenantId, createRq.getProductKey(), createRq.getIdentifier());
+            if (module!=null){
+                throw new BusinessException("模块已存在");
+            }
             modelModule.setDetails(createRq.getDetails());
             modelModule.setIdentifier(createRq.getIdentifier());
             modelModule.setName(createRq.getName());
@@ -204,6 +233,9 @@ public class PhysicalModelManagerServiceImpl implements PhysicalModelManagerServ
         }
         try {
             PPhysicalModelModule modelModule = doGetModule(tenantId, modifyRq.getProductKey(), modifyRq.getIdentifier());
+            if (modelModule==null){
+                throw new BusinessException("产品物模型模块不存在");
+            }
             modelModule.setName(modifyRq.getName());
             modelModule.setDetails(modifyRq.getDetails());
             modelModule.onModified(operator);

@@ -35,12 +35,12 @@ public class PhysicalModelFunctionModifyRq extends Entity implements Serializabl
     private String moduleIdentifier;
     @ApiModelProperty("标识符")
     private String identifier;
-    @ApiModelProperty("类型")
-    private ThingModelJsonType type;
+    @ApiModelProperty("物模型模块Id")
+    private String modelModuleId;
     @ApiModelProperty("属性")
-    private ModelProperties properties;
+    private List<ModelProperties> properties;
     @ApiModelProperty("服务")
-    private ModelService services;
+    private List<ModelService> services;
     @ApiModelProperty("事件")
-    private ModelEvent events;
+    private List<ModelEvent> events;
 }

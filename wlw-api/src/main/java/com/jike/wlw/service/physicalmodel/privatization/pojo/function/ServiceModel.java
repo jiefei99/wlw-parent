@@ -17,11 +17,6 @@ import java.util.List;
 @Getter
 @Setter
 public class ServiceModel extends Model {
-    private DataType type;
-    private String details;
-    private String name;
-    private String identifier;
-    private boolean required;
     private CallType callType;
     private List<InOutputData> inputData;
     private List<InOutputData> outputData;

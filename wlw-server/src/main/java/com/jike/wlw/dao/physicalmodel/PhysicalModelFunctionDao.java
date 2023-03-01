@@ -42,7 +42,8 @@ public class PhysicalModelFunctionDao extends BaseDao {
         }
         if (StringUtils.isNotBlank(filter.getParentIdEq())){
             q.where("o.parentId = :parentIdEq").p("parentIdEq", filter.getParentIdEq());
-        }else{
+        }
+        if(StringUtils.isBlank(filter.getParentIdEq())&&CollectionUtils.isEmpty(filter.getParentIdIn())) {
             q.where("o.parentId is null");
         }
         if (filter.getType()!=null) {
@@ -62,10 +63,10 @@ public class PhysicalModelFunctionDao extends BaseDao {
                 }
             }
             if (q.getOrderBys().isEmpty()) {
-                q.orderBy("o.id", "desc");
+                q.orderBy("o.uuid", "desc");
             }
         } else {
-            q.orderBy("o.id", "desc");
+            q.orderBy("o.uuid", "desc");
         }
         return q;
     }

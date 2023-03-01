@@ -26,7 +26,7 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
     @ApiModelProperty("父类Id")
     private String parentId;
     @ApiModelProperty("属性类型")
-    private DataType type;
+    private String type;
     @ApiModelProperty("最小值")
     private String min;
     @ApiModelProperty("最大值")
@@ -35,18 +35,10 @@ public class PPhysicalModelDataStandard extends PStandardEntity implements JdbcE
     private String unit;
     @ApiModelProperty("单位名称")
     private String unitName;
-//    @ApiModelProperty("数组元素的个数")
-//    private String size;
-//    @ApiModelProperty("数组元素类型")
-//    private DataType arrayType;
     @ApiModelProperty("步长")
     private String step;
     @ApiModelProperty("数据长度")
     private Long length;
-//    @ApiModelProperty("布尔0描述")
-//    private String boolZeroRemark;
-//    @ApiModelProperty("布尔1描述")
-//    private String boolOneRemark;
     @ApiModelProperty("布尔枚举描述")
     private String boolEnumRemark;
 

@@ -50,15 +50,13 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
         }
         try {
             if (DataType.INT.equals(createRq.getDataType()) || DataType.FLOAT.equals(createRq.getDataType()) || DataType.DOUBLE.equals(createRq.getDataType())) {
-                saveNumberDataStandard(tenantId, createRq.getParentId(), createRq.getDataSpecs(), operator);
+                saveNumberDataStandard(tenantId, createRq.getDataType(),createRq.getParentId(), createRq.getDataSpecs(), operator);
             } else if (DataType.TEXT.equals(createRq.getDataType()) || DataType.DATE.equals(createRq.getDataType())) {
-                saveDateTextDataStandard(tenantId, createRq.getParentId(), createRq.getDataSpecs(), operator);
+                saveDateTextDataStandard(tenantId, createRq.getDataType(),createRq.getParentId(), createRq.getDataSpecs(), operator);
             }
             if (DataType.ENUM.equals(createRq.getDataType()) || DataType.BOOL.equals(createRq.getDataType())) {
-                saveEnumBoolDataStandard(tenantId, createRq.getParentId(), createRq.getDataSpecs(), operator);
+                saveEnumBoolDataStandard(tenantId, createRq.getDataType(),createRq.getParentId(), createRq.getDataSpecs(), operator);
             }
-            PPhysicalModelDataStandard pDataStandard = new PPhysicalModelDataStandard();
-            dataStandardDao.save(pDataStandard);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
 
@@ -110,22 +108,22 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
         }
     }
 
-    private void saveNumberDataStandard(String tenantId, String parentId, String dataSpecs, String operator) {
+    private void saveNumberDataStandard(String tenantId, DataType dataType,String parentId, String dataSpecs, String operator) {
         PPhysicalModelDataStandard pPhysicalModelDataStandard = new PPhysicalModelDataStandard();
         try {
             NumberDataStandards numberDataStandards = JSON.parseObject(dataSpecs, NumberDataStandards.class);
             pPhysicalModelDataStandard.setTenantId(tenantId);
             pPhysicalModelDataStandard.onCreated(operator);
-            pPhysicalModelDataStandard.setType(numberDataStandards.getDataType());
-            if (DataType.INT.equals(numberDataStandards.getDataType())) {
+            pPhysicalModelDataStandard.setType(dataType.name());
+            if (DataType.INT.equals(dataType)) {
                 pPhysicalModelDataStandard.setMax(StringUtils.isNotBlank(numberDataStandards.getMax()) ? numberDataStandards.getMax() : "2147483647");
                 pPhysicalModelDataStandard.setMin(StringUtils.isNotBlank(numberDataStandards.getMin()) ? numberDataStandards.getMin() : "-2147483648");
                 pPhysicalModelDataStandard.setStep(StringUtils.isNotBlank(numberDataStandards.getStep()) ? numberDataStandards.getStep() : "1");
-            } else if (DataType.FLOAT.equals(numberDataStandards.getDataType())) {
+            } else if (DataType.FLOAT.equals(dataType)) {
                 pPhysicalModelDataStandard.setMax(StringUtils.isNotBlank(numberDataStandards.getMax()) ? numberDataStandards.getMax() : "3.4028235E38");
                 pPhysicalModelDataStandard.setMin(StringUtils.isNotBlank(numberDataStandards.getMin()) ? numberDataStandards.getMin() : "-1.4E-45");
                 pPhysicalModelDataStandard.setStep(StringUtils.isNotBlank(numberDataStandards.getStep()) ? numberDataStandards.getStep() : "0.1");
-            } else if (DataType.DOUBLE.equals(numberDataStandards.getDataType())) {
+            } else if (DataType.DOUBLE.equals(dataType)) {
                 pPhysicalModelDataStandard.setMax(StringUtils.isNotBlank(numberDataStandards.getMax()) ? numberDataStandards.getMax() : "1.7976931348623157E308");
                 pPhysicalModelDataStandard.setMin(StringUtils.isNotBlank(numberDataStandards.getMin()) ? numberDataStandards.getMin() : "-4.9E-324");
                 pPhysicalModelDataStandard.setStep(StringUtils.isNotBlank(numberDataStandards.getStep()) ? numberDataStandards.getStep() : "0.01");
@@ -139,15 +137,15 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
         }
     }
 
-    private void saveDateTextDataStandard(String tenantId, String parentId, String dataSpecs, String operator) {
+    private void saveDateTextDataStandard(String tenantId, DataType dataType, String parentId, String dataSpecs, String operator) {
         PPhysicalModelDataStandard pPhysicalModelDataStandard = new PPhysicalModelDataStandard();
         try {
             DateTextDataStandards dateTextDataStandards = JSON.parseObject(dataSpecs, DateTextDataStandards.class);
             pPhysicalModelDataStandard.setTenantId(tenantId);
             pPhysicalModelDataStandard.onCreated(operator);
             pPhysicalModelDataStandard.setParentId(parentId);
-            pPhysicalModelDataStandard.setType(dateTextDataStandards.getDataType());
-            if (DataType.TEXT.equals(dateTextDataStandards.getDataType())) {
+            pPhysicalModelDataStandard.setType(dataType.name());
+            if (DataType.TEXT.equals(dataType)) {
                 pPhysicalModelDataStandard.setLength(dateTextDataStandards.getLength());
             }
             dataStandardDao.save(pPhysicalModelDataStandard);
@@ -156,13 +154,14 @@ public class PhysicalModelDataStandardServiceImpl implements PhysicalModelDataSt
         }
     }
 
-    private void saveEnumBoolDataStandard(String tenantId, String parentId, String dataSpecs, String operator) {
+    private void saveEnumBoolDataStandard(String tenantId, DataType dataType, String parentId, String dataSpecs, String operator) {
         PPhysicalModelDataStandard pPhysicalModelDataStandard = new PPhysicalModelDataStandard();
         try {
             pPhysicalModelDataStandard.setTenantId(tenantId);
             pPhysicalModelDataStandard.onCreated(operator);
             pPhysicalModelDataStandard.setParentId(parentId);
             pPhysicalModelDataStandard.setBoolEnumRemark(dataSpecs);
+            pPhysicalModelDataStandard.setType(dataType.name());
             dataStandardDao.save(pPhysicalModelDataStandard);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());

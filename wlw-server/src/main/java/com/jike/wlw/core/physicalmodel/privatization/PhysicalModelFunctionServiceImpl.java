@@ -7,8 +7,10 @@ import com.jike.wlw.dao.physicalmodel.PPhysicalModelFunction;
 import com.jike.wlw.dao.physicalmodel.PPhysicalModelModule;
 import com.jike.wlw.dao.physicalmodel.PhysicalModelFunctionDao;
 import com.jike.wlw.dao.physicalmodel.PhysicalModelModuleDao;
+import com.jike.wlw.service.physicalmodel.CallType;
 import com.jike.wlw.service.physicalmodel.DataType;
 import com.jike.wlw.service.physicalmodel.DirectionType;
+import com.jike.wlw.service.physicalmodel.EventType;
 import com.jike.wlw.service.physicalmodel.PhysicalModelFunctionFilter;
 import com.jike.wlw.service.physicalmodel.ThingModelJsonType;
 import com.jike.wlw.service.physicalmodel.privatization.PhysicalModelDataStandardService;
@@ -66,7 +68,7 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
         if (StringUtil.isNullOrBlank(createRq.getModelModuleId())) {
             throw new BusinessException("功能所属物模型Id不能为空");
         }
-        if (CollectionUtils.isEmpty(createRq.getServices()) || CollectionUtils.isEmpty(createRq.getEvents()) || CollectionUtils.isEmpty(createRq.getProperties())) {
+        if (CollectionUtils.isEmpty(createRq.getServices()) && CollectionUtils.isEmpty(createRq.getEvents()) && CollectionUtils.isEmpty(createRq.getProperties())) {
             throw new BusinessException("物模型功能不能为空");
         }
         if (StringUtil.isNullOrBlank(tenantId)) {
@@ -110,15 +112,18 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             throw new BusinessException("租户不能为空");
         }
         try {
-            //获取原数据
-            Model model = get(tenantId, modifyRq.getProductKey(), modifyRq.getModuleIdentifier(), modifyRq.getIdentifier());
-            if (ThingModelJsonType.events.equals(modifyRq.getType())){
-                PropertiesModel propertiesModel=(PropertiesModel) model;
-            }else if (ThingModelJsonType.services.equals(modifyRq.getType())){
-                ServiceModel serviceModel=(ServiceModel) model;
-            }else if (ThingModelJsonType.properties.equals(modifyRq.getType())){
-                EventModel eventModel=(EventModel) model;
-            }
+            PhysicalModelFunctionDelRq delRq = new PhysicalModelFunctionDelRq();
+            delRq.setProductKey(modifyRq.getProductKey());
+            delRq.setModuleIdentifier(modifyRq.getModuleIdentifier());
+            delRq.setIdentifierEq(modifyRq.getIdentifier());
+            delete(tenantId, delRq, operator);
+            PhysicalModelFunctionCreateRq createRq =new PhysicalModelFunctionCreateRq();
+            createRq.setProductKey(modifyRq.getProductKey());
+            createRq.setModelModuleId(modifyRq.getModelModuleId());
+            createRq.setEvents(modifyRq.getEvents());
+            createRq.setServices(modifyRq.getServices());
+            createRq.setProperties(modifyRq.getProperties());
+            create(tenantId,createRq,operator);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -128,19 +133,34 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
     public void delete(String tenantId, PhysicalModelFunctionDelRq delRq, String operator) throws BusinessException {
         PhysicalModelFunctionFilter filter = new PhysicalModelFunctionFilter();
         try {
-            PPhysicalModelModule modelModule = doGetModule(tenantId, delRq.getProductKey(), StringUtils.isNotBlank(delRq.getModuleIdentifier()) ? delRq.getModuleIdentifier() : "default");
+            PPhysicalModelModule modelModule = doGetModule(tenantId, delRq.getProductKey(), delRq.getModuleIdentifier());
             if (modelModule == null) {
                 throw new BusinessException("物模型模块不存在");
             }
             filter.setModelModuleIdEq(modelModule.getUuid());
             filter.setIdentifierIn(delRq.getIdentifierIn());
             filter.setTenantIdEq(tenantId);
+            List<PPhysicalModelFunction> delModelFunctionList = new ArrayList<>();
+            //查询具体模型集合
             List<PPhysicalModelFunction> query = functionDao.query(filter);
             if (CollectionUtils.isEmpty(query)) {
                 return;
             }
-            query.parallelStream().forEach(item -> item.setIsDeleted(1));
-            functionDao.save(query);
+            delModelFunctionList.addAll(query);
+            List<String> functionIds = query.parallelStream().map(PPhysicalModelFunction::getUuid).collect(Collectors.toList());
+            //数据类型为 struct
+            List<PPhysicalModelFunction> structFunction = queryChildFunction(tenantId, functionIds);
+            if (CollectionUtils.isNotEmpty(structFunction)) {
+                delModelFunctionList.addAll(structFunction);
+                List<String> structFunctionIds = structFunction.parallelStream().map(PPhysicalModelFunction::getUuid).collect(Collectors.toList());
+                //功能为服务 or 事件 出入参有几率为 struct
+                List<PPhysicalModelFunction> childFunction = queryChildFunction(tenantId, structFunctionIds);
+                if (CollectionUtils.isNotEmpty(childFunction)) {
+                    delModelFunctionList.addAll(childFunction);
+                }
+            }
+            delModelFunctionList.parallelStream().forEach(item -> item.setIsDeleted(1));
+            functionDao.save(delModelFunctionList);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -158,7 +178,19 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             if (CollectionUtils.isNotEmpty(query)) {
                 for (PPhysicalModelFunction pPhysicalModelFunction : query) {
                     PhysicalModelFunctionVO vo = new PhysicalModelFunctionVO();
-                    BeanUtils.copyProperties(pPhysicalModelFunction, vo);
+                    if (StringUtils.isNotBlank(pPhysicalModelFunction.getCallType())){
+                        vo.setCallType(CallType.valueOf(pPhysicalModelFunction.getCallType()));
+                    }
+                    vo.setIdentifier(pPhysicalModelFunction.getIdentifier());
+                    vo.setModelModuleId(pPhysicalModelFunction.getModelModuleId());
+                    if (StringUtils.isNotBlank(pPhysicalModelFunction.getDataType())){
+                        vo.setDataType(DataType.valueOf(pPhysicalModelFunction.getDataType()));
+                    }
+                    if (StringUtils.isNotBlank(pPhysicalModelFunction.getEventType())){
+                        vo.setEventType(EventType.valueOf(pPhysicalModelFunction.getEventType()));
+                    }
+                    vo.setName(pPhysicalModelFunction.getName());
+                    vo.setIdentifier(pPhysicalModelFunction.getIdentifier());
                     functionVOList.add(vo);
                 }
             }
@@ -170,33 +202,33 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
 
     @Override
     public Model get(String tenantId, String productKey, String moduleIdentifier, String identifier) throws BusinessException {
-        Model model=new Model();
+        Model model = new Model();
         try {
             PPhysicalModelModule modelModule = doGetModule(tenantId, productKey, moduleIdentifier);
-            if (modelModule==null){
+            if (modelModule == null) {
                 return model;
             }
-            PPhysicalModelFunction pFunction = functionDao.get(PPhysicalModelFunction.class, "modelModuleId", modelModule.getUuid(), "identifier", identifier,"isDeleted",0);
-            if (pFunction==null){
+            PPhysicalModelFunction pFunction = functionDao.get(PPhysicalModelFunction.class, "modelModuleId", modelModule.getUuid(), "identifier", identifier, "isDeleted", 0);
+            if (pFunction == null) {
                 return model;
             }
-            if (ThingModelJsonType.properties.equals(pFunction.getType())){
+            if (ThingModelJsonType.properties.name().equals(pFunction.getType())) {
                 PropertiesModel properties = buildModelProperties(pFunction);
-                if (DataType.STRUCT.equals(pFunction.getDataType())||(DataType.ARRAY.equals(pFunction.getDataType())&&DataType.STRUCT.equals(pFunction.getArrayType()))){
-                    List<PhysicalModelFunction> functionList=queryStructFunction(tenantId,Arrays.asList(pFunction.getUuid()));
+                if (DataType.STRUCT.name().equals(pFunction.getDataType()) || (DataType.ARRAY.name().equals(pFunction.getDataType()) && DataType.STRUCT.name().equals(pFunction.getArrayType()))) {
+                    List<PhysicalModelFunction> functionList = queryStructFunction(tenantId, Arrays.asList(pFunction.getUuid()));
                     List<String> dataStandardIds = functionList.parallelStream().map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
                     List<PhysicalModelDataStandard> dataStandards = dataStandardService.query(tenantId, dataStandardIds);
-                    Map<String, PhysicalModelDataStandard> physicalModelDataStandardMap=dataStandards.parallelStream().collect(Collectors.toMap(PhysicalModelDataStandard::getParentId,PhysicalModelDataStandard->PhysicalModelDataStandard));
-                    if (DataType.STRUCT.equals(pFunction.getDataType())){
+                    Map<String, PhysicalModelDataStandard> physicalModelDataStandardMap = dataStandards.parallelStream().collect(Collectors.toMap(PhysicalModelDataStandard::getParentId, PhysicalModelDataStandard -> PhysicalModelDataStandard));
+                    if (DataType.STRUCT.name().equals(pFunction.getDataType())) {
                         DataAndType dataAndType = new DataAndType();
                         dataAndType.setType(DataType.STRUCT);
-                        List<StructSpecs> specsList=new ArrayList<>();
+                        List<StructSpecs> specsList = new ArrayList<>();
                         for (PhysicalModelFunction physicalModelFunction : functionList) {
-                            StructSpecs specs=new StructSpecs();
+                            StructSpecs specs = new StructSpecs();
                             specs.setIdentifier(physicalModelFunction.getIdentifier());
                             specs.setName(physicalModelFunction.getName());
-                            DataAndType childDataAndType=new DataAndType();
-                            if (physicalModelDataStandardMap.get(physicalModelFunction.getUuid())!=null){
+                            DataAndType childDataAndType = new DataAndType();
+                            if (physicalModelDataStandardMap.get(physicalModelFunction.getUuid()) != null) {
                                 childDataAndType.setType(physicalModelDataStandardMap.get(physicalModelFunction.getUuid()).getType());
                                 Specs convertSpecs = SpecsFactory.getInvokeSpecs(physicalModelDataStandardMap.get(physicalModelFunction.getUuid()).getType()).convert(physicalModelFunction.getUuid(), physicalModelDataStandardMap);
                                 childDataAndType.setSpecs(convertSpecs);
@@ -207,46 +239,48 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
                         dataAndType.setSpecs(specsList);
                         properties.setDataType(dataAndType);
                     }
-                } else if (DataType.ARRAY.equals(pFunction.getDataType())){
+                } else if (DataType.ARRAY.name().equals(pFunction.getDataType())) {
                     properties.setArraySize(pFunction.getArraySize());
-                    properties.setArrayType(pFunction.getArrayType());
-                } else{
+                    properties.setArrayType(DataType.valueOf(pFunction.getArrayType()));
+                } else {
                     PhysicalModelDataStandard standard = dataStandardService.get(tenantId, pFunction.getUuid());
                     DataType type = standard.getType();
                     Specs specs = SpecsFactory.getInvokeSpecs(type);
-                    specs.convert(pFunction.getUuid(),new HashMap<String,PhysicalModelDataStandard>(){{put(pFunction.getUuid(),standard);}});
-                    DataAndType dataType=new DataAndType();
+                    specs.convert(pFunction.getUuid(), new HashMap<String, PhysicalModelDataStandard>() {{
+                        put(pFunction.getUuid(), standard);
+                    }});
+                    DataAndType dataType = new DataAndType();
                     dataType.setType(type);
                     dataType.setSpecs(specs);
                     properties.setDataType(dataType);
                 }
                 return properties;
-            }else{
-                List<PhysicalModelFunction> functionList=queryStructFunction(tenantId,Arrays.asList(pFunction.getUuid()));
-                if (CollectionUtils.isEmpty(functionList)){
-                    if (ThingModelJsonType.events.equals(pFunction.getType())){
+            } else {
+                List<PhysicalModelFunction> functionList = queryStructFunction(tenantId, Arrays.asList(pFunction.getUuid()));
+                if (CollectionUtils.isEmpty(functionList)) {
+                    if (ThingModelJsonType.events.name().equals(pFunction.getType())) {
                         EventModel eventModel = buildModelEvent(pFunction);
                         return eventModel;
-                    }else if(ThingModelJsonType.services.equals(pFunction.getType())){
-                        ServiceModel serviceModel=buildModelService(pFunction);
+                    } else if (ThingModelJsonType.services.name().equals(pFunction.getType())) {
+                        ServiceModel serviceModel = buildModelService(pFunction);
                         return serviceModel;
                     }
                 }
-                List<String> childStructFunctionIds = functionList.parallelStream().filter(item->DataType.STRUCT.equals(item.getDataType())||DataType.ARRAY.equals(item.getArrayType())).map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
-                List<String> childNoStructFunctionIds = functionList.parallelStream().filter(item->!DataType.STRUCT.equals(item.getDataType()) && !DataType.ARRAY.equals(item.getDataType())).map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
+                List<String> childStructFunctionIds = functionList.parallelStream().filter(item -> DataType.STRUCT.equals(item.getDataType()) || DataType.ARRAY.equals(item.getArrayType())).map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
+                List<String> childNoStructFunctionIds = functionList.parallelStream().filter(item -> !DataType.STRUCT.equals(item.getDataType()) && !DataType.ARRAY.equals(item.getDataType())).map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
                 List<PhysicalModelFunction> childStructFunctionList = queryStructFunction(tenantId, childStructFunctionIds);
-                List<String> thirdStructFunctionIds= childStructFunctionList.parallelStream().map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
-                List<String> dataStandardIds=new ArrayList();
+                List<String> thirdStructFunctionIds = childStructFunctionList.parallelStream().map(PhysicalModelFunction::getUuid).collect(Collectors.toList());
+                List<String> dataStandardIds = new ArrayList();
                 dataStandardIds.addAll(childNoStructFunctionIds);
                 dataStandardIds.addAll(thirdStructFunctionIds);
                 List<PhysicalModelDataStandard> dataStandardList = dataStandardService.query(tenantId, dataStandardIds);
-                if (ThingModelJsonType.events.equals(pFunction.getType())){
+                if (ThingModelJsonType.events.name().equals(pFunction.getType())) {
                     EventModel eventModel = buildModelEvent(pFunction);
-                    addInOutputAttribute(eventModel,ThingModelJsonType.events,functionList,childStructFunctionList,dataStandardList);
+                    addInOutputAttribute(eventModel, ThingModelJsonType.events, functionList, childStructFunctionList, dataStandardList);
                     return eventModel;
-                }else {
-                    ServiceModel serviceModel=buildModelService(pFunction);
-                    addInOutputAttribute(serviceModel,ThingModelJsonType.services,functionList,childStructFunctionList,dataStandardList);
+                } else {
+                    ServiceModel serviceModel = buildModelService(pFunction);
+                    addInOutputAttribute(serviceModel, ThingModelJsonType.services, functionList, childStructFunctionList, dataStandardList);
                     return serviceModel;
                 }
             }
@@ -256,62 +290,62 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
         return model;
     }
 
-    private void addInOutputAttribute(Model model,ThingModelJsonType type,List<PhysicalModelFunction> functionList,List<PhysicalModelFunction> childStructFunctionList,List<PhysicalModelDataStandard> dataStandardList){
-        List<PhysicalModelFunction> inputFunctionList=new ArrayList<>();
-        List<PhysicalModelFunction> inputStructFunctionList=new ArrayList<>();
-        List<PhysicalModelFunction> outputFunctionList=new ArrayList<>();
-        List<PhysicalModelFunction> outputStructFunctionList=new ArrayList<>();
+    private void addInOutputAttribute(Model model, ThingModelJsonType type, List<PhysicalModelFunction> functionList, List<PhysicalModelFunction> childStructFunctionList, List<PhysicalModelDataStandard> dataStandardList) {
+        List<PhysicalModelFunction> inputFunctionList = new ArrayList<>();
+        List<PhysicalModelFunction> inputStructFunctionList = new ArrayList<>();
+        List<PhysicalModelFunction> outputFunctionList = new ArrayList<>();
+        List<PhysicalModelFunction> outputStructFunctionList = new ArrayList<>();
         for (PhysicalModelFunction physicalModelFunction : functionList) {
-            if (DirectionType.PARAM_OUTPUT.equals(physicalModelFunction.getDirection())){
-                if (DataType.STRUCT.equals(physicalModelFunction.getDataType())||DataType.STRUCT.equals(physicalModelFunction.getArrayType())){
+            if (DirectionType.PARAM_OUTPUT.equals(physicalModelFunction.getDirection())) {
+                if (DataType.STRUCT.equals(physicalModelFunction.getDataType()) || DataType.STRUCT.equals(physicalModelFunction.getArrayType())) {
                     outputStructFunctionList.add(physicalModelFunction);
-                }else {
+                } else {
                     outputFunctionList.add(physicalModelFunction);
                 }
-            }else{
-                if (DataType.STRUCT.equals(physicalModelFunction.getDataType())||DataType.STRUCT.equals(physicalModelFunction.getArrayType())){
+            } else {
+                if (DataType.STRUCT.equals(physicalModelFunction.getDataType()) || DataType.STRUCT.equals(physicalModelFunction.getArrayType())) {
                     inputStructFunctionList.add(physicalModelFunction);
-                }else {
+                } else {
                     inputFunctionList.add(physicalModelFunction);
                 }
             }
         }
-        Map<String, PhysicalModelDataStandard> physicalModelDataStandardMap=dataStandardList.parallelStream().collect(Collectors.toMap(PhysicalModelDataStandard::getParentId,PhysicalModelDataStandard->PhysicalModelDataStandard));
-        List<InOutputData> outputDataList=new ArrayList<>();
-        List<InOutputData> inputDataList=new ArrayList<>();
+        Map<String, PhysicalModelDataStandard> physicalModelDataStandardMap = dataStandardList.parallelStream().collect(Collectors.toMap(PhysicalModelDataStandard::getParentId, PhysicalModelDataStandard -> PhysicalModelDataStandard));
+        List<InOutputData> outputDataList = new ArrayList<>();
+        List<InOutputData> inputDataList = new ArrayList<>();
         for (PhysicalModelFunction physicalModelFunction : outputFunctionList) {
-            InOutputData outputData=new InOutputData();
+            InOutputData outputData = new InOutputData();
             outputData.setIdentifier(physicalModelFunction.getIdentifier());
             outputData.setName(physicalModelFunction.getName());
-            DataAndType dataAndType=new DataAndType();
+            DataAndType dataAndType = new DataAndType();
             dataAndType.setType(physicalModelFunction.getDataType());
-            if (DataType.ARRAY.equals(physicalModelFunction.getDataType())){
+            if (DataType.ARRAY.equals(physicalModelFunction.getDataType())) {
                 ArraySpecs arraySpecs = new ArraySpecs();
                 arraySpecs.setSize(physicalModelFunction.getArraySize());
                 arraySpecs.setItem(new ItemSpecs(physicalModelFunction.getArrayType()));
                 dataAndType.setSpecs(arraySpecs);
-            }else {
+            } else {
                 Specs specs = SpecsFactory.getInvokeSpecs(physicalModelFunction.getDataType());
-                specs.convert(physicalModelFunction.getUuid(),physicalModelDataStandardMap);
+                specs.convert(physicalModelFunction.getUuid(), physicalModelDataStandardMap);
                 dataAndType.setSpecs(specs);
             }
             outputData.setDataType(dataAndType);
             outputDataList.add(outputData);
         }
         for (PhysicalModelFunction physicalModelFunction : inputFunctionList) {
-            InOutputData inputData=new InOutputData();
+            InOutputData inputData = new InOutputData();
             inputData.setIdentifier(physicalModelFunction.getIdentifier());
             inputData.setName(physicalModelFunction.getName());
-            DataAndType dataAndType=new DataAndType();
+            DataAndType dataAndType = new DataAndType();
             dataAndType.setType(physicalModelFunction.getDataType());
-            if (DataType.ARRAY.equals(physicalModelFunction.getDataType())){
+            if (DataType.ARRAY.equals(physicalModelFunction.getDataType())) {
                 ArraySpecs arraySpecs = new ArraySpecs();
                 arraySpecs.setSize(physicalModelFunction.getArraySize());
                 arraySpecs.setItem(new ItemSpecs(physicalModelFunction.getArrayType()));
                 dataAndType.setSpecs(arraySpecs);
-            }else {
+            } else {
                 Specs specs = SpecsFactory.getInvokeSpecs(physicalModelFunction.getDataType());
-                specs.convert(physicalModelFunction.getUuid(),physicalModelDataStandardMap);
+                specs.convert(physicalModelFunction.getUuid(), physicalModelDataStandardMap);
                 dataAndType.setSpecs(specs);
             }
             inputData.setDataType(dataAndType);
@@ -319,22 +353,22 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
         }
         Map<String, List<PhysicalModelFunction>> childStructFunctionMap = childStructFunctionList.parallelStream().collect(Collectors.groupingBy(PhysicalModelFunction::getParentId));
         for (PhysicalModelFunction physicalModelFunction : outputStructFunctionList) {
-            if(childStructFunctionMap.get(physicalModelFunction.getUuid())==null){
+            if (childStructFunctionMap.get(physicalModelFunction.getUuid()) == null) {
                 continue;
             }
-            InOutputData outputData=new InOutputData();
+            InOutputData outputData = new InOutputData();
             outputData.setIdentifier(physicalModelFunction.getIdentifier());
             outputData.setName(physicalModelFunction.getName());
-            List<StructSpecs> structSpecsList=new ArrayList<>();
-            DataAndType dataAndType=new DataAndType();
+            List<StructSpecs> structSpecsList = new ArrayList<>();
+            DataAndType dataAndType = new DataAndType();
             dataAndType.setType(physicalModelFunction.getDataType());
             for (PhysicalModelFunction childFunction : childStructFunctionMap.get(physicalModelFunction.getUuid())) {
-                StructSpecs specs=new StructSpecs();
+                StructSpecs specs = new StructSpecs();
                 specs.setIdentifier(childFunction.getIdentifier());
                 specs.setName(childFunction.getName());
-                DataAndType childDataAndType=new DataAndType();
+                DataAndType childDataAndType = new DataAndType();
                 Specs childSpecs = SpecsFactory.getInvokeSpecs(childFunction.getDataType());
-                childSpecs.convert(childFunction.getUuid(),physicalModelDataStandardMap);
+                childSpecs.convert(childFunction.getUuid(), physicalModelDataStandardMap);
                 childDataAndType.setSpecs(specs);
                 specs.setDataType(childDataAndType);
                 structSpecsList.add(specs);
@@ -344,22 +378,22 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             outputDataList.add(outputData);
         }
         for (PhysicalModelFunction physicalModelFunction : inputStructFunctionList) {
-            if(childStructFunctionMap.get(physicalModelFunction.getUuid())==null){
+            if (childStructFunctionMap.get(physicalModelFunction.getUuid()) == null) {
                 continue;
             }
-            InOutputData inputData=new InOutputData();
+            InOutputData inputData = new InOutputData();
             inputData.setIdentifier(physicalModelFunction.getIdentifier());
             inputData.setName(physicalModelFunction.getName());
-            List<StructSpecs> structSpecsList=new ArrayList<>();
-            DataAndType dataAndType=new DataAndType();
+            List<StructSpecs> structSpecsList = new ArrayList<>();
+            DataAndType dataAndType = new DataAndType();
             dataAndType.setType(physicalModelFunction.getDataType());
             for (PhysicalModelFunction childFunction : childStructFunctionMap.get(physicalModelFunction.getUuid())) {
-                StructSpecs specs=new StructSpecs();
+                StructSpecs specs = new StructSpecs();
                 specs.setIdentifier(childFunction.getIdentifier());
                 specs.setName(childFunction.getName());
-                DataAndType childDataAndType=new DataAndType();
+                DataAndType childDataAndType = new DataAndType();
                 Specs childSpecs = SpecsFactory.getInvokeSpecs(childFunction.getDataType());
-                childSpecs.convert(childFunction.getUuid(),physicalModelDataStandardMap);
+                childSpecs.convert(childFunction.getUuid(), physicalModelDataStandardMap);
                 childDataAndType.setSpecs(specs);
                 specs.setDataType(childDataAndType);
                 structSpecsList.add(specs);
@@ -368,62 +402,85 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             inputData.setDataType(dataAndType);
             inputDataList.add(inputData);
         }
-        if (ThingModelJsonType.events.equals(type)){
-            EventModel convertModel=(EventModel) model;
+        if (ThingModelJsonType.events.equals(type)) {
+            EventModel convertModel = (EventModel) model;
             convertModel.setOutputData(outputDataList);
-        }else if(ThingModelJsonType.services.equals(type)){
-            ServiceModel convertModel=(ServiceModel) model;
+        } else if (ThingModelJsonType.services.equals(type)) {
+            ServiceModel convertModel = (ServiceModel) model;
             convertModel.setOutputData(outputDataList);
             convertModel.setInputData(inputDataList);
         }
     }
 
-    private PropertiesModel buildModelProperties(PPhysicalModelFunction pFunction){
+    private PropertiesModel buildModelProperties(PPhysicalModelFunction pFunction) {
         PropertiesModel properties = new PropertiesModel();
-        properties.setType(pFunction.getDataType());
+        properties.setType(DataType.valueOf(pFunction.getDataType()));
         properties.setDetails(pFunction.getDetails());
         properties.setName(pFunction.getName());
         properties.setIdentifier(pFunction.getIdentifier());
         properties.setRwFlag(pFunction.getRwFlag());
         return properties;
     }
-    private EventModel buildModelEvent(PPhysicalModelFunction pFunction){
+
+    private EventModel buildModelEvent(PPhysicalModelFunction pFunction) {
         EventModel eventModel = new EventModel();
-        eventModel.setType(pFunction.getDataType());
+        if (StringUtils.isNotBlank(pFunction.getDataType())){
+            eventModel.setType(DataType.valueOf(pFunction.getDataType()));
+        }
         eventModel.setDetails(pFunction.getDetails());
         eventModel.setName(pFunction.getName());
         eventModel.setIdentifier(pFunction.getIdentifier());
-        eventModel.setEventType(pFunction.getEventType());
+        eventModel.setEventType(EventType.valueOf(pFunction.getEventType()));
         return eventModel;
     }
-    private ServiceModel buildModelService(PPhysicalModelFunction pFunction){
+
+    private ServiceModel buildModelService(PPhysicalModelFunction pFunction) {
         ServiceModel serviceModel = new ServiceModel();
-        serviceModel.setType(pFunction.getDataType());
+        if (StringUtils.isNotBlank(pFunction.getDataType())){
+            serviceModel.setType(DataType.valueOf(pFunction.getDataType()));
+        }
         serviceModel.setDetails(pFunction.getDetails());
         serviceModel.setName(pFunction.getName());
         serviceModel.setIdentifier(pFunction.getIdentifier());
-        serviceModel.setCallType(pFunction.getCallType());
+        serviceModel.setCallType(CallType.valueOf(pFunction.getCallType()));
         return serviceModel;
     }
 
-    private List<PhysicalModelFunction> queryStructFunction(String tenantId,List<String> parentIds){
+    private List<PhysicalModelFunction> queryStructFunction(String tenantId, List<String> parentIds) {
         List<PhysicalModelFunction> functionList = new ArrayList<>();
-        if (CollectionUtils.isEmpty(parentIds)){
+        if (CollectionUtils.isEmpty(parentIds)) {
             return functionList;
         }
-        PhysicalModelFunctionFilter filter=new PhysicalModelFunctionFilter();
+        PhysicalModelFunctionFilter filter = new PhysicalModelFunctionFilter();
         filter.setTenantIdEq(tenantId);
         filter.setParentIdIn(parentIds);
         List<PPhysicalModelFunction> query = functionDao.query(filter);
-        if (CollectionUtils.isNotEmpty(query)){
+        if (CollectionUtils.isNotEmpty(query)) {
             for (PPhysicalModelFunction function : query) {
                 PhysicalModelFunction physicalModelFunction = new PhysicalModelFunction();
-                BeanUtils.copyProperties(function,physicalModelFunction);
+                BeanUtils.copyProperties(function, physicalModelFunction);
+                physicalModelFunction.setDataType(DataType.valueOf(function.getDataType()));
                 functionList.add(physicalModelFunction);
             }
         }
         return functionList;
     }
+
+    private List<PPhysicalModelFunction> queryChildFunction(String tenantId, List<String> parentIds) {
+        List<PPhysicalModelFunction> pPhysicalModelFunctions = new ArrayList<>();
+        if (CollectionUtils.isEmpty(parentIds)) {
+            return pPhysicalModelFunctions;
+        }
+        PhysicalModelFunctionFilter filter = new PhysicalModelFunctionFilter();
+        filter.setTenantIdEq(tenantId);
+        filter.setParentIdIn(parentIds);
+        List<PPhysicalModelFunction> query = functionDao.query(filter);
+        if (CollectionUtils.isNotEmpty(query)) {
+            return query;
+        }
+        return pPhysicalModelFunctions;
+    }
+
 
     //属性物模型的添加
     private void savePropertie(String tenantId, ModelProperties properties, String modelModuleId, String operator) {
@@ -433,39 +490,45 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             }
             PPhysicalModelFunction pFunction = new PPhysicalModelFunction();
             pFunction.setTenantId(tenantId);
-            pFunction.setDataType(properties.getType());
+            pFunction.setDataType(properties.getType().name());
             pFunction.setName(properties.getName());
             pFunction.setModelModuleId(modelModuleId);
             pFunction.setIdentifier(properties.getIdentifier());
-            pFunction.setType(ThingModelJsonType.properties);
+            pFunction.setType(ThingModelJsonType.properties.name());
             pFunction.setRwFlag(properties.getRwFlag());
             pFunction.setDetails(properties.getDetails());
             pFunction.setRequired(false);
             pFunction.onCreated(operator);
             DataType type = null;
-            Map specsMap = JSON.parseObject(properties.getDataType(), Map.class);
+            Map dataTypeMap = JSON.parseObject(properties.getDataType(), Map.class);
+            Map specsMap=null;
             if (DataType.ARRAY.equals(properties.getType())) {
-                pFunction.setArraySize((int) specsMap.get("size"));
-                Map itemMap = JSON.parseObject(specsMap.get("item").toString(), Map.class);
-                type = DataType.valueOf(itemMap.get("type").toString());
-                pFunction.setArrayType(type);
+                if (dataTypeMap.get("specs")!=null){
+                    specsMap = JSON.parseObject(dataTypeMap.get("specs").toString(), Map.class);
+                    pFunction.setArraySize(Integer.parseInt(specsMap.get("size").toString()));
+                    Map itemMap = JSON.parseObject(specsMap.get("item").toString(), Map.class);
+                    pFunction.setArrayType(itemMap.get("type").toString());
+                    type=DataType.valueOf(itemMap.get("type").toString());
+                }
             }
             functionDao.save(pFunction);
             if (DataType.STRUCT.equals(properties.getType())) {
-                List specs = (List) specsMap.get("specs");
+                List specs = (List) dataTypeMap.get("specs");
                 for (Object spec : specs) {
                     saveStructSpec(tenantId, pFunction.getUuid(), spec.toString(), operator);
                 }
             } else if (DataType.ARRAY.equals(properties.getType())) {
                 if (DataType.STRUCT.equals(type)) {
-                    Map itemMap = JSON.parseObject(specsMap.get("item").toString(), Map.class);
-                    List specs = (List) itemMap.get("specs");
-                    for (Object spec : specs) {
-                        saveStructSpec(tenantId, pFunction.getUuid(), spec.toString(), operator);
+                    if (specsMap!=null){
+                        Map itemMap = JSON.parseObject(specsMap.get("item").toString(), Map.class);
+                        List specs = (List) itemMap.get("specs");
+                        for (Object spec : specs) {
+                            saveStructSpec(tenantId, pFunction.getUuid(), spec.toString(), operator);
+                        }
                     }
                 }
             } else {
-                saveDataStandard(tenantId, properties.getType(), pFunction.getUuid(), specsMap.get("specs").toString(), operator);
+                saveDataStandard(tenantId, properties.getType(), pFunction.getUuid(), dataTypeMap.get("specs").toString(), operator);
             }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
@@ -480,16 +543,18 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             pFunction.setName(service.getName());
             pFunction.setIdentifier(service.getIdentifier());
             pFunction.setModelModuleId(modelModuleId);
-            pFunction.setType(ThingModelJsonType.services);
+            pFunction.setType(ThingModelJsonType.services.name());
             pFunction.setDetails(service.getDetails());
             pFunction.setRequired(true);
-            pFunction.setCallType(service.getCallType());
+            pFunction.setCallType(service.getCallType().name());
             pFunction.onCreated(operator);
             functionDao.save(pFunction);
             if (CollectionUtils.isNotEmpty(service.getOutputParams())) {
+                //保存输入参数
                 saveIOParm(tenantId, pFunction.getUuid(), DirectionType.PARAM_OUTPUT, operator, service.getOutputParams());
             }
             if (CollectionUtils.isNotEmpty(service.getInputParams())) {
+                //保存输出参数
                 saveIOParm(tenantId, pFunction.getUuid(), DirectionType.PARAM_INPUT, operator, service.getInputParams());
             }
         } catch (Exception e) {
@@ -505,13 +570,14 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             pFunction.setName(event.getName());
             pFunction.setIdentifier(event.getIdentifier());
             pFunction.setModelModuleId(modelModuleId);
-            pFunction.setType(ThingModelJsonType.events);
+            pFunction.setType(ThingModelJsonType.events.name());
             pFunction.setDetails(event.getDetails());
             pFunction.setRequired(true);
             pFunction.onCreated(operator);
-            pFunction.setEventType(event.getEventType());
+            pFunction.setEventType(event.getEventType().name());
             functionDao.save(pFunction);
             if (CollectionUtils.isNotEmpty(event.getOutputParams())) {
+                //保存输出参数
                 saveIOParm(tenantId, pFunction.getUuid(), DirectionType.PARAM_OUTPUT, operator, event.getOutputParams());
             }
         } catch (Exception e) {
@@ -533,11 +599,11 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
                 pFunction.setName(param.getName());
                 pFunction.setIdentifier(param.getIdentifier());
                 pFunction.setParentId(parentId);
-                pFunction.setDirection(ioType);
+                pFunction.setDirection(ioType.name());
                 pFunction.onCreated(operator);
                 Map map = JSON.parseObject(param.getDataType(), Map.class);
                 DataType type = DataType.valueOf(map.get("type").toString());
-                pFunction.setDataType(type);
+                pFunction.setDataType(type.name());
                 Map specsMap = null;
                 if (DataType.ARRAY.equals(type)) {
                     specsMap = JSON.parseObject(map.get("specs").toString(), Map.class);
@@ -581,9 +647,9 @@ public class PhysicalModelFunctionServiceImpl implements PhysicalModelFunctionSe
             pFunction.setParentId(parentId);
             pFunction.onCreated(operator);
             Map map = JSON.parseObject(mapSpec.get("dataType").toString(), Map.class);
-            pFunction.setDataType(DataType.valueOf((String) map.get("type")));
+            pFunction.setDataType(map.get("type").toString());
             functionDao.save(pFunction);
-            saveDataStandard(tenantId, DataType.valueOf((String) map.get("type")), pFunction.getUuid(), map.get("specs").toString(), operator);
+            saveDataStandard(tenantId, DataType.valueOf(map.get("type").toString()), pFunction.getUuid(), map.get("specs").toString(), operator);
         } catch (Exception e) {
             e.printStackTrace();
         }

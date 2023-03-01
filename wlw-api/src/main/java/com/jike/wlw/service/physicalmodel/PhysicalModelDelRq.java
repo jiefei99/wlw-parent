@@ -28,7 +28,7 @@ public class PhysicalModelDelRq extends Entity implements Serializable {
     private String iotInstanceId;
     @ApiModelProperty("资源组ID")
     private String resourceGroupId;
-    @ApiModelProperty("标识符")
+    @ApiModelProperty("模块标识符")
     private String functionBlockId;
     @ApiModelProperty("属性标识符")
     private List<String> propertyIdentifier;

@@ -16,15 +16,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class PropertiesModel extends Model {
-    private DataType type;
-    private String details;
-    private String name;
-    private String identifier;
     private String rwFlag;
-    private boolean required;
     private DataType arrayType;
     private int arraySize;
-
     private DataAndType dataType;
 }
 
