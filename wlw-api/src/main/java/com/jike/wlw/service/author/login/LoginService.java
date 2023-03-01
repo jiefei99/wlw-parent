@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Api(tags = "登录服务")
+
 public interface LoginService {
 
     @ApiOperation(value = "账号密码登录")

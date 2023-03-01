@@ -1,7 +1,6 @@
 package com.jike.wlw.service.physicalmodel.privatization.pojo.function;
 
 import com.jike.wlw.service.physicalmodel.DataType;
-import com.sun.istack.internal.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

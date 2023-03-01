@@ -17,11 +17,17 @@
             <artifactId>wlw-api</artifactId>
             <version>${project.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
-            <version>3.1.1</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-loadbalancer</artifactId>
         </dependency>
         <!-- 工程=============== -->
         <dependency>
@@ -56,6 +62,12 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-webflux</artifactId>
+            <version>2.0.3.RELEASE</version>
+        </dependency>
         <dependency>
             <groupId>io.springfox</groupId>
             <artifactId>springfox-swagger-ui</artifactId>
@@ -67,6 +79,15 @@
         <dependency>
             <groupId>com.geeker123.rumba</groupId>
             <artifactId>rumba-jdbc-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.tomcat.embed</groupId>
+            <artifactId>tomcat-embed-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.github.openfeign</groupId>
+            <artifactId>feign-httpclient</artifactId>
+            <version>11.8</version>
         </dependency>
 
         <!-- rumba -->
@@ -86,12 +107,6 @@
             <groupId>com.geeker123.rumba</groupId>
             <artifactId>rumba-oss</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.enet</groupId>
-            <artifactId>base-upms-api</artifactId>
-            <version>4.0.2-SNAPSHOT</version>
-        </dependency>
-
     </dependencies>
     <build>
         <plugins>

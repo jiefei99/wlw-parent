@@ -2,7 +2,7 @@ server:
   port: 8010
 spring:
   application:
-    name: @artifactId@
+    name: spring-cloud-demo
   cloud:
     nacos:
       discovery:

@@ -78,4 +78,5 @@ public interface PrivateSubscribeRelationService extends BaseSubscribeRelationSe
 
     @ApiOperation(value = "重启项目启动数据库订阅")
     void startSubscription();
+
 }

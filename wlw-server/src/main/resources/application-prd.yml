@@ -19,13 +19,6 @@ redis:
   maxWaitMillis: 1000
 
 
-# RabbitMQ配置
-amqp:
-  prefix: prd
-  host: 47.112.154.205
-  username: dev
-  password: 123456
-  port: 5672
 
 initialization:
   name: 超级管理员

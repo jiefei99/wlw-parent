@@ -34,6 +34,7 @@ public class BaseController {
     @Autowired
     private HttpServletResponse response;
 
+
     /**
      * 获取SESSION
      */

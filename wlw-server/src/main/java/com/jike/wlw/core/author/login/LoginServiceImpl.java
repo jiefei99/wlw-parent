@@ -15,6 +15,7 @@ import com.jike.wlw.service.author.login.account.AccountUserModifyPwd;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.security.MessageDigest;
@@ -28,6 +29,7 @@ import java.util.List;
  */
 @Slf4j
 @RestController
+@RequestMapping(value = "service/equipment/aliyun", produces = "application/json;charset=utf-8")
 public class LoginServiceImpl extends BaseService implements LoginService {
     @Autowired
     private AccountUserDao accountUserDao;

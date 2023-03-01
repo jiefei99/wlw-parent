@@ -9,7 +9,9 @@ import java.util.Arrays;
 
 import com.geeker123.rumba.commons.redis.RedisManager;
 import com.geeker123.rumba.commons.util.AppCtxUtil;
+import feign.Feign;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,6 +30,7 @@ import redis.clients.jedis.JedisPoolConfig;
  *
  */
 @Configuration
+@ConditionalOnClass({ Feign.class})
 public class ApplicationConfig {
 
     @Autowired
