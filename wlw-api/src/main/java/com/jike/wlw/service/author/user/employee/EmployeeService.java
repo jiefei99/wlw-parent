@@ -65,7 +65,7 @@ public interface EmployeeService {
 
 
     @ApiOperation(value = "根据登录ID获取指定的员工")
-    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @RequestMapping(value = "/getEmployeeByUserId", method = RequestMethod.GET)
     @ResponseBody
     Employee getEmployeeByUserId(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                  @ApiParam(required = true, value = "登录id") @RequestParam(value = "userId") String userId) throws BusinessException;
