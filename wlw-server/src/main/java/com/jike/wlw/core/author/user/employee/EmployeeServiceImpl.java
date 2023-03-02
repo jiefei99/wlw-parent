@@ -61,7 +61,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     private AccountUserDao userDao;
     @Autowired
     private UserService userService;
-    @Autowired(required = false)
+    @Autowired
     private RemoteUserService remoteUserService;
 
     @Override
