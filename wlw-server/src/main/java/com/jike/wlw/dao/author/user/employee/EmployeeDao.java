@@ -36,10 +36,19 @@ public class EmployeeDao extends BaseDao {
 //        if (!StringUtil.isNullOrBlank(filter.getParts())) {
 //            q.where("o.parts = :parts").p("parts", filter.getParts());
 //        }
+        //todo keywords 多次like查询效率很低，所以在这里改用拼接like 以后的人要这样写
+//        if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
+//            q.where("(o.userId in (select u.uuid from " + PUser.TABLE_NAME + " u where u.name like :keywords or u.mobile like :keywords))")
+//                    .p("keywords", "%" + filter.getKeywords() + "%");
+//        }
         if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
-            q.where("(o.userId in (select u.uuid from " + PUser.TABLE_NAME + " u where u.name like :keywords or u.mobile like :keywords))")
+            q.where("(o.userId in (select u.uuid from " + PUser.TABLE_NAME + " u where CONCAT(IFNULL(u.name,''),IFNULL(u.mobile,''),IFNULL(u.uuid,'')) ))")
                     .p("keywords", "%" + filter.getKeywords() + "%");
         }
+        if (filter.getFreezeStateEq()!=null){
+            q.where("(o.userId in (select u.uuid from "+ PUser.TABLE_NAME+" u where u.status =:freezeStateEq ))").p("freezeStateEq",filter.getFreezeStateEq().name());
+        }
+
         if (!StringUtil.isNullOrBlank(filter.getUserIdEq())) {
             q.where("o.userId = :userIdEq").p("userIdEq", filter.getUserIdEq());
         }
@@ -61,7 +70,7 @@ public class EmployeeDao extends BaseDao {
         if (!CollectionUtils.isEmpty(filter.getUserIdIn())) {
             q.where("o.userId in (:userIdIn)").p("userIdIn", filter.getUserIdIn());
         }
-
+        q.where("o.isDeleted = 0");
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {
                 if (order != null && !StringUtil.isNullOrBlank(order.getSortKey())) {

@@ -50,7 +50,7 @@ public class LoginServiceImpl extends BaseService implements LoginService {
                 throw new BusinessException("密码不能为空");
             }
 
-            PAccountUser user = accountUserDao.get(PAccountUser.class,"tenantId",tenantId, "userType",credentials.getUserType().name(), "loginId", credentials.getLoginId());
+            PAccountUser user = accountUserDao.get(PAccountUser.class,"tenantId",tenantId, "userType",credentials.getUserType().name(), "loginId", credentials.getLoginId(),"isDeleted",0);
             if (user == null || !verifyCredential(user, credentials)) {
                 throw new BusinessException("账号或密码不正确");
             }

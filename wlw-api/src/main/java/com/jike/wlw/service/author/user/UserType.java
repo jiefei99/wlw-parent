@@ -6,7 +6,9 @@
  */
 package com.jike.wlw.service.author.user;
 
-public enum UserType {
+import java.io.Serializable;
+
+public enum UserType implements Serializable {
 
     EMPLOYEE("员工"), MEMBER("会员");
 

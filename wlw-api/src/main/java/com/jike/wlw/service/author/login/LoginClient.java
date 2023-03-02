@@ -9,6 +9,8 @@
  */
 package com.jike.wlw.service.author.login;
 
+import java.io.Serializable;
+
 /**
  *
  * 授权登录终端
@@ -16,7 +18,7 @@ package com.jike.wlw.service.author.login;
  * @author chenpeisi
  *
  */
-public enum LoginClient {
+public enum LoginClient implements Serializable {
 
   js("公众号"), web("web"), app("APP"), wxa("小程序");
 

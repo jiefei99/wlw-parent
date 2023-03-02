@@ -2,6 +2,7 @@ package com.jike.wlw.dao.author.user;
 
 import com.geeker123.rumba.jdbc.entity.JdbcEntity;
 import com.geeker123.rumba.jdbc.entity.PStandardEntity;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -31,6 +32,8 @@ public class PUser extends PStandardEntity implements JdbcEntity {
     private String status;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("备注")
+    private Boolean isDeleted;
 
     @Override
     public String getTableName() {

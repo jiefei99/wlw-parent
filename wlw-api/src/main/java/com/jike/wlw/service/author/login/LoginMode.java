@@ -9,13 +9,15 @@
  */
 package com.jike.wlw.service.author.login;
 
+import java.io.Serializable;
+
 /**
  * 第三方授权登录平台类型
  *
  * @author chenpeisi
  *
  */
-public enum LoginMode {
+public enum LoginMode implements Serializable {
 
   account("账号"), wechat("微信"), qq("QQ"), alipay("支付宝"), weibo("微博");
 

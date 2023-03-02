@@ -61,6 +61,7 @@ public class UserDao extends BaseDao {
         if (!CollectionUtils.isEmpty(filter.getMobileIn())) {
             q.where("o.mobile in (:mobilesIn)").p("mobileIn", filter.getMobileIn());
         }
+        q.where("o.isDeleted = 0");
 
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {

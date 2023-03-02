@@ -37,6 +37,4 @@ public class User extends StandardEntity {
     //辅助字段
     @ApiModelProperty("登录账户")
     private String loginId;
-    @ApiModelProperty("登录密码")
-    private String password;
 }

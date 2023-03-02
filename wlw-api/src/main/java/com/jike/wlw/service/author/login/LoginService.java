@@ -26,31 +26,32 @@ import org.springframework.web.bind.annotation.ResponseBody;
  */
 
 @Api(tags = "登录服务")
+//@RequestMapping(value = "/service/login", produces = "application/json;charset=utf-8")
 public interface LoginService {
 
     @ApiOperation(value = "账号密码登录")
-    @RequestMapping(value = "/accountLogin", method = RequestMethod.POST)
+    @RequestMapping(value = "/service/login/accountLogin", method = RequestMethod.POST)
     @ResponseBody
     String accountLogin(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
             @ApiParam(value = "登录凭证", required = true) @RequestBody LoginCredentials credentials) throws BusinessException;
 
 
     @ApiOperation(value = "修改账号密码")
-    @RequestMapping(value = "/modifyPwd", method = RequestMethod.POST)
+    @RequestMapping(value = "/service/login/modifyPwd", method = RequestMethod.POST)
     @ResponseBody
     void modifyPwd(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                    @ApiParam(value = "修改密码请求参数", required = true) @RequestBody AccountUserModifyPwd modifyPwd,
                    @ApiParam(value = "操作人", required = true) @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "冻结账号")
-    @RequestMapping(value = "/freeze", method = RequestMethod.GET)
+    @RequestMapping(value = "/service/login/freeze", method = RequestMethod.GET)
     @ResponseBody
     void freeze(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(value = "账号ID", required = true) @RequestParam(value = "id") String id,
                 @ApiParam(value = "操作人", required = true) @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "解冻账号")
-    @RequestMapping(value = "/unfreeze", method = RequestMethod.GET)
+    @RequestMapping(value = "/service/login/unfreeze", method = RequestMethod.GET)
     @ResponseBody
     void unfreeze(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                   @ApiParam(value = "账号ID", required = true) @RequestParam(value = "uuid") String uuid,

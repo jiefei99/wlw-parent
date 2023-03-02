@@ -23,26 +23,24 @@ public class Employee extends StandardEntity {
     private static final long serialVersionUID = 8456162963968726410L;
 
     public static final String PARTS_USER = "user";
+    public static final String PARTS_PWD_ACCOUNT = "pwdAccount";
 
     @ApiModelProperty("租户ID")
     private String tenantId;
-    @ApiModelProperty("ID")
-    private String id;
     @ApiModelProperty("是否为管理员")
     private Boolean admin = false;
     @ApiModelProperty("用户ID")
     private String userId;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("loginId")
+    private String loginId;
+    @ApiModelProperty("账号密码")
+    private String password;
 
     // 辅助属性
     @ApiModelProperty("用户信息")
     private User user;
-    @ApiModelProperty("登录账户")
-    private String loginId;
-    @ApiModelProperty("账号密码")
-    private String password;
     @ApiModelProperty("角色集合")
     private List<Role> roles;
-
 }

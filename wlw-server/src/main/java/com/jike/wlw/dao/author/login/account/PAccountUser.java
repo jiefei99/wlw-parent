@@ -19,7 +19,7 @@ import lombok.Setter;
 /**
  * 登录账号|接口对象
  *
- * @author chenpeisi
+ * @author zrs
  */
 @Getter
 @Setter
@@ -48,7 +48,7 @@ public class PAccountUser extends PStandardEntity implements JdbcEntity {
     @ApiModelProperty("登录密码")
     private String password;
     @ApiModelProperty("是否删除")
-    private boolean isDelete;
+    private boolean isDeleted;
 
     @Override
     public String getTableName() {

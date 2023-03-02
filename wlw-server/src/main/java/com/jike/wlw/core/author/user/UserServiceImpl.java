@@ -111,7 +111,7 @@ public class UserServiceImpl implements UserService {
             if (StringUtil.isNullOrBlank(modifyRq.getMobile())) {
                 throw new BusinessException("用户手机号不能为空");
             }
-            PUser perz = userDao.get(PUser.class, "uuid", modifyRq.getUuid(), "tenantId", tenantId);
+            PUser perz = userDao.get(PUser.class, "uuid", modifyRq.getUuid(), "tenantId", tenantId,"isDeleted",0);
             if (perz == null) {
                 throw new BusinessException("该用户不存在或已删除");
             }

@@ -9,6 +9,7 @@
  */
 package com.jike.wlw.sys.web.controller.author.login;
 
+import com.jike.wlw.service.author.login.LoginClient;
 import com.jike.wlw.service.author.login.LoginCredentials;
 import com.jike.wlw.service.author.login.LoginMode;
 import com.jike.wlw.service.author.user.UserType;
@@ -39,6 +40,7 @@ public class WebUserLogin implements Serializable {
     public LoginCredentials buildUserCredentials() {
         LoginCredentials credentials = new LoginCredentials();
         credentials.setLoginMode(LoginMode.account);
+        credentials.setLoginClient(LoginClient.web);
         credentials.setUserType(UserType.EMPLOYEE);
         credentials.setLoginId(loginId);
         credentials.setPassword(password);

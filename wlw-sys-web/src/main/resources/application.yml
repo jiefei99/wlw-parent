@@ -41,3 +41,9 @@ management:
 feign:
   httpclient:
     enabled: true
+  okhttp:
+    enabled: true
+  client:
+    config:
+      default:
+        loggerLevel: full

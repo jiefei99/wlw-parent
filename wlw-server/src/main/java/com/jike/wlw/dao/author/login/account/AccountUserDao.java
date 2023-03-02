@@ -22,7 +22,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.List;
 
 /**
- * @author subinzhu
+ * @author zrs
  */
 @Repository
 public class AccountUserDao extends BaseDao {
@@ -62,7 +62,7 @@ public class AccountUserDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getLoginId())) {
             q.where("o.loginId = :loginId").p("unionId", filter.getLoginId());
         }
-        q.where("o.isDelete = 0");
+        q.where("o.isDeleted = 0");
 
         if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
             for (AbstractQueryFilter.Order order : filter.getOrders()) {

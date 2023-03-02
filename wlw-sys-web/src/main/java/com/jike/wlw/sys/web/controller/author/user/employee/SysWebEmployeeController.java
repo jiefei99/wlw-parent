@@ -6,10 +6,12 @@ import com.geeker123.rumba.commons.lang.Assert;
 import com.geeker123.rumba.commons.paging.PagingResult;
 
 import com.jike.wlw.service.author.login.account.AccountUserModifyPwd;
+import com.jike.wlw.service.author.login.account.UserModifyPwdRq;
 import com.jike.wlw.service.author.user.employee.Employee;
 import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
+import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
 import com.jike.wlw.sys.web.config.fegin.EmployeeFeignClient;
 import com.jike.wlw.sys.web.config.fegin.LoginFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
@@ -34,54 +36,46 @@ public class SysWebEmployeeController extends BaseController {
     @Autowired
     private LoginFeignClient loginFeignClient;
 
-    @ApiOperation(value = "获取当前登录用户")
-    @RequestMapping(value = "/getCurrentUser", method = RequestMethod.GET)
-    public @ResponseBody
-    ActionResult<Employee> getCurrentUser() throws Exception {
-        try {
-            return get(getUserId());
-        } catch (Exception e) {
-            return dealWithError(e);
-        }
-    }
-
     @ApiOperation(value = "获取指定的员工信息")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Employee> get(@ApiParam(required = true, value = "userId") @RequestParam(value = "userId") String userId) throws Exception {
+    public ActionResult<Employee> get(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id) throws Exception {
         try {
-            Employee result = employeeFeignClient.get(getTenantId(), userId);
-
+            Employee result = employeeFeignClient.get(getTenantId(), id);
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
     }
 
-    @ApiOperation(value = "获取指定的员工信息")
-    @RequestMapping(value = "/getQueryEmployee", method = RequestMethod.GET)
+    @ApiOperation(value = "获取当前登录的员工信息")
+    @RequestMapping(value = "/getCurrentUserEmployee", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Employee> getQueryEmployee() throws Exception {
+    public ActionResult<Employee> getCurrentUserEmployee() throws Exception {
         try {
-            Employee result = employeeFeignClient.get(getTenantId(), getUserId());
-
+            Employee result = employeeFeignClient.getEmployeeByUserId(getTenantId(), getUserId());
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
     }
 
+    //todo 不知道思钦那边支持吗
     @ApiOperation(value = "员工重置密码")
     @RequestMapping(value = "/resetPassword", method = RequestMethod.POST)
     public @ResponseBody
-    ActionResult<Void> resetPassword(@ApiParam("重置密码信息") @RequestBody String userId) {
+    ActionResult<Void> resetPassword(@ApiParam("重置密码信息") @RequestBody String id) {
         try {
-            Assert.assertArgumentNotNull(userId, "userId");
-
+            Assert.assertArgumentNotNull(id, "id");
+            Employee employee = employeeFeignClient.get(getTenantId(), id);
+            if (employee==null){
+                return ActionResult.fail("当前用户信息不存在或已删除");
+            }
             AccountUserModifyPwd modifyPwd = new AccountUserModifyPwd();
+            modifyPwd.setUserId(employee.getUserId());
             modifyPwd.setNewPassword("123456");
-            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
-
+            //todo 调用思钦的密码修改 方法(那边应该会跟我们有一个关联，不然token拿什么)
+//            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -101,17 +95,20 @@ public class SysWebEmployeeController extends BaseController {
         }
     }
 
-    @ApiOperation("用户修改密码")
+    @ApiOperation("修改密码")
     @RequestMapping(value = "/modifyPwd", method = RequestMethod.POST)
     @ResponseBody
-    ActionResult<Void> modifyPwd(@ApiParam("修改密码信息") @RequestBody AccountUserModifyPwd modifyPwd) throws BusinessException {
+    ActionResult<Void> modifyPwd(@ApiParam("修改密码信息") @RequestBody UserModifyPwdRq modifyPwd) throws BusinessException {
         try {
-            modifyPwd.setUuid(StringUtils.isNotBlank(modifyPwd.getUserId())?modifyPwd.getUserId():getUserId());
-            Employee currentUser = employeeFeignClient.get(getTenantId(),modifyPwd.getUserId());
-            if (currentUser == null) {
+            Employee employee = employeeFeignClient.get(getTenantId(), modifyPwd.getId());
+            if (employee==null){
                 return ActionResult.fail("当前用户信息不存在或已删除");
             }
-            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
+            if (StringUtils.isBlank(employee.getUserId())){
+                return ActionResult.fail("当前用户信息不存在或已删除");
+            }
+            //todo 调用思钦的密码修改 方法    使用employee的userId。
+//            loginFeignClient.modifyPwd(getTenantId(),modifyPwd, getUserName());
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -143,6 +140,25 @@ public class SysWebEmployeeController extends BaseController {
             filter.setAdminEq(false);
             PagingResult<Employee> result = employeeFeignClient.query(getTenantId(), filter);
             return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation("修改账号状态")
+    @RequestMapping(value = "/modifyStatus", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<Void> modifyStatus(@ApiParam("修改密码信息") @RequestBody EmployeeModifyStatusRq modifyStatusRq) throws BusinessException {
+        try {
+            Assert.assertArgumentNotNull(modifyStatusRq, "modifyStatusRq");
+            if (StringUtils.isBlank(modifyStatusRq.getId())){
+                throw new BusinessException("用户id不能为空");
+            }
+            if (modifyStatusRq.getStatus()==null){
+                throw new BusinessException("用户状态修改不能为空");
+            }
+            employeeFeignClient.modifyStatus(getTenantId(), modifyStatusRq, AppContext.getContext().getUserName());
+            return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
         }

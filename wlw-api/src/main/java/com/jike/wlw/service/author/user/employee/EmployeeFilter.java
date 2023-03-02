@@ -10,6 +10,7 @@
 package com.jike.wlw.service.author.user.employee;
 
 import com.geeker123.rumba.commons.paging.AbstractQueryFilter;
+import com.jike.wlw.common.FreezeState;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -27,6 +28,8 @@ public class EmployeeFilter extends AbstractQueryFilter {
     private String parts;
     @ApiModelProperty("关键字")
     private String keywords;
+    @ApiModelProperty("冻结状态")
+    private FreezeState freezeStateEq;
 
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;

@@ -26,14 +26,14 @@ public class PEmployee extends PStandardEntity implements JdbcEntity {
 
     @ApiModelProperty("租户ID")
     private String tenantId;
-    @ApiModelProperty("ID")
-    private String id;
     @ApiModelProperty("是否为管理员")
     private Boolean admin = false;
-    @ApiModelProperty("用户ID")
+    @ApiModelProperty("用户")
     private String userId;
     @ApiModelProperty("备注")
     private String remark;
+    @ApiModelProperty("是否删除")
+    private Boolean isDeleted;
 
     @Override
     public String getTableName() {

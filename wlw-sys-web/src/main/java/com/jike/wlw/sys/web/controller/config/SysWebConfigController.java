@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/web/config", produces = "application/json;charset=utf-8")
 public class SysWebConfigController extends BaseController {
 
-    @Autowired
-    private ConfigFeignClient configFeignClient;
+//    @Autowired
+//    private ConfigFeignClient configFeignClient;
 
 //    @ApiOperation(value = "新增/修改配置项")
 //    @RequestMapping(value = "/save", method = RequestMethod.POST)
