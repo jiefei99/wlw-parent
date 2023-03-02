@@ -29,7 +29,6 @@ import java.util.List;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "service/equipment/aliyun", produces = "application/json;charset=utf-8")
 public class LoginServiceImpl extends BaseService implements LoginService {
     @Autowired
     private AccountUserDao accountUserDao;
