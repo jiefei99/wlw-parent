@@ -29,8 +29,8 @@ public class RoleDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
             q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
         }
-        if (!StringUtil.isNullOrBlank(filter.getNameLike())) {
-            q.where("o.name like :nameLike").p("nameLike", "%" + filter.getNameLike() + "%");
+        if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
+            q.where("o.name like :keywords").p("keywords", "%" + filter.getKeywords() + "%");
         }
         if (!StringUtil.isNullOrBlank(filter.getNameEq())) {
             q.where("o.name = :nameEq").p("nameEq", filter.getNameEq());

@@ -16,9 +16,12 @@ import com.geeker123.rumba.jdbc.query.JdbcEntityQuery;
 import com.jike.wlw.dao.BaseDao;
 import com.jike.wlw.dao.author.user.employee.PEmployee;
 import com.jike.wlw.dao.author.user.role.PRole;
+import com.jike.wlw.dao.author.user.role.PRoleMenu;
 import com.jike.wlw.dao.author.user.role.PUserRole;
 import com.jike.wlw.service.author.AuthFilter;
+import com.jike.wlw.service.author.user.role.RoleFilter;
 import com.jike.wlw.service.author.user.role.UserRole;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
@@ -27,13 +30,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-
 /**
  * @author subinzhu
  */
 @Repository
 public class AuthDao extends BaseDao {
-
 
     /**
      * 保存用户与角色对应关系
@@ -66,17 +67,41 @@ public class AuthDao extends BaseDao {
     }
 
     /**
+     * 删除角色
+     *
+     * @param roleUuid 角色ID
+     */
+    public void removeRole(String roleUuid, String tenantId) {
+        if (StringUtil.isNullOrBlank(roleUuid)) {
+            return;
+        }
+
+        // 删除角色与菜单对应关系
+        String sql = "delete from " + PRoleMenu.TABLE_NAME + " where roleUuid = ?";
+        jdbcTemplate.update(sql, roleUuid);
+
+        // 删除用户与角色对应关系
+        sql = "delete from " + PUserRole.TABLE_NAME + "  where roleUuid = ?";
+        jdbcTemplate.update(sql, roleUuid);
+
+        // 删除角色
+        sql = "delete from " + PRole.TABLE_NAME + " where uuid = ? and tenantId = ?";
+        jdbcTemplate.update(sql, roleUuid, tenantId);
+
+    }
+
+    /**
      * 根据roleId和userIds删除userRole表
      */
-    public void batchRemoveUserRole(String roleId, String userIds) {
-        if (StringUtil.isNullOrBlank(roleId) || StringUtil.isNullOrBlank(userIds)) {
+    public void batchRemoveUserRole(String roleId, List<String> userIds) {
+        if (StringUtil.isNullOrBlank(roleId) || CollectionUtils.isEmpty(userIds)) {
             return;
         }
         HashMap<String, Object> userRoleSource = new HashMap<>();
         userRoleSource.put("userIds", userIds);
         userRoleSource.put("roleId", roleId);
         NamedParameterJdbcTemplate namedParameter = new NamedParameterJdbcTemplate(jdbcTemplate);
-        String hql = "delete from " + PUserRole.TABLE_NAME + " where roleId =:roleId and userId in (:userIds)";
+        String hql = "delete from " + PUserRole.TABLE_NAME + " where roleUuid =:roleId and userUuid in (:userIds)";
 
         namedParameter.update(hql, userRoleSource);
     }
@@ -171,6 +196,100 @@ public class AuthDao extends BaseDao {
             }
         } else {
             q.orderBy("o.uuid", "desc");
+        }
+
+        return q;
+    }
+
+    /**
+     * 查询用户与角色对应关系列表
+     *
+     * @param userId 用户uuid。为空返回空
+     * @return 用户与角色对应关系列表。
+     */
+    public List<UserRole> getUserRoles(String tenantId, String userId) {
+        String sql = null;
+
+        List<UserRole> result = new ArrayList<>();
+        if (!StringUtil.isNullOrBlank(userId)) {
+            sql = "select o.*,r.name as roleName from " + PUserRole.TABLE_NAME + " o left Join " + PRole.TABLE_NAME + " r on r.uuid = o.roleId and r.tenantId = o.tenantId where r.tenantId = ?" + " having o.userId = ? ";
+
+            result = jdbcTemplate.query(sql, new Object[]{userId, tenantId}, new BeanPropertyRowMapper<>(UserRole.class));
+        } else {
+            sql = "select * from " + PRole.TABLE_NAME;
+
+            List<PRole> roles = jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(PRole.class));
+            if (!CollectionUtils.isEmpty(roles)) {
+                for (PRole role : roles) {
+                    UserRole userRole = new UserRole();
+                    userRole.setRoleId(role.getUuid());
+                    result.add(userRole);
+                }
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * 根据roleIds和userId删除userRole表
+     */
+    public void batchRemoveUserRoles(String userId, List<String> roleIds) {
+        if (StringUtil.isNullOrBlank(userId) || CollectionUtils.isEmpty(roleIds)) {
+            return;
+        }
+        HashMap<String, Object> userRoleSource = new HashMap<>();
+        userRoleSource.put("userId", userId);
+        userRoleSource.put("roleIds", roleIds);
+        NamedParameterJdbcTemplate namedParameter = new NamedParameterJdbcTemplate(jdbcTemplate);
+        String hql = "delete from " + PUserRole.TABLE_NAME + " where userUuid =:userId and roleUuid in (:roleIds)";
+
+        namedParameter.update(hql, userRoleSource);
+    }
+
+    /**
+     * 查询角色列表
+     *
+     * @param filter 查询过滤器，not null。
+     * @return 查询结果
+     */
+    public List<PRole> queryRole(RoleFilter filter) {
+        JdbcEntityQuery q = getQuery("query", filter);
+        return q.list(jdbcTemplate, PRole.class, filter.getPage(), filter.getPageSize());
+    }
+
+    /**
+     * 查询角色记录总数
+     *
+     * @param filter 过滤条件
+     * @return 记录总数
+     */
+    public long getRoleCount(RoleFilter filter) {
+        JdbcEntityQuery q = getQuery("getCount", filter);
+        return q.count(jdbcTemplate, PRole.class);
+    }
+
+    private JdbcEntityQuery getQuery(String name, RoleFilter filter) {
+        JdbcEntityQuery q = new JdbcEntityQuery(name).select("*").from(PRole.TABLE_NAME, "o");
+
+        if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
+            q.where("(o.name like :keywords or o.remark like :keywords)").p("keywords", "%" + filter.getKeywords() + "%");
+        }
+        if (!CollectionUtils.isEmpty(filter.getUuidIn())) {
+            q.where("o.uuid in (:uuidIn)").p("uuidIn", filter.getUuidIn());
+        }
+
+        if (filter.getOrders() != null && !filter.getOrders().isEmpty()) {
+            for (AbstractQueryFilter.Order order : filter.getOrders()) {
+                if (order != null && !StringUtil.isNullOrBlank(order.getSortKey())) {
+                    q.orderBy("o." + order.getSortKey(), order.isDesc() ? "desc" : "asc");
+                }
+            }
+            if (q.getOrderBys().isEmpty()) {
+                q.orderBy("o.name", "asc");
+            }
+        } else {
+            q.orderBy("o.name", "asc");
         }
 
         return q;

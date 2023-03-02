@@ -32,9 +32,8 @@ public interface LoginService {
     @ApiOperation(value = "账号密码登录")
     @RequestMapping(value = "/service/login/accountLogin", method = RequestMethod.POST)
     @ResponseBody
-    String accountLogin(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-            @ApiParam(value = "登录凭证", required = true) @RequestBody LoginCredentials credentials) throws BusinessException;
-
+    String accountLogin(@ApiParam(required = true, value = "登录凭证") @RequestBody LoginCredentials credentials,
+                        @ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId) throws BusinessException;
 
     @ApiOperation(value = "修改账号密码")
     @RequestMapping(value = "/service/login/modifyPwd", method = RequestMethod.POST)

@@ -20,6 +20,8 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemSpecs implements Serializable {
+    private static final long serialVersionUID = 6807088609516505481L;
+
     private DataType type;
 }
 

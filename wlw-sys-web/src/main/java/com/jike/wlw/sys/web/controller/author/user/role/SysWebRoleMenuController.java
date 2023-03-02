@@ -4,6 +4,7 @@ import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.author.AuthFilter;
+import com.jike.wlw.service.author.auth.RolePermissionMenu;
 import com.jike.wlw.service.author.user.role.RoleMenu;
 import com.jike.wlw.service.author.user.role.RoleMenuCreateRq;
 import com.jike.wlw.sys.web.config.fegin.RoleMenuFeignClient;
@@ -18,19 +19,19 @@ import org.springframework.web.bind.annotation.*;
 @Api(value = "角色权限菜单服务", tags = {"角色权限菜单服务"})
 @Slf4j
 @RestController
-@RequestMapping(value = "/web/roleMenu", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/web/rolePermissionMenu", produces = "application/json;charset=utf-8")
 public class SysWebRoleMenuController extends BaseController {
 
     @Autowired
     private RoleMenuFeignClient roleMenuFeignClient;
 
     @ApiOperation(value = "保存角色权限菜单")
-    @RequestMapping(value = "/saveRoleMenus", method = RequestMethod.POST)
+    @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
     public ActionResult<Void> saveRoleMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                                             @ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException {
         try {
-            roleMenuFeignClient.saveRoleMenus(tenantId, createRq);
+            roleMenuFeignClient.saveRolePermissionMenus(tenantId, createRq);
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -41,10 +42,10 @@ public class SysWebRoleMenuController extends BaseController {
     @ApiOperation(value = "根据条件查询角色权限菜单")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<RoleMenu>> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                                                      @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException {
+    public ActionResult<PagingResult<RolePermissionMenu>> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                                                @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException {
         try {
-            PagingResult<RoleMenu> result = roleMenuFeignClient.query(tenantId, filter);
+            PagingResult<RolePermissionMenu> result = roleMenuFeignClient.query(tenantId, filter);
 
             return ActionResult.ok(result);
         } catch (Exception e) {

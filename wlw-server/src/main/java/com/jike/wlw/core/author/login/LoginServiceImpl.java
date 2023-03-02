@@ -35,7 +35,7 @@ public class LoginServiceImpl extends BaseService implements LoginService {
 
     @TX
     @Override
-    public String accountLogin(String tenantId, LoginCredentials credentials) throws BusinessException {
+    public String accountLogin(LoginCredentials credentials, String tenantId) throws BusinessException {
         try {
             if (StringUtils.isBlank(tenantId)) {
                 throw new BusinessException("租户不能为空");

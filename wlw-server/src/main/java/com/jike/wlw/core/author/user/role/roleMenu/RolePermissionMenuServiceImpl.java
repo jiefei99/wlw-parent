@@ -5,13 +5,9 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.author.user.role.PRoleMenu;
-import com.jike.wlw.dao.author.user.role.RoleMenuDao;
-import com.jike.wlw.service.author.user.role.Role;
-import com.jike.wlw.service.author.user.role.RoleService;
-import com.jike.wlw.service.author.user.role.RoleMenu;
-import com.jike.wlw.service.author.user.role.RoleMenuCreateRq;
-import com.jike.wlw.service.author.user.role.RoleMenuService;
 import com.jike.wlw.service.author.AuthFilter;
+import com.jike.wlw.service.author.auth.RolePermissionMenu;
+import com.jike.wlw.service.author.user.role.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,15 +21,15 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping(value = "service/roleMenu", produces = "application/json;charset=utf-8")
-public class RoleMenuServiceImpl extends BaseService implements RoleMenuService {
+public class RolePermissionMenuServiceImpl extends BaseService implements RolePermissionMenuService {
 
     @Autowired
-    private RoleMenuDao roleMenuDao;
+    private RolePermissionMenuDao rolePermissionMenuDao;
     @Autowired
     private RoleService roleService;
 
     @Override
-    public void saveRoleMenus(String tenantId, RoleMenuCreateRq createRq) throws BusinessException {
+    public void saveRolePermissionMenus(String tenantId, RoleMenuCreateRq createRq) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getRoleId())) {
                 throw new BusinessException("角色id不能为空");
@@ -45,8 +41,7 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
             }
 
             //删除该角色之前的所有权限
-            roleMenuDao.deleteByRoleId(createRq.getRoleId());
-
+            rolePermissionMenuDao.deleteByRoleId(createRq.getRoleId());
 
             //如果权限菜单配置不为空，保存配置，如果为空，就不再保存
             if (!CollectionUtils.isEmpty(createRq.getRoleMenuList())) {
@@ -58,9 +53,8 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
                     perzList.add(perz);
                 }
 
-                roleMenuDao.save(perzList);
+                rolePermissionMenuDao.save(perzList);
             }
-
 
         } catch (Exception e) {
             log.error(e.getMessage(), e);
@@ -69,15 +63,15 @@ public class RoleMenuServiceImpl extends BaseService implements RoleMenuService 
     }
 
     @Override
-    public PagingResult<RoleMenu> query(String tenantId, AuthFilter filter) throws BusinessException {
+    public PagingResult<RolePermissionMenu> query(String tenantId, AuthFilter filter) throws BusinessException {
         try {
             filter.setTenantIdEq(tenantId);
-            List<PRoleMenu> list = roleMenuDao.query(filter);
-            long total = roleMenuDao.getCount(filter);
+            List<PRolePermissionMenu> list = rolePermissionMenuDao.query(filter);
+            long total = rolePermissionMenuDao.getCount(filter);
 
-            List<RoleMenu> result = new ArrayList<>();
-            for (PRoleMenu perz : list) {
-                RoleMenu roleMenu = new RoleMenu();
+            List<RolePermissionMenu> result = new ArrayList<>();
+            for (PRolePermissionMenu perz : list) {
+                RolePermissionMenu roleMenu = new RolePermissionMenu();
                 BeanUtils.copyProperties(perz, roleMenu);
 
                 result.add(roleMenu);

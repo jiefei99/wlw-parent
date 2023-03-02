@@ -16,8 +16,8 @@ public class RoleFilter extends AbstractQueryFilter {
 
     @ApiModelProperty("租户ID等于")
     private String tenantIdEq;
-    @ApiModelProperty("角色名称类似于")
-    private String nameLike;
+    @ApiModelProperty("关键字")
+    private String keywords;
     @ApiModelProperty("角色名称等于")
     private String nameEq;
     @ApiModelProperty("角色id集合")

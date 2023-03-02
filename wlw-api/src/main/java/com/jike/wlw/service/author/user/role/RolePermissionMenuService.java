@@ -12,6 +12,7 @@ package com.jike.wlw.service.author.user.role;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.author.AuthFilter;
+import com.jike.wlw.service.author.auth.RolePermissionMenu;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -27,18 +28,18 @@ import org.springframework.web.bind.annotation.ResponseBody;
  * @author subinzhu
  */
 @Api(tags = "角色权限菜单")
-public interface RoleMenuService {
+public interface RolePermissionMenuService {
 
     @ApiOperation(value = "保存角色权限菜单")
-    @RequestMapping(value = "/saveRoleMenus", method = RequestMethod.POST)
+    @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
-    void saveRoleMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+    void saveRolePermissionMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                        @ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException;
 
     @ApiOperation(value = "根据条件查询角色权限菜单")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<RoleMenu> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                                 @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
+    PagingResult<RolePermissionMenu> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
+                                           @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
 
 }

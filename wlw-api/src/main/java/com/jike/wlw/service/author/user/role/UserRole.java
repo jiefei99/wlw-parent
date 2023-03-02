@@ -7,6 +7,7 @@
 package com.jike.wlw.service.author.user.role;
 
 import com.jike.wlw.service.author.user.User;
+import com.jike.wlw.service.author.user.employee.Employee;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -23,6 +24,8 @@ import java.io.Serializable;
 public class UserRole implements Serializable {
     private static final long serialVersionUID = 809720360587001489L;
 
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("用户ID")
     private String userId;
     @ApiModelProperty("角色ID")
@@ -31,5 +34,7 @@ public class UserRole implements Serializable {
     //辅助字段
     @ApiModelProperty("用户信息")
     private User user;
+    @ApiModelProperty("员工信息")
+    private Employee employee;
 
 }
