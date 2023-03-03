@@ -74,7 +74,7 @@ public interface AuthService {
     void removeUserRoles(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                          @ApiParam(required = true, value = "用户ID") @RequestParam("userId") String userId) throws BusinessException;
 
-    @ApiOperation(value = "获取用户的角色")
+    @ApiOperation(value = "获取用户的角色", response = List.class)
     @RequestMapping(value = "/getUserRoles", method = RequestMethod.GET)
     @ResponseBody
     List<UserRole> getUserRoles(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,

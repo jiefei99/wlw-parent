@@ -14,7 +14,7 @@ import com.jike.wlw.service.author.user.role.UserRole;
 import com.jike.wlw.sys.web.config.fegin.AuthFeignClient;
 import com.jike.wlw.sys.web.config.fegin.EmployeeFeignClient;
 import com.jike.wlw.sys.web.config.fegin.PermissionFeignClient;
-import com.jike.wlw.sys.web.config.fegin.RoleMenuFeignClient;
+import com.jike.wlw.sys.web.config.fegin.RolePermissionMenuFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -40,7 +40,7 @@ public class WebAuthController extends BaseController {
     @Autowired
     private PermissionFeignClient permissionFeignClient;
     @Autowired
-    private RoleMenuFeignClient roleMenuFeignClient;
+    private RolePermissionMenuFeignClient roleMenuFeignClient;
 
     @ApiOperation(value = "保存角色")
     @RequestMapping(value = "/saveRole", method = RequestMethod.POST)

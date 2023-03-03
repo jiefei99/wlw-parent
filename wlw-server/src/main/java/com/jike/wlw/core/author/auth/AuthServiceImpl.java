@@ -267,6 +267,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
     public List<UserRole> getUserRoles(String tenantId, String userId) throws BusinessException {
         try {
             List<UserRole> result = authDao.getUserRoles(tenantId, userId);
+
             return result;
         } catch (Exception e) {
             log.error(e.getMessage(), e);

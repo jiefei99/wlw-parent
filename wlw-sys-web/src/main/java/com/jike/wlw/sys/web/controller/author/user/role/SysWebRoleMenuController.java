@@ -5,9 +5,8 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.author.AuthFilter;
 import com.jike.wlw.service.author.auth.RolePermissionMenu;
-import com.jike.wlw.service.author.user.role.RoleMenu;
 import com.jike.wlw.service.author.user.role.RoleMenuCreateRq;
-import com.jike.wlw.sys.web.config.fegin.RoleMenuFeignClient;
+import com.jike.wlw.sys.web.config.fegin.RolePermissionMenuFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,7 +22,7 @@ import org.springframework.web.bind.annotation.*;
 public class SysWebRoleMenuController extends BaseController {
 
     @Autowired
-    private RoleMenuFeignClient roleMenuFeignClient;
+    private RolePermissionMenuFeignClient roleMenuFeignClient;
 
     @ApiOperation(value = "保存角色权限菜单")
     @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
