@@ -33,7 +33,6 @@ import java.util.List;
 @Slf4j
 @RestController
 @ApiModel("用户服务实现")
-@RequestMapping(value = "service/user", produces = "application/json;charset=utf-8")
 public class UserServiceImpl implements UserService {
 
     @Autowired

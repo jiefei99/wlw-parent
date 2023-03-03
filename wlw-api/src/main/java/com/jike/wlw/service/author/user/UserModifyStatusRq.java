@@ -1,4 +1,4 @@
-package com.jike.wlw.service.author.user.employee;
+package com.jike.wlw.service.author.user;
 
 import com.geeker123.rumba.commons.base.FreezeStatus;
 import com.geeker123.rumba.jpa.api.entity.Entity;
@@ -17,12 +17,12 @@ import lombok.Setter;
 @Setter
 @Getter
 @ApiModel("修改用户状态")
-public class EmployeeModifyStatusRq extends Entity {
+public class UserModifyStatusRq extends Entity {
     private static final long serialVersionUID = -2931046691475903314L;
 
     @ApiModelProperty("用户ID")
-    private String id;
-    @ApiModelProperty("姓名")
+    private String userId;
+    @ApiModelProperty("状态")
     private FreezeStatus status;
 }
 

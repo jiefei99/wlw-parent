@@ -65,26 +65,24 @@ public class WebLoginController extends BaseController {
 //            String userId = loginFeignClient.accountLogin(getTenantId(),loginCredentials);
 
             // 发放token
-//            Employee employee = employeeFeignClient.get(getTenantId(), userId);
-            Employee employee=new Employee();
-            employee.setTenantId("123");
-            employee.setLoginId("admin");
-            employee.setAdmin(true);
-            employee.setPassword("123456");
+            //todo 负载均衡有问题
+            Employee employee = employeeFeignClient.get(getTenantId(), "3111");
+//            Employee employee=new Employee();
+//            employee.setUserId("3111");
             if (employee == null) {
                 return ActionResult.fail("用户信息不存在");
             }
 
             TokenData tokenData = new TokenData();
             tokenData.put(Constants.Field.USER_TYPE, UserType.MEMBER.name());
-//            tokenData.put(Constants.Field.USER_UUID, userId);
+            tokenData.put(Constants.Field.USER_ID, employee.getUserId());
             tokenData.put(Constants.Field.USER, JsonUtil.objectToJson(employee));
             String token = tokenService.issueToken(tokenData);
 
             tokenService.createCookie(getRequest(), getResponse(), token);
 
             // 记住账号
-            Cookie cookie = new Cookie("userId", employee.getUuid());
+            Cookie cookie = new Cookie("userId", employee.getUserId());
             cookie.setPath("/");
             cookie.setMaxAge(7 * 24 * 60);
             getResponse().addCookie(cookie);

@@ -16,7 +16,7 @@ public class EmployeeModifyRq extends Entity {
     private static final long serialVersionUID = -2931046691475903014L;
 
     @ApiModelProperty("用户ID")
-    private String id;
+    private String userId;
     @ApiModelProperty("姓名")
     private String name;
     @ApiModelProperty("手机号")

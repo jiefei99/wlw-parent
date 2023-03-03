@@ -3,11 +3,13 @@ package com.jike.wlw.sys.web.controller.author.user;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.base.FreezeStatus;
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.geeker123.rumba.commons.lang.Assert;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.common.IdRequest;
 import com.jike.wlw.service.author.user.User;
 import com.jike.wlw.service.author.user.UserFilter;
 import com.jike.wlw.service.author.user.UserModifyRq;
+import com.jike.wlw.service.author.user.UserModifyStatusRq;
 import com.jike.wlw.sys.web.config.fegin.UserFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import com.jike.wlw.sys.web.sso.AppContext;
@@ -15,6 +17,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -129,6 +132,28 @@ public class SysWebUserController extends BaseController {
             //调用base的重置账号密码
 
 //            loginFeignClient.reset(modifyRq);
+            return ActionResult.ok();
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation("修改账号状态")
+    @RequestMapping(value = "/modifyStatus", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<Void> modifyStatus(@ApiParam("修改密码信息") @RequestBody UserModifyStatusRq modifyStatusRq) throws BusinessException {
+        try {
+            Assert.assertArgumentNotNull(modifyStatusRq, "modifyStatusRq");
+            if (StringUtils.isBlank(modifyStatusRq.getUserId())){
+                throw new BusinessException("用户id不能为空");
+            }
+            if (modifyStatusRq.getStatus()==null){
+                throw new BusinessException("用户状态修改不能为空");
+            }
+            UserModifyRq modifyRq = new UserModifyRq();
+            modifyRq.setUserId(modifyStatusRq.getUserId());
+            modifyRq.setStatus(modifyStatusRq.getStatus());
+            userFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);

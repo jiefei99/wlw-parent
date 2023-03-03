@@ -11,7 +11,7 @@ import com.jike.wlw.service.author.user.employee.Employee;
 import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
-import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
+import com.jike.wlw.service.author.user.UserModifyStatusRq;
 import com.jike.wlw.sys.web.config.fegin.EmployeeFeignClient;
 import com.jike.wlw.sys.web.config.fegin.LoginFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
@@ -39,9 +39,9 @@ public class SysWebEmployeeController extends BaseController {
     @ApiOperation(value = "获取指定的员工信息")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Employee> get(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id) throws Exception {
+    public ActionResult<Employee> get(@ApiParam(required = true, value = "userId") @RequestParam(value = "userId") String userId) throws Exception {
         try {
-            Employee result = employeeFeignClient.get(getTenantId(), id);
+            Employee result = employeeFeignClient.get(getTenantId(), userId);
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -53,7 +53,7 @@ public class SysWebEmployeeController extends BaseController {
     @ResponseBody
     public ActionResult<Employee> getCurrentUserEmployee() throws Exception {
         try {
-            Employee result = employeeFeignClient.getEmployeeByUserId(getTenantId(), getUserId());
+            Employee result = get(getUserId()).getData();
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -140,25 +140,6 @@ public class SysWebEmployeeController extends BaseController {
             filter.setAdminEq(false);
             PagingResult<Employee> result = employeeFeignClient.query(getTenantId(), filter);
             return ActionResult.ok(result);
-        } catch (Exception e) {
-            return dealWithError(e);
-        }
-    }
-
-    @ApiOperation("修改账号状态")
-    @RequestMapping(value = "/modifyStatus", method = RequestMethod.POST)
-    @ResponseBody
-    ActionResult<Void> modifyStatus(@ApiParam("修改密码信息") @RequestBody EmployeeModifyStatusRq modifyStatusRq) throws BusinessException {
-        try {
-            Assert.assertArgumentNotNull(modifyStatusRq, "modifyStatusRq");
-            if (StringUtils.isBlank(modifyStatusRq.getId())){
-                throw new BusinessException("用户id不能为空");
-            }
-            if (modifyStatusRq.getStatus()==null){
-                throw new BusinessException("用户状态修改不能为空");
-            }
-            employeeFeignClient.modifyStatus(getTenantId(), modifyStatusRq, AppContext.getContext().getUserName());
-            return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
         }

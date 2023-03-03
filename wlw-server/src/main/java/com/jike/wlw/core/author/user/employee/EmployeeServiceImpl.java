@@ -26,7 +26,7 @@ import com.jike.wlw.service.author.user.employee.EmployeeCreateAdminRq;
 import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
-import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
+import com.jike.wlw.service.author.user.UserModifyStatusRq;
 import com.jike.wlw.service.author.user.employee.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +50,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "service/employee", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "service/employee")
 public class EmployeeServiceImpl extends BaseService implements EmployeeService {
     public static final long AGENT_DEFAULT_DEPT_ID = 1;
     public static final long AGENT_DEFAULT_ROLE_ID = 2;
@@ -61,13 +61,13 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     private AccountUserDao userDao;
     @Autowired
     private UserService userService;
-    @Autowired
+    @Autowired(required = false)
     private RemoteUserService remoteUserService;
 
     @Override
-    public Employee get(String tenantId, String id) throws BusinessException {
+    public Employee get(String tenantId, String userId) throws BusinessException {
         try {
-            PEmployee perz = employeeDao.get(PEmployee.class, "uuid", id, "tenantId", tenantId, "isDeleted", 0);
+            PEmployee perz = employeeDao.get(PEmployee.class, "userId", userId, "tenantId", tenantId, "isDeleted", 0);
             if (perz == null) {
                 return null;
             }
@@ -178,11 +178,11 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     @Override
     public void modify(String tenantId, EmployeeModifyRq modifyRq, String operator) throws BusinessException {
         try {
-            if (StringUtil.isNullOrBlank(modifyRq.getId())) {
+            if (StringUtil.isNullOrBlank(modifyRq.getUserId())) {
                 throw new BusinessException("员工的用户id不可为空");
             }
 
-            PEmployee perz = employeeDao.get(PEmployee.class, "uuid",modifyRq.getId(),"tenantId", tenantId, "isDeleted",0);
+            PEmployee perz = employeeDao.get(PEmployee.class, "userId",modifyRq.getUserId(),"tenantId", tenantId, "isDeleted",0);
             if (perz == null) {
                 throw new BusinessException("员工不存在");
             }
@@ -201,12 +201,12 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     }
 
     @Override
-    public void modifyStatus(String tenantId, EmployeeModifyStatusRq modifyStatusRq, String operator) throws BusinessException {
+    public void modifyStatus(String tenantId, UserModifyStatusRq modifyStatusRq, String operator) throws BusinessException {
         try {
-            if (StringUtil.isNullOrBlank(modifyStatusRq.getId())) {
+            if (StringUtil.isNullOrBlank(modifyStatusRq.getUserId())) {
                 throw new BusinessException("员工的用户id不可为空");
             }
-            PEmployee perz = employeeDao.get(PEmployee.class, "uuid",modifyStatusRq.getId(),"tenantId", tenantId, "isDeleted",0);
+            PEmployee perz = employeeDao.get(PEmployee.class, "userId",modifyStatusRq.getUserId(),"tenantId", tenantId, "isDeleted",0);
             if (perz == null) {
                 throw new BusinessException("员工不存在");
             }
