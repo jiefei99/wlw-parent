@@ -7,7 +7,12 @@ import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.author.user.role.PRoleMenu;
 import com.jike.wlw.service.author.AuthFilter;
 import com.jike.wlw.service.author.auth.RolePermissionMenu;
+import com.jike.wlw.service.author.auth.RolePermissionMenuCreateRq;
 import com.jike.wlw.service.author.user.role.*;
+import com.jike.wlw.service.operation.log.OperationLog;
+import com.jike.wlw.service.operation.log.OperationLogService;
+import com.jike.wlw.service.operation.log.OperationType;
+import com.jike.wlw.service.operation.log.item.RolePermissionMenuOperationLogItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Slf4j
@@ -27,9 +33,11 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
     private RolePermissionMenuDao rolePermissionMenuDao;
     @Autowired
     private RoleService roleService;
+    @Autowired
+    private OperationLogService operationLogService;
 
     @Override
-    public void saveRolePermissionMenus(String tenantId, RoleMenuCreateRq createRq) throws BusinessException {
+    public void saveRolePermissionMenus(String tenantId, RolePermissionMenuCreateRq createRq) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getRoleId())) {
                 throw new BusinessException("角色id不能为空");
@@ -40,15 +48,26 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
                 }
             }
 
+            // 查询旧权限，保存操作日志需要
+            AuthFilter authFilter = new AuthFilter();
+            authFilter.setRoleIdEq(createRq.getRoleId());
+            List<PRolePermissionMenu> rolePermissionMenuList = rolePermissionMenuDao.query(authFilter);
+
+            List<RolePermissionMenu> oldRolePermissionMenuList = new ArrayList<>();
+            for (PRolePermissionMenu perz : rolePermissionMenuList) {
+                RolePermissionMenu rolePermissionMenu = convert(perz);
+                oldRolePermissionMenuList.add(rolePermissionMenu);
+            }
+
             //删除该角色之前的所有权限
             rolePermissionMenuDao.deleteByRoleId(createRq.getRoleId());
 
             //如果权限菜单配置不为空，保存配置，如果为空，就不再保存
             if (!CollectionUtils.isEmpty(createRq.getRoleMenuList())) {
-                List<PRoleMenu> perzList = new ArrayList<>();
-                for (RoleMenu roleMenu : createRq.getRoleMenuList()) {
-                    PRoleMenu perz = new PRoleMenu();
-                    BeanUtils.copyProperties(roleMenu, perz);
+                List<PRolePermissionMenu> perzList = new ArrayList<>();
+                for (RolePermissionMenu rolePermissionMenu : createRq.getRoleMenuList()) {
+                    PRolePermissionMenu perz = new PRolePermissionMenu();
+                    BeanUtils.copyProperties(rolePermissionMenu, perz);
                     perz.setTenantId(tenantId);
                     perzList.add(perz);
                 }
@@ -56,6 +75,16 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
                 rolePermissionMenuDao.save(perzList);
             }
 
+            // 保存操作日志
+            OperationLog operationLog = new OperationLog();
+            operationLog.setType(OperationType.ROLE_PERMISSION_MENU);
+            operationLog.setUserId(createRq.getUserId());
+            operationLog.setRelationId(createRq.getRoleId());
+            operationLog.setContent("角色权限菜单更新");
+            RolePermissionMenuOperationLogItem item = new RolePermissionMenuOperationLogItem();
+            item.setRolePermissionMenuList(createRq.getRoleMenuList());
+            operationLog.setRolePermissionMenuOperationLogItemList(Arrays.asList(item));
+            operationLogService.create(operationLog, "保存角色权限菜单", tenantId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -82,5 +111,15 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * P对象转换为A对象
+     */
+    private RolePermissionMenu convert(PRolePermissionMenu perz) {
+        RolePermissionMenu roleMenu = new RolePermissionMenu();
+        BeanUtils.copyProperties(perz, roleMenu);
+
+        return roleMenu;
     }
 }

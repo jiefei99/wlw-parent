@@ -27,6 +27,10 @@ import com.jike.wlw.service.author.user.employee.EmployeeService;
 import com.jike.wlw.service.author.user.role.Role;
 import com.jike.wlw.service.author.user.role.RoleFilter;
 import com.jike.wlw.service.author.user.role.UserRole;
+import com.jike.wlw.service.operation.log.OperationLog;
+import com.jike.wlw.service.operation.log.OperationLogService;
+import com.jike.wlw.service.operation.log.OperationType;
+import com.jike.wlw.service.operation.log.item.RoleUserOperationLogItem;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +38,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.nio.file.OpenOption;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +58,8 @@ public class AuthServiceImpl extends BaseService implements AuthService {
     private AuthDao authDao;
     @Autowired
     private EmployeeService employeeService;
+    @Autowired
+    private OperationLogService operationLogService;
 
     @TX
     @Override
@@ -111,7 +118,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
     @TX
     @Override
-    public void saveUsersRole(String tenantId, String userIdsJson, String roleId) throws BusinessException {
+    public void saveUsersRole(String tenantId, String userIdsJson, String roleId, String userId) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(tenantId)) {
                 throw new BusinessException("租户Id不能为空");
@@ -142,15 +149,31 @@ public class AuthServiceImpl extends BaseService implements AuthService {
             }
 
             List<PUserRole> result = new ArrayList<>();
-            for (String userId : userIds) {
+            for (String id : userIds) {
                 PUserRole perz = new PUserRole();
                 perz.setRoleId(roleId);
-                perz.setUserId(userId);
+                perz.setUserId(id);
 
                 result.add(perz);
             }
 
             authDao.save(result);
+
+            // 保存角色用户操作日志
+            OperationLog operationLog = new OperationLog();
+            operationLog.setType(OperationType.ROLE_USER);
+            operationLog.setUserId(userId);
+            operationLog.setRelationId(roleId);
+            operationLog.setContent("新增角色用户");
+            // 明细
+            List<RoleUserOperationLogItem> itemList = new ArrayList<>();
+            for (String id : userIds) {
+                RoleUserOperationLogItem item = new RoleUserOperationLogItem();
+                item.setUserId(id);
+                itemList.add(item);
+            }
+            operationLog.setRoleUserOperationLogItemList(itemList);
+            operationLogService.create(operationLog, "通过用户列表保存用户角色", tenantId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -213,7 +236,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
     @TX
     @Override
-    public void removeUsersRole(String tenantId, String userIdsJson, String roleId) throws BusinessException {
+    public void removeUsersRole(String tenantId, String userIdsJson, String roleId, String userId) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(tenantId)) {
                 throw new BusinessException("租户Id不能为空");
@@ -227,6 +250,22 @@ public class AuthServiceImpl extends BaseService implements AuthService {
             List<String> userIds = JsonUtil.jsonToArrayList(userIdsJson, String.class);
 
             authDao.batchRemoveUserRole(roleId, userIds);
+
+            // 删除角色用户操作日志
+            OperationLog operationLog = new OperationLog();
+            operationLog.setType(OperationType.ROLE_USER);
+            operationLog.setUserId(userId);
+            operationLog.setRelationId(roleId);
+            operationLog.setContent("删除角色用户");
+            // 明细
+            List<RoleUserOperationLogItem> itemList = new ArrayList<>();
+            for (String id : userIds) {
+                RoleUserOperationLogItem item = new RoleUserOperationLogItem();
+                item.setUserId(id);
+                itemList.add(item);
+            }
+            operationLog.setRoleUserOperationLogItemList(itemList);
+            operationLogService.create(operationLog, "通过用户列表删除用户角色", tenantId);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);

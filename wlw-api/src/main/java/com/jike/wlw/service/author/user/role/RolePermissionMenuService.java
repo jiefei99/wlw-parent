@@ -13,6 +13,7 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.author.AuthFilter;
 import com.jike.wlw.service.author.auth.RolePermissionMenu;
+import com.jike.wlw.service.author.auth.RolePermissionMenuCreateRq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -34,7 +35,7 @@ public interface RolePermissionMenuService {
     @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
     void saveRolePermissionMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                       @ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException;
+                       @ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq) throws BusinessException;
 
     @ApiOperation(value = "根据条件查询角色权限菜单")
     @RequestMapping(value = "/query", method = RequestMethod.POST)

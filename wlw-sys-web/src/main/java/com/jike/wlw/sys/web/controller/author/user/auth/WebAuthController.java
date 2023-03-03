@@ -87,7 +87,7 @@ public class WebAuthController extends BaseController {
     public ActionResult<Void> saveUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
                                             @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException {
         try {
-            authFeignClient.saveUsersRole(getTenantId(), userIdsJson, roleId);
+            authFeignClient.saveUsersRole(getTenantId(), userIdsJson, roleId, getUserId());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -115,7 +115,7 @@ public class WebAuthController extends BaseController {
     public ActionResult<Void> removeUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
                                               @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException {
         try {
-            authFeignClient.removeUsersRole(getTenantId(), userIdsJson, roleId);
+            authFeignClient.removeUsersRole(getTenantId(), userIdsJson, roleId, getUserId());
 
             return ActionResult.ok();
         } catch (Exception e) {
