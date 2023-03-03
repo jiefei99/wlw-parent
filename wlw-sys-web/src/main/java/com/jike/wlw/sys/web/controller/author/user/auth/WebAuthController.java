@@ -149,6 +149,19 @@ public class WebAuthController extends BaseController {
         }
     }
 
+    @ApiOperation(value = "根据条件查询角色的用户")
+    @RequestMapping(value = "/query", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<PagingResult<UserRole>> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException {
+        try {
+            PagingResult<UserRole> result = authFeignClient.query(getTenantId(), filter);
+
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
     @ApiOperation(value = "获取用户权限")
     @RequestMapping(value = "/getUserPermission", method = RequestMethod.GET)
     @ResponseBody
