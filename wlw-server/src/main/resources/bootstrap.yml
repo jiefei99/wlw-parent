@@ -7,12 +7,13 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_HOST:base-register}:${NACOS_PORT:8848}
+        group: SFJ
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         file-extension: yml
-#        shared-configs[0]:
-#          data-id: application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
-#          refresh: true
+        shared-configs[0]:
+          data-id: application-${spring.profiles.active}.${spring.cloud.nacos.config.file-extension}
+          refresh: true
   profiles:
     active: dev
 

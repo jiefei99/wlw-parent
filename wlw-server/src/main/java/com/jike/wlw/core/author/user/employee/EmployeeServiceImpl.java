@@ -50,7 +50,6 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "service/employee")
 public class EmployeeServiceImpl extends BaseService implements EmployeeService {
     public static final long AGENT_DEFAULT_DEPT_ID = 1;
     public static final long AGENT_DEFAULT_ROLE_ID = 2;

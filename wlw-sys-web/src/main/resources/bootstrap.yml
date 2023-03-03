@@ -7,6 +7,7 @@ spring:
     nacos:
       discovery:
         server-addr: ${NACOS_HOST:base-register}:${NACOS_PORT:8848}
+        group: SFJ
       config:
         server-addr: ${spring.cloud.nacos.discovery.server-addr}
         file-extension: yml

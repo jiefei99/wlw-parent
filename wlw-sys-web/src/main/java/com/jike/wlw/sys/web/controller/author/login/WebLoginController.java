@@ -99,6 +99,9 @@ public class WebLoginController extends BaseController {
     ActionResult<Void> login() {
         try {
             tokenService.removeCookie(getRequest(), getResponse());
+
+            employeeFeignClient.get("","");
+
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);

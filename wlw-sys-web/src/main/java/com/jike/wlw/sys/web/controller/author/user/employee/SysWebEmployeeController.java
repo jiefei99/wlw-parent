@@ -53,6 +53,8 @@ public class SysWebEmployeeController extends BaseController {
     @ResponseBody
     public ActionResult<Employee> getCurrentUserEmployee() throws Exception {
         try {
+
+            String version = getRequest().getHeader("VERSION");
             Employee result = get(getUserId()).getData();
             return ActionResult.ok(result);
         } catch (Exception e) {
