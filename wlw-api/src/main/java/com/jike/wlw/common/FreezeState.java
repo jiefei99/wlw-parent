@@ -10,8 +10,8 @@ import io.swagger.annotations.ApiModel;
  */
 @ApiModel("冻结状态")
 public enum FreezeState {
-    normal("正常"),
-    freezed("已冻结");
+    NORMAL("正常"),
+    FREEZED("已冻结");
 
     private String caption;
 

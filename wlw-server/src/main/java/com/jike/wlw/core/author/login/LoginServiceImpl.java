@@ -54,7 +54,7 @@ public class LoginServiceImpl extends BaseService implements LoginService {
             if (user == null || !verifyCredential(user, credentials)) {
                 throw new BusinessException("账号或密码不正确");
             }
-            if (FreezeState.freezed.name().equals(user.getState())) {
+            if (FreezeState.FREEZED.name().equals(user.getState())) {
                 throw new BusinessException("您的账号已被冻结，请联系管理员");
             }
 
@@ -108,7 +108,7 @@ public class LoginServiceImpl extends BaseService implements LoginService {
             PAccountUser perz = accountUsers.get(0);
 
             perz.onModified(operator);
-            perz.setState(FreezeState.freezed.name());
+            perz.setState(FreezeState.FREEZED.name());
 
             accountUserDao.save(perz);
 
@@ -132,7 +132,7 @@ public class LoginServiceImpl extends BaseService implements LoginService {
             PAccountUser perz = accountUsers.get(0);
 
             perz.onModified(operator);
-            perz.setState(FreezeState.normal.name());
+            perz.setState(FreezeState.NORMAL.name());
 
             accountUserDao.save(perz);
 

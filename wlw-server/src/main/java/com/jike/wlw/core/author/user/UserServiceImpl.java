@@ -104,13 +104,10 @@ public class UserServiceImpl implements UserService {
             Assert.assertArgumentNotNull(modifyRq, "modifyRq");
             Assert.assertArgumentNotNullOrBlank(operator, "operator");
 
-            if (StringUtil.isNullOrBlank(modifyRq.getUuid())) {
+            if (StringUtil.isNullOrBlank(modifyRq.getUserId())) {
                 throw new BusinessException("用户UUID不能为空");
             }
-            if (StringUtil.isNullOrBlank(modifyRq.getMobile())) {
-                throw new BusinessException("用户手机号不能为空");
-            }
-            PUser perz = userDao.get(PUser.class, "uuid", modifyRq.getUuid(), "tenantId", tenantId,"isDeleted",0);
+            PUser perz = userDao.get(PUser.class, "uuid", modifyRq.getUserId(), "tenantId", tenantId,"isDeleted",0);
             if (perz == null) {
                 throw new BusinessException("该用户不存在或已删除");
             }

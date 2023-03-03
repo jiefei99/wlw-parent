@@ -214,7 +214,7 @@ public class AuthDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(userId)) {
             sql = "select o.*,r.name as roleName from " + PUserRole.TABLE_NAME + " o left Join " + PRole.TABLE_NAME + " r on r.uuid = o.roleId and r.tenantId = o.tenantId where r.tenantId = ?" + " having o.userId = ? ";
 
-            result = jdbcTemplate.query(sql, new Object[]{userId, tenantId}, new BeanPropertyRowMapper<>(UserRole.class));
+            result = jdbcTemplate.query(sql, new Object[]{tenantId, userId}, new BeanPropertyRowMapper<>(UserRole.class));
         } else {
             sql = "select * from " + PRole.TABLE_NAME;
 

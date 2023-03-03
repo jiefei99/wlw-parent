@@ -12,6 +12,7 @@ import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
 import com.jike.wlw.service.author.user.UserModifyStatusRq;
+import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
 import com.jike.wlw.sys.web.config.fegin.EmployeeFeignClient;
 import com.jike.wlw.sys.web.config.fegin.LoginFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
@@ -136,9 +137,9 @@ public class SysWebEmployeeController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<Employee>> query(@ApiParam(required = true, value = "查询条件") @RequestBody EmployeeFilter filter) throws BusinessException {
         try {
-            if (filter.getAdminEq()){
-                throw new BusinessException("此接口不适用于查询管理员");
-            }
+//            if (filter.getAdminEq()==true){
+//                throw new BusinessException("此接口不适用于查询管理员");
+//            }
             filter.setAdminEq(false);
             PagingResult<Employee> result = employeeFeignClient.query(getTenantId(), filter);
             return ActionResult.ok(result);

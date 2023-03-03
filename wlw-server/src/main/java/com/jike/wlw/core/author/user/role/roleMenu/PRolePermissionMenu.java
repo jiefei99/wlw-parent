@@ -23,6 +23,8 @@ public class PRolePermissionMenu extends PEntity implements JdbcEntity {
     private String roleId;
     @ApiModelProperty("权限ID")
     private String permissionId;
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("应用ID")
     private String appId;
 

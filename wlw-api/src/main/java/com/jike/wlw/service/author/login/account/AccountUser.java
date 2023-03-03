@@ -43,7 +43,7 @@ public class AccountUser extends StandardEntity {
   @ApiModelProperty("性别")
   private String sex;
   @ApiModelProperty("账号状态")
-  private FreezeState state = FreezeState.normal;
+  private FreezeState state = FreezeState.NORMAL;
 
   @ApiModelProperty("登录账号")
   private String loginId;
