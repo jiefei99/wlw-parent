@@ -55,7 +55,7 @@ public interface EmployeeService {
     @RequestMapping(value = "/modifyStatus", method = RequestMethod.POST)
     @ResponseBody
     void modifyStatus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "修改用户请求参数") @RequestBody UserModifyStatusRq modifyStatusRq,
+                @ApiParam(required = true, value = "修改用户请求参数") @RequestBody EmployeeModifyStatusRq modifyStatusRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询所有员工")

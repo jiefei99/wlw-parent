@@ -42,7 +42,7 @@ public class EmployeeDao extends BaseDao {
 //                    .p("keywords", "%" + filter.getKeywords() + "%");
 //        }
         if (!StringUtil.isNullOrBlank(filter.getKeywords())) {
-            q.where("(o.userId in (select u.uuid from " + PUser.TABLE_NAME + " u where CONCAT(IFNULL(u.name,''),'&&&',IFNULL(u.mobile,''),'&&&',IFNULL(u.uuid,'')) ))")
+            q.where("(o.userId in (select u.uuid from " + PUser.TABLE_NAME + " u where CONCAT(IFNULL(u.name,''),'&&&',IFNULL(u.mobile,''),'&&&',IFNULL(u.uuid,'')) like :keywords and u.isDeleted=0 ))")
                     .p("keywords", "%" + filter.getKeywords() + "%");
         }
 

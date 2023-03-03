@@ -27,6 +27,7 @@ import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
 import com.jike.wlw.service.author.user.UserModifyStatusRq;
+import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
 import com.jike.wlw.service.author.user.employee.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,7 @@ import java.util.stream.Collectors;
  */
 @Slf4j
 @RestController
-@RequestMapping(value = "service/employee")
+@RequestMapping(value = "service/employee", produces = "application/json;charset=utf-8")
 public class EmployeeServiceImpl extends BaseService implements EmployeeService {
     public static final long AGENT_DEFAULT_DEPT_ID = 1;
     public static final long AGENT_DEFAULT_ROLE_ID = 2;
@@ -201,7 +202,7 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     }
 
     @Override
-    public void modifyStatus(String tenantId, UserModifyStatusRq modifyStatusRq, String operator) throws BusinessException {
+    public void modifyStatus(String tenantId, EmployeeModifyStatusRq modifyStatusRq, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(modifyStatusRq.getUserId())) {
                 throw new BusinessException("员工的用户id不可为空");

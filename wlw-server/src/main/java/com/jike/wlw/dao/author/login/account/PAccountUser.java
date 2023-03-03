@@ -41,7 +41,7 @@ public class PAccountUser extends PStandardEntity implements JdbcEntity {
     @ApiModelProperty("性别")
     private String sex;
     @ApiModelProperty("账号状态")
-    private String state = FreezeState.normal.name();
+    private String state = FreezeState.NORMAL.name();
 
     @ApiModelProperty("登录账号")
     private String loginId;
