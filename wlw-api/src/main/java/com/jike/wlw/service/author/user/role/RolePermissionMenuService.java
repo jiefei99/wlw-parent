@@ -34,13 +34,13 @@ public interface RolePermissionMenuService {
     @ApiOperation(value = "保存角色权限菜单")
     @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
-    void saveRolePermissionMenus(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                       @ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq) throws BusinessException;
+    void saveRolePermissionMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq,
+                                 @ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId) throws BusinessException;
 
     @ApiOperation(value = "根据条件查询角色权限菜单")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<RolePermissionMenu> query(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
-                                           @ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException;
+    PagingResult<RolePermissionMenu> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter,
+                                           @ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId) throws BusinessException;
 
 }

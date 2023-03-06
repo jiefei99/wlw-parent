@@ -405,13 +405,13 @@ public class OperationLogServiceImpl implements OperationLogService {
 
         // 获取操作人信息
         EmployeeFilter employeeFilter = new EmployeeFilter();
-        employeeFilter.setIdIn(employeeIds);
+        employeeFilter.setUserIdIn(employeeIds);
         List<Employee> employeeList = employeeService.query(tenantId, employeeFilter).getData();
 
         Map<String, Employee> employeeMap = new HashMap<>();
         for (Employee employee : employeeList) {
-            if (!employeeMap.containsKey(employee.getUuid())) {
-                employeeMap.put(employee.getUuid(), employee);
+            if (!employeeMap.containsKey(employee.getUserId())) {
+                employeeMap.put(employee.getUserId(), employee);
             }
         }
         // 设置返回结果

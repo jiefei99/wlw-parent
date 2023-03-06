@@ -26,7 +26,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping(value = "service/roleMenu", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "service/rolePermissionMenu", produces = "application/json;charset=utf-8")
 public class RolePermissionMenuServiceImpl extends BaseService implements RolePermissionMenuService {
 
     @Autowired
@@ -37,7 +37,7 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
     private OperationLogService operationLogService;
 
     @Override
-    public void saveRolePermissionMenus(String tenantId, RolePermissionMenuCreateRq createRq) throws BusinessException {
+    public void saveRolePermissionMenus(RolePermissionMenuCreateRq createRq, String tenantId) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(createRq.getRoleId())) {
                 throw new BusinessException("角色id不能为空");
@@ -51,6 +51,7 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
             // 查询旧权限，保存操作日志需要
             AuthFilter authFilter = new AuthFilter();
             authFilter.setRoleIdEq(createRq.getRoleId());
+            authFilter.setTenantIdEq(tenantId);
             List<PRolePermissionMenu> rolePermissionMenuList = rolePermissionMenuDao.query(authFilter);
 
             List<RolePermissionMenu> oldRolePermissionMenuList = new ArrayList<>();
@@ -92,7 +93,7 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
     }
 
     @Override
-    public PagingResult<RolePermissionMenu> query(String tenantId, AuthFilter filter) throws BusinessException {
+    public PagingResult<RolePermissionMenu> query(AuthFilter filter, String tenantId) throws BusinessException {
         try {
             filter.setTenantIdEq(tenantId);
             List<PRolePermissionMenu> list = rolePermissionMenuDao.query(filter);

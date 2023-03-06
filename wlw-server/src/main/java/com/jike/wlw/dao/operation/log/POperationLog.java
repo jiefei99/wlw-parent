@@ -18,7 +18,7 @@ public class POperationLog extends PStandardEntity implements JdbcEntity  {
 
     private static final long serialVersionUID = 9125217067940776328L;
 
-    public static final String TABLE_NAME = "eguard_operation_log";
+    public static final String TABLE_NAME = "wlw_operation_log";
 
     @ApiModelProperty("操作类型")
     private String type;

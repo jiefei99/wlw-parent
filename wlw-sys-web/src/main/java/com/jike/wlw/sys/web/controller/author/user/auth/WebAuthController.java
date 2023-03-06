@@ -16,6 +16,7 @@ import com.jike.wlw.sys.web.config.fegin.EmployeeFeignClient;
 import com.jike.wlw.sys.web.config.fegin.PermissionFeignClient;
 import com.jike.wlw.sys.web.config.fegin.RolePermissionMenuFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.author.UserRoleRq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -82,12 +83,11 @@ public class WebAuthController extends BaseController {
     }
 
     @ApiOperation(value = "通过用户列表保存用户角色")
-    @RequestMapping(value = "/saveUsersRole", method = RequestMethod.GET)
+    @RequestMapping(value = "/saveUsersRole", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> saveUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
-                                            @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException {
+    public ActionResult<Void> saveUsersRole(@ApiParam(required = true, value = "用户角色请求参数") @RequestBody UserRoleRq userRoleRq) throws BusinessException {
         try {
-            authFeignClient.saveUsersRole(getTenantId(), userIdsJson, roleId, getUserId());
+            authFeignClient.saveUsersRole(getTenantId(), userRoleRq.getUserIdsJson(), userRoleRq.getRoleId(), getUserId());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -110,12 +110,11 @@ public class WebAuthController extends BaseController {
     }
 
     @ApiOperation(value = "通过用户列表删除用户角色")
-    @RequestMapping(value = "/removeUserRole", method = RequestMethod.GET)
+    @RequestMapping(value = "/removeUsersRole", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> removeUsersRole(@ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
-                                              @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException {
+    public ActionResult<Void> removeUsersRole(@ApiParam(required = true, value = "用户角色请求参数") @RequestBody UserRoleRq userRoleRq) throws BusinessException {
         try {
-            authFeignClient.removeUsersRole(getTenantId(), userIdsJson, roleId, getUserId());
+            authFeignClient.removeUsersRole(getTenantId(), userRoleRq.getUserIdsJson(), userRoleRq.getRoleId(), getUserId());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -169,16 +168,15 @@ public class WebAuthController extends BaseController {
         try {
             List<Permission> result = new ArrayList<>();
 
-            List<UserRole> userRoleList = authFeignClient.getUserRoles(getTenantId(), getUserId());
-
             PermissionFilter permissionFilter = new PermissionFilter();
-            if (CollectionUtils.isEmpty(userRoleList)) {
-                Employee employee = employeeFeignClient.get(getTenantId(), getUserId());
-                if (employee.getAdmin()) {
-                    result = permissionFeignClient.query(getTenantId(), permissionFilter).getData();
-                    return ActionResult.ok(result);
-                }
-            } else {
+            Employee employee = employeeFeignClient.get(getTenantId(), getUserId());
+            if (employee.getAdmin()) {
+                result = permissionFeignClient.query(getTenantId(), permissionFilter).getData();
+                return ActionResult.ok(result);
+            }
+
+            List<UserRole> userRoleList = authFeignClient.getUserRoles(getTenantId(), getUserId());
+            if (!CollectionUtils.isEmpty(userRoleList)) {
                 List<String> roleIds = new ArrayList<>();
                 for (UserRole userRole : userRoleList) {
                     roleIds.add(userRole.getRoleId());
@@ -186,7 +184,7 @@ public class WebAuthController extends BaseController {
 
                 AuthFilter authFilter = new AuthFilter();
                 authFilter.setRoleIdIn(roleIds);
-                List<RolePermissionMenu> roleMenuList = roleMenuFeignClient.query(getTenantId(), authFilter).getData();
+                List<RolePermissionMenu> roleMenuList = roleMenuFeignClient.query(authFilter, getTenantId()).getData();
 
                 List<String> permissionIds = new ArrayList<>();
                 for (RolePermissionMenu roleMenu : roleMenuList) {

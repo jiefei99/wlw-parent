@@ -56,17 +56,11 @@ public class EmployeeDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(filter.getTenantIdEq())) {
             q.where("o.tenantId = :tenantIdEq").p("tenantIdEq", filter.getTenantIdEq());
         }
-        if (!StringUtil.isNullOrBlank(filter.getIdEq())) {
-            q.where("o.id = :idEq").p("idEq", filter.getIdEq());
-        }
         if (filter.getAdminEq() != null) {
             q.where("o.admin = :adminEq").p("adminEq", filter.getAdminEq());
         }
         if (!CollectionUtils.isEmpty(filter.getTenentIdIn())) {
             q.where("o.tenantId in (:tenantIdIn)").p("tenantIdIn", filter.getTenentIdIn());
-        }
-        if (!CollectionUtils.isEmpty(filter.getIdIn())) {
-            q.where("o.id in (:idIn)").p("idIn", filter.getIdIn());
         }
         if (!CollectionUtils.isEmpty(filter.getUserIdIn())) {
             q.where("o.userId in (:userIdIn)").p("userIdIn", filter.getUserIdIn());

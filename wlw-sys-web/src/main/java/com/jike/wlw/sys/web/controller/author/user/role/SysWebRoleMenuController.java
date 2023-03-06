@@ -28,9 +28,10 @@ public class SysWebRoleMenuController extends BaseController {
     @ApiOperation(value = "保存角色权限菜单")
     @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> saveRoleMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq) throws BusinessException {
+    public ActionResult<Void> saveRolePermissionMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq) throws BusinessException {
         try {
-            roleMenuFeignClient.saveRolePermissionMenus(getTenantId(), createRq);
+            createRq.setUserId(getUserId());
+            roleMenuFeignClient.saveRolePermissionMenus(createRq, getTenantId());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -43,7 +44,7 @@ public class SysWebRoleMenuController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<RolePermissionMenu>> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException {
         try {
-            PagingResult<RolePermissionMenu> result = roleMenuFeignClient.query(getTenantId(), filter);
+            PagingResult<RolePermissionMenu> result = roleMenuFeignClient.query(filter, getTenantId());
 
             return ActionResult.ok(result);
         } catch (Exception e) {

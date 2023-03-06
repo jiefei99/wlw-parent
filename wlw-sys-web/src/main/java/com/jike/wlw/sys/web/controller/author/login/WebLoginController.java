@@ -66,7 +66,7 @@ public class WebLoginController extends BaseController {
 
             // 发放token
             //todo 负载均衡有问题
-            Employee employee = employeeFeignClient.get(getTenantId(), "3111");
+            Employee employee = employeeFeignClient.get(getTenantId(), "456");
 //            Employee employee=new Employee();
 //            employee.setUserId("3111");
             if (employee == null) {

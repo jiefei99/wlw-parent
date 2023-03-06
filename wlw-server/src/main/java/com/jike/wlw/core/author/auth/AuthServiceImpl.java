@@ -353,8 +353,8 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
         Map<String, Employee> employeeMapper = new HashMap<>();
         for (Employee employee : userList) {
-            if (!employeeMapper.containsKey(employee.getUuid())) {
-                employeeMapper.put(employee.getUuid(), employee);
+            if (!employeeMapper.containsKey(employee.getUserId())) {
+                employeeMapper.put(employee.getUserId(), employee);
             }
         }
 

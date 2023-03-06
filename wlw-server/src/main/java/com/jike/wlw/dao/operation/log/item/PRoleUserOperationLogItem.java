@@ -19,7 +19,7 @@ import lombok.Setter;
 public class PRoleUserOperationLogItem extends PEntity implements JdbcEntity {
     private static final long serialVersionUID = -7763953766327557098L;
 
-    public static final String TABLE_NAME = "eguard_operation_log_item_role_user";
+    public static final String TABLE_NAME = "wlw_operation_log_item_role_user";
 
     @ApiModelProperty("操作日志ID")
     private String operationLogId;

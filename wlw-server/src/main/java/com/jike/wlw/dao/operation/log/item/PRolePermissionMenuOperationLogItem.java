@@ -19,7 +19,7 @@ import lombok.Setter;
 public class PRolePermissionMenuOperationLogItem extends PEntity implements JdbcEntity {
     private static final long serialVersionUID = 7573888371651062717L;
 
-    public static final String TABLE_NAME = "eguard_operation_log_item_role_permission_menu";
+    public static final String TABLE_NAME = "wlw_operation_log_item_role_permission_menu";
 
     @ApiModelProperty("操作日志ID")
     private String operationLogId;
