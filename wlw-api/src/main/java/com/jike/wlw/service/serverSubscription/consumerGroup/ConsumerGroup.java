@@ -27,7 +27,7 @@ public class ConsumerGroup extends StandardEntity {
     private String groupName;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
-//状态
+    //状态
     @ApiModelProperty("消费组的单个客户端堆积消息消费速率")
     private Integer accumulatedConsumeCountPerMinute;  //单位 条/分钟
     @ApiModelProperty("在线客户端Id")

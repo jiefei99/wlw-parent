@@ -5,8 +5,10 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.serverSubscription.consumerGroup.BaseConsumerGroupService;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -40,8 +42,7 @@ public interface PrivateConsumerGroupService extends BaseConsumerGroupService {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
+                @ApiParam(required = true, value = "消费组") @RequestBody ConsumerGroupDeleteRq deleteRq,
                 @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "清空消费组堆积消息")
@@ -61,8 +62,8 @@ public interface PrivateConsumerGroupService extends BaseConsumerGroupService {
     @ApiOperation(value = "获取消费组列表")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<ConsumerGroup> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                                      @ApiParam(required = true, value = "查询消费组请求参数") @RequestBody ConsumerGroupFilter filter) throws BusinessException;
+    PagingResult<ConsumerGroupVO> query(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                        @ApiParam(required = true, value = "查询消费组请求参数") @RequestBody ConsumerGroupFilter filter) throws BusinessException;
 
     @ApiOperation(value = "获取消费组状态")
     @RequestMapping(value = "/queryConsumerGroupStatus", method = RequestMethod.GET)

@@ -12,19 +12,23 @@ import com.aliyun.iot20180120.models.ResetConsumerGroupPositionResponse;
 import com.aliyun.iot20180120.models.UpdateConsumerGroupResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.serverSubscription.consumerGroup.ali.iot.ConsumerGroupManager;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ali.AliConsumerGroupService;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -41,6 +45,7 @@ import java.util.List;
 @Slf4j
 @RestController("ConsumerGroupServiceAliImpl")
 @ApiModel("阿里消费组实现")
+@RequestMapping(value = "service/aliConsumerGroup", produces = "application/json;charset=utf-8")
 public class AliConsumerGroupServiceImpl extends BaseService implements AliConsumerGroupService {
 
     @Autowired
@@ -49,7 +54,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public String create(String tenantId, ConsumerGroupCreateRq createRq, String operator) {
         try {
-            if (StringUtils.isBlank(createRq.getGroupName())) {
+            if (StringUtils.isBlank(createRq.getName())) {
                 throw new IllegalAccessException("新建消费组名称不能为空");
             }
             CreateConsumerGroupResponse response = consumerGroup.createConsumerGroup(createRq);
@@ -66,10 +71,10 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     @Override
     public void modify(String tenantId, ConsumerGroupModifyRq modifyRq, String operator) {
         try {
-            if (StringUtils.isBlank(modifyRq.getGroupId())) {
+            if (StringUtils.isBlank(modifyRq.getId())) {
                 throw new IllegalAccessException("消费组ID不能为空");
             }
-            if (StringUtils.isBlank(modifyRq.getGroupName())) {
+            if (StringUtils.isBlank(modifyRq.getName())) {
                 throw new IllegalAccessException("新消费组名称不能为空");
             }
             UpdateConsumerGroupResponse response = consumerGroup.updateConsumerGroup(modifyRq);
@@ -103,22 +108,22 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     }
 
     @Override
-    public PagingResult<ConsumerGroup> query(String tenantId, ConsumerGroupFilter filter) {
+    public PagingResult<ConsumerGroupVO> query(String tenantId, ConsumerGroupFilter filter) {
         try {
             QueryConsumerGroupListResponse response = consumerGroup.queryConsumerGroupList(filter);
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("获取消费组列表失败：" + response.getBody().getErrorMessage());
             }
-            List<ConsumerGroup> consumerGroupList = new ArrayList<>();
-            if (response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getConsumerGroupDTO())) {
+            List<ConsumerGroupVO> consumerGroupList = new ArrayList<>();
+            if (response.getBody().getData() == null || response.getBody().getData().getConsumerGroupDTO() ==null || CollectionUtils.isEmpty(response.getBody().getData().getConsumerGroupDTO())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), consumerGroupList);
             }
             for (QueryConsumerGroupListResponseBodyDataConsumerGroupDTO info : response.getBody().getData().getConsumerGroupDTO()) {
-                ConsumerGroup consumerGroup = new ConsumerGroup();
-                consumerGroup.setGroupId(info.getGroupId());
-                consumerGroup.setGroupName(info.getGroupName());
-                consumerGroup.setCreated(new Date(info.getCreateTime()));
-                consumerGroupList.add(consumerGroup);
+                ConsumerGroupVO consumerGroupVO = new ConsumerGroupVO();
+                consumerGroupVO.setId(info.getGroupId());
+                consumerGroupVO.setName(info.getGroupName());
+                consumerGroupVO.setCreated(DateUtils.dealDateFormat(info.getCreateTime()));
+                consumerGroupList.add(consumerGroupVO);
             }
             return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), consumerGroupList);
         } catch (Exception e) {
@@ -138,7 +143,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 throw new BusinessException("获取消费组状态失败：" + response.getBody().getErrorMessage());
             }
             List<ConsumerGroup> consumerGroupList = new ArrayList<>();
-            if (response.getBody().getClientConnectionStatusList() == null || CollectionUtils.isEmpty(response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())) {
+            if (response.getBody().getClientConnectionStatusList() == null || response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo()==null || CollectionUtils.isEmpty(response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())) {
                 return consumerGroupList;
             }
             for (QueryConsumerGroupStatusResponseBodyClientConnectionStatusListConsumerGroupClientConnectionInfo info : response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo()) {
@@ -176,12 +181,12 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     }
 
     @Override
-    public void delete(String tenantId, String groupId, String iotInstanceId, String operator) {
+    public void delete(String tenantId, ConsumerGroupDeleteRq deleteRq, String operator) {
         try {
-            if (StringUtils.isBlank(groupId)) {
+            if (StringUtils.isBlank(deleteRq.getId())) {
                 throw new IllegalAccessException("消费组ID不能为空");
             }
-            DeleteConsumerGroupResponse response = consumerGroup.deleteConsumerGroup(groupId, iotInstanceId);
+            DeleteConsumerGroupResponse response = consumerGroup.deleteConsumerGroup(deleteRq.getId(), deleteRq.getIotInstanceId());
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("删除消费组失败：" + response.getBody().getErrorMessage());
             }

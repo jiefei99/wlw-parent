@@ -22,7 +22,7 @@ public class ConsumerGroupCreateRq extends Entity implements Serializable {
     private static final long serialVersionUID = -7698859554276354116L;
 
     @ApiModelProperty("名称")
-    private String groupName;
+    private String name;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
 }

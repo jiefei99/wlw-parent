@@ -1,6 +1,7 @@
 package com.jike.wlw.service.serverSubscription.consumerGroup;
 
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 
 import java.util.List;
 
@@ -16,7 +17,7 @@ public interface BaseConsumerGroupService {
     ConsumerGroup get(String tenantId, String groupId, String iotInstanceId);
 
     //QueryConsumerGroupList
-    PagingResult<ConsumerGroup> query(String tenantId, ConsumerGroupFilter filter);
+    PagingResult<ConsumerGroupVO> query(String tenantId, ConsumerGroupFilter filter);
 
     //QueryConsumerGroupStatus
     List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId);
@@ -25,5 +26,5 @@ public interface BaseConsumerGroupService {
     void resetPosition(String tenantId, String groupId, String iotInstanceId);
 
     //DeleteConsumerGroup
-    void delete(String tenantId, String groupId, String iotInstanceId, String operator);
+    void delete(String tenantId, ConsumerGroupDeleteRq deleteRq, String operator);
 }

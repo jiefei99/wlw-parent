@@ -26,8 +26,8 @@ public class ConsumerGroupFilter extends AbstractQueryFilter {
     private String tenantId;
     @ApiModelProperty("是否使用模糊查询")
     private boolean fuzzy=false;
-    @ApiModelProperty("消费组Id")
-    private String idEq;
+//    @ApiModelProperty("消费组Id")
+//    private String idEq;
     @ApiModelProperty("消费组名称")
     private String nameLike;
     @ApiModelProperty("实例Id")

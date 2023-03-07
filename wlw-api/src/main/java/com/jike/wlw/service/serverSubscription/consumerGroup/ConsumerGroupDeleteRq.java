@@ -9,21 +9,19 @@ import lombok.Setter;
 import java.io.Serializable;
 
 /**
- * @title: ConsumerGroupModifyRq
+ * @title: ConsumerGroupDeleteRq
  * @Author RS
- * @Date: 2023/1/13 14:35
+ * @Date: 2023/3/6 18:13
  * @Version 1.0
  */
 
 @Getter
 @Setter
-@ApiModel("修改消费组请求参数")
-public class ConsumerGroupModifyRq extends Entity implements Serializable {
-    private static final long serialVersionUID = -7698859554276354117L;
+@ApiModel("删除消费组请求参数")
+public class ConsumerGroupDeleteRq extends Entity implements Serializable {
+    private static final long serialVersionUID = -7698859554276344116L;
 
     @ApiModelProperty("名称")
-    private String name;
-    @ApiModelProperty("消费组ID")
     private String id;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;

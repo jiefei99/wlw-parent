@@ -44,32 +44,32 @@ public class ConsumerGroupManager {
 
     //CreateConsumerGroup
     public CreateConsumerGroupResponse createConsumerGroup(ConsumerGroupCreateRq createRq) throws Exception {
-        if (StringUtils.isBlank(createRq.getGroupName())){
+        if (StringUtils.isBlank(createRq.getName())){
             throw new IllegalAccessException("新建消费组名称不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateConsumerGroupRequest request =new CreateConsumerGroupRequest();
         request.setIotInstanceId(createRq.getIotInstanceId());
-        request.setGroupName(createRq.getGroupName());
+        request.setGroupName(createRq.getName());
         CreateConsumerGroupResponse response = client.createConsumerGroup(request);
         System.out.println("创建一个消费组"+ JSON.toJSONString(response));
         return response;
     }
     //UpdateConsumerGroup
     public UpdateConsumerGroupResponse updateConsumerGroup(ConsumerGroupModifyRq modifyRq) throws Exception {
-        if (StringUtils.isBlank(modifyRq.getGroupId())){
+        if (StringUtils.isBlank(modifyRq.getId())){
             throw new IllegalAccessException("消费组ID不能为空");
         }
-        if (StringUtils.isBlank(modifyRq.getGroupName())){
+        if (StringUtils.isBlank(modifyRq.getName())){
             throw new IllegalAccessException("新消费组名称不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         UpdateConsumerGroupRequest request =new UpdateConsumerGroupRequest();
         request.setIotInstanceId(modifyRq.getIotInstanceId());
-        request.setGroupId(modifyRq.getGroupId());
-        request.setNewGroupName(modifyRq.getGroupName());
+        request.setGroupId(modifyRq.getId());
+        request.setNewGroupName(modifyRq.getName());
         UpdateConsumerGroupResponse response = client.updateConsumerGroup(request);
         System.out.println("修改消费组名称"+ JSON.toJSONString(response));
         return response;

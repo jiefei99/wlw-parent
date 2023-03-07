@@ -10,9 +10,11 @@ import com.jike.wlw.dao.serverSubscription.subscribe.PSubscribe;
 import com.jike.wlw.dao.serverSubscription.subscribe.SubscribeDao;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.privatization.PrivateConsumerGroupService;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
 import io.swagger.annotations.ApiModel;
@@ -47,17 +49,17 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
         if (StringUtils.isBlank(tenantId)) {
             throw new BusinessException("租户不能为空！");
         }
-        if (StringUtils.isBlank(createRq.getGroupName())) {
+        if (StringUtils.isBlank(createRq.getName())) {
             throw new BusinessException("消费组名称不能为空！");
         }
-        int nameSize = StringRelevant.calcStrLength(createRq.getGroupName());
+        int nameSize = StringRelevant.calcStrLength(createRq.getName());
         if (nameSize < 4 || nameSize > 30) {
             throw new BusinessException("消费组名称长度为4~30个字符，请重新输入！");
         }
         try {
             String groupId = StringRelevant.buildId(26);
             PConsumerGroup consumerGroup = new PConsumerGroup();
-            consumerGroup.setName(createRq.getGroupName());
+            consumerGroup.setName(createRq.getName());
             consumerGroup.setTenantId(tenantId);
             PConsumerGroup group = doGet(tenantId, groupId);
             while (group != null) {
@@ -76,23 +78,23 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
 
     @Override
     public void modify(String tenantId, ConsumerGroupModifyRq modifyRq, String operator) throws BusinessException {
-        if (StringUtils.isBlank(modifyRq.getGroupName())) {
+        if (StringUtils.isBlank(modifyRq.getName())) {
             throw new BusinessException("消费组名称不能为空！");
         }
-        if (StringUtils.isBlank(modifyRq.getGroupId())) {
+        if (StringUtils.isBlank(modifyRq.getId())) {
             throw new BusinessException("消费组ID不能为空！");
         }
-        int nameSize = StringRelevant.calcStrLength(modifyRq.getGroupName());
+        int nameSize = StringRelevant.calcStrLength(modifyRq.getName());
         if (nameSize < 4 || nameSize > 30) {
             throw new BusinessException("消费组名称长度为4~30个字符，请重新输入！");
         }
         //查询groupId是否在数据库
         try {
-            PConsumerGroup group = doGet(tenantId, modifyRq.getGroupId());
+            PConsumerGroup group = doGet(tenantId, modifyRq.getId());
             if (group == null) {
                 throw new BusinessException("指定消费组不存在或已删除，请确认产品密钥是否正确");
             }
-            group.setName(modifyRq.getGroupName());
+            group.setName(modifyRq.getName());
             group.onModified(operator);
             consumerGroupDao.save(group);
         } catch (Exception e) {
@@ -103,19 +105,19 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
     }
 
     @Override
-    public void delete(String tenantId, String groupId, String iotInstanceId, String operator) throws BusinessException {
-        if (StringUtils.isBlank(groupId)) {
+    public void delete(String tenantId, ConsumerGroupDeleteRq deleteRq, String operator) throws BusinessException {
+        if (StringUtils.isBlank(deleteRq.getId())) {
             throw new BusinessException("消费组ID不能为空！");
         }
         try {
-            PConsumerGroup group = doGet(tenantId, groupId);
+            PConsumerGroup group = doGet(tenantId, deleteRq.getId());
             if (group == null) {
                 return;
             }
             SubscribeFilter subscribeFilter = new SubscribeFilter();
             subscribeFilter.setTenantId(tenantId);
             subscribeFilter.setType(SubscribeRelation.AMQP);
-            subscribeFilter.setGroupIdEq(groupId);
+            subscribeFilter.setGroupIdEq(deleteRq.getId());
             List<PSubscribe> query = subscribeDao.query(subscribeFilter);
             if (CollectionUtils.isNotEmpty(query)) {
                 throw new BusinessException("需要先删除关联订阅才可以删除消费组！");
@@ -158,7 +160,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
     }
 
     @Override
-    public PagingResult<ConsumerGroup> query(String tenantId, ConsumerGroupFilter filter) throws BusinessException {
+    public PagingResult<ConsumerGroupVO> query(String tenantId, ConsumerGroupFilter filter) throws BusinessException {
         if (filter.getPage() < 1) {
             throw new BusinessException("指定显示返回结果中的第几页，最小值为1！");
         }
@@ -169,11 +171,11 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
             filter.setTenantId(tenantId);
             List<PConsumerGroup> list = consumerGroupDao.query(filter);
             long count = consumerGroupDao.getCount(filter);
-            List<ConsumerGroup> result = new ArrayList<>();
+            List<ConsumerGroupVO> result = new ArrayList<>();
             for (PConsumerGroup source : list) {
-                ConsumerGroup target = new ConsumerGroup();
-                target.setGroupName(source.getName());
-                target.setGroupId(source.getId());
+                ConsumerGroupVO target = new ConsumerGroupVO();
+                target.setName(source.getName());
+                target.setId(source.getId());
                 target.setCreated(source.getCreated());
                 result.add(target);
             }
