@@ -77,11 +77,11 @@ public class AuthDao extends BaseDao {
         }
 
         // 删除角色与菜单对应关系
-        String sql = "delete from " + PRoleMenu.TABLE_NAME + " where roleUuid = ?";
+        String sql = "delete from " + PRoleMenu.TABLE_NAME + " where roleId = ?";
         jdbcTemplate.update(sql, roleUuid);
 
         // 删除用户与角色对应关系
-        sql = "delete from " + PUserRole.TABLE_NAME + "  where roleUuid = ?";
+        sql = "delete from " + PUserRole.TABLE_NAME + "  where roleId = ?";
         jdbcTemplate.update(sql, roleUuid);
 
         // 删除角色
@@ -101,7 +101,7 @@ public class AuthDao extends BaseDao {
         userRoleSource.put("userIds", userIds);
         userRoleSource.put("roleId", roleId);
         NamedParameterJdbcTemplate namedParameter = new NamedParameterJdbcTemplate(jdbcTemplate);
-        String hql = "delete from " + PUserRole.TABLE_NAME + " where roleUuid =:roleId and userUuid in (:userIds)";
+        String hql = "delete from " + PUserRole.TABLE_NAME + " where roleId =:roleId and userId in (:userIds)";
 
         namedParameter.update(hql, userRoleSource);
     }
@@ -214,7 +214,7 @@ public class AuthDao extends BaseDao {
         if (!StringUtil.isNullOrBlank(userId)) {
             sql = "select o.*,r.name as roleName from " + PUserRole.TABLE_NAME + " o left Join " + PRole.TABLE_NAME + " r on r.uuid = o.roleId and r.tenantId = o.tenantId where r.tenantId = ?" + " having o.userId = ? ";
 
-            result = jdbcTemplate.query(sql, new Object[]{userId, tenantId}, new BeanPropertyRowMapper<>(UserRole.class));
+            result = jdbcTemplate.query(sql, new Object[]{tenantId, userId}, new BeanPropertyRowMapper<>(UserRole.class));
         } else {
             sql = "select * from " + PRole.TABLE_NAME;
 
@@ -242,7 +242,7 @@ public class AuthDao extends BaseDao {
         userRoleSource.put("userId", userId);
         userRoleSource.put("roleIds", roleIds);
         NamedParameterJdbcTemplate namedParameter = new NamedParameterJdbcTemplate(jdbcTemplate);
-        String hql = "delete from " + PUserRole.TABLE_NAME + " where userUuid =:userId and roleUuid in (:roleIds)";
+        String hql = "delete from " + PUserRole.TABLE_NAME + " where userId =:userId and roleId in (:roleIds)";
 
         namedParameter.update(hql, userRoleSource);
     }

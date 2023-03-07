@@ -5,6 +5,7 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.author.AuthFilter;
 import com.jike.wlw.service.author.auth.RolePermissionMenu;
+import com.jike.wlw.service.author.auth.RolePermissionMenuCreateRq;
 import com.jike.wlw.service.author.user.role.RoleMenuCreateRq;
 import com.jike.wlw.sys.web.config.fegin.RolePermissionMenuFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
@@ -27,9 +28,10 @@ public class SysWebRoleMenuController extends BaseController {
     @ApiOperation(value = "保存角色权限菜单")
     @RequestMapping(value = "/saveRolePermissionMenus", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> saveRoleMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RoleMenuCreateRq createRq) throws BusinessException {
+    public ActionResult<Void> saveRolePermissionMenus(@ApiParam(required = true, value = "查询条件") @RequestBody RolePermissionMenuCreateRq createRq) throws BusinessException {
         try {
-            roleMenuFeignClient.saveRolePermissionMenus(getTenantId(), createRq);
+            createRq.setUserId(getUserId());
+            roleMenuFeignClient.saveRolePermissionMenus(createRq, getTenantId());
 
             return ActionResult.ok();
         } catch (Exception e) {
@@ -42,7 +44,7 @@ public class SysWebRoleMenuController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<RolePermissionMenu>> query(@ApiParam(required = true, value = "查询条件") @RequestBody AuthFilter filter) throws BusinessException {
         try {
-            PagingResult<RolePermissionMenu> result = roleMenuFeignClient.query(getTenantId(), filter);
+            PagingResult<RolePermissionMenu> result = roleMenuFeignClient.query(filter, getTenantId());
 
             return ActionResult.ok(result);
         } catch (Exception e) {

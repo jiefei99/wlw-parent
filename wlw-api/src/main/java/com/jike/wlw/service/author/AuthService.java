@@ -52,7 +52,8 @@ public interface AuthService {
     @ResponseBody
     void saveUsersRole(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                        @ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
-                       @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException;
+                       @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId,
+                       @ApiParam(required = true, value = "操作人用户ID") @RequestParam(value = "userId", required = false) String userId) throws BusinessException;
 
     @ApiOperation(value = "通过角色列表保存用户角色")
     @RequestMapping(value = "/saveUserRoles", method = RequestMethod.GET)
@@ -66,7 +67,8 @@ public interface AuthService {
     @ResponseBody
     void removeUsersRole(@ApiParam(required = true, value = "租户ID") @RequestParam(value = "tenantId") String tenantId,
                          @ApiParam(required = true, value = "用户ID集合字符串") @RequestParam("userIdsJson") String userIdsJson,
-                         @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId) throws BusinessException;
+                         @ApiParam(required = true, value = "角色ID") @RequestParam("roleId") String roleId,
+                         @ApiParam(required = true, value = "操作人用户ID") @RequestParam(value = "userId", required = false) String userId) throws BusinessException;
 
     @ApiOperation(value = "通过角色列表删除用户")
     @RequestMapping(value = "/removeUserRoles", method = RequestMethod.GET)

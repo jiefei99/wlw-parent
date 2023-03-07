@@ -17,12 +17,14 @@ import lombok.Setter;
 public class PRolePermissionMenu extends PEntity implements JdbcEntity {
     private static final long serialVersionUID = 2618630595083527504L;
 
-    public static final String TABLE_NAME = "eguard_role_permission_menu";
+    public static final String TABLE_NAME = "wlw_role_permission_menu";
 
     @ApiModelProperty("角色ID")
     private String roleId;
     @ApiModelProperty("权限ID")
     private String permissionId;
+    @ApiModelProperty("租户ID")
+    private String tenantId;
     @ApiModelProperty("应用ID")
     private String appId;
 
