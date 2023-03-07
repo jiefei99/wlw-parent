@@ -14,7 +14,7 @@ public class MqttSource implements Serializable {
     private static final long serialVersionUID = 5622443167943852977L;
 
     @ApiModelProperty("用户名")
-    private String username;
+    private String userName;
     @ApiModelProperty("密码")
     private String password;
     @ApiModelProperty("连接地址")

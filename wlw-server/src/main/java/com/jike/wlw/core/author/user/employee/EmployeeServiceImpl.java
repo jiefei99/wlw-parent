@@ -26,7 +26,7 @@ import com.jike.wlw.service.author.user.employee.EmployeeCreateAdminRq;
 import com.jike.wlw.service.author.user.employee.EmployeeCreateRq;
 import com.jike.wlw.service.author.user.employee.EmployeeFilter;
 import com.jike.wlw.service.author.user.employee.EmployeeModifyRq;
-import com.jike.wlw.service.author.user.UserModifyStatusRq;
+import com.jike.wlw.service.author.user.employee.EmployeeModifyStatusRq;
 import com.jike.wlw.service.author.user.employee.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
