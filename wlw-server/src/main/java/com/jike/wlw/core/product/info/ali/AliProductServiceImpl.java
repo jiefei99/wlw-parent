@@ -30,6 +30,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -39,6 +40,7 @@ import java.util.List;
 @Slf4j
 @RestController("productServiceAliImpl")
 @ApiModel("阿里产品服务实现")
+@RequestMapping(value = "service/product", produces = "application/json;charset=utf-8")
 public class AliProductServiceImpl extends BaseService implements AliProductService {
     @Autowired
     private IemProductManager productManager;

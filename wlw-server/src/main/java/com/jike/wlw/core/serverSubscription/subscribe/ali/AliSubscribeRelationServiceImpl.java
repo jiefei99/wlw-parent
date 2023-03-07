@@ -19,6 +19,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -33,6 +34,7 @@ import java.util.List;
 @Slf4j
 @RestController("subscribeRelationServiceAliImpl")
 @ApiModel("阿里订阅实现")
+@RequestMapping(value = "service/subscribeRelation", produces = "application/json;charset=utf-8")
 public class AliSubscribeRelationServiceImpl extends BaseService implements AliSubscribeRelationService {
     @Autowired
     private SubscribeRelationManager subscribeRelationManager;
@@ -123,6 +125,7 @@ public class AliSubscribeRelationServiceImpl extends BaseService implements AliS
             addListProp(pushMsgTypeList, response.getBody().getThingHistoryFlag(), SubscribeRelation.THING_HISTORY_FLAG);
             subscribeRelation.setProductKey(response.getBody().getProductKey());
             subscribeRelation.setMnsConfiguration(response.getBody().getMnsConfiguration());
+            subscribeRelation.setPushMessageType(pushMsgTypeList);
             subscribeRelation.setType(response.getBody().getType());
             return subscribeRelation;
         } catch (Exception e) {

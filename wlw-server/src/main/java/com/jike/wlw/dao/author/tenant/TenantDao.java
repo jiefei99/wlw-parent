@@ -20,7 +20,7 @@ import java.util.List;
 public class TenantDao extends BaseDao {
 
     public List<PTenant> query(TenantFilter filter) {
-        JdbcEntityQuery q = getQuery("distinct o", "query", filter);
+        JdbcEntityQuery q = getQuery("distinct *", "query", filter);
         if (q == null) {
             return new ArrayList();
         }

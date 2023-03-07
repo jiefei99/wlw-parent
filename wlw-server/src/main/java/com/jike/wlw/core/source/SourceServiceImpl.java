@@ -32,6 +32,7 @@ import org.influxdb.InfluxDBFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @ApiModel("资源服务实现")
+@RequestMapping(value = "service/source", produces = "application/json;charset=utf-8")
 public class SourceServiceImpl extends BaseService implements SourceService {
 
     @Autowired
@@ -63,7 +65,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
 
     @TX
     @Override
-    public void create(String tenantId, SourceSaveRq createRq, String operator) throws BusinessException {
+    public String create(String tenantId, SourceSaveRq createRq, String operator) throws BusinessException {
         try {
             if (StringUtils.isBlank(createRq.getName())) {
                 throw new BusinessException("名称不能为空");
@@ -72,7 +74,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
             checkRelationParam(createRq.getEnvironment(), createRq.getType(), createRq.getSourceInfo());
 
             PSource perz = convert(tenantId, createRq);
-
+            perz.setStatus(SourceStatus.DISCONNECT.name());
             //存在重名资源，如果已删除则恢复，否则报错
             SourceFilter filter = new SourceFilter();
             filter.setTenantIdEq(tenantId);
@@ -83,11 +85,13 @@ public class SourceServiceImpl extends BaseService implements SourceService {
                     throw new BusinessException("不允许存在重复名称的资源");
                 } else {
                     perz.setUuid(list.get(0).getUuid());
+                    perz.setStatus(list.get(0).getStatus());
                 }
             }
 
             perz.onCreated(operator);
             sourceDao.save(perz);
+            return perz.getUuid();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
@@ -241,6 +245,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
         BeanUtils.copyProperties(perz, result);
         result.setEnvironment(SourceEvns.valueOf(perz.getEnvironment()));
         result.setType(SourceTypes.valueOf(perz.getType()));
+        result.setStatus(SourceStatus.valueOf(perz.getStatus()));
         if (StringUtils.isNotBlank(perz.getParameter())) {
             result.setSourceInfo(convertSourceInfo(result.getType(), perz.getParameter()));
         }
@@ -314,7 +319,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
         try {
             MqttSource mqttSource = source.getSourceInfo().getMqttSource();
             EmqxClient emqxClient = new EmqxClient();
-            emqxClient.connect(mqttSource.getHostUrl(), mqttSource.getClientId(), mqttSource.getUsername(), mqttSource.getPassword(), mqttSource.getTimeout(), mqttSource.getKeepalive(), mqttSource.getTopic());
+            emqxClient.connect(mqttSource.getHostUrl(), mqttSource.getClientId(), mqttSource.getUserName(), mqttSource.getPassword(), mqttSource.getTimeout(), mqttSource.getKeepalive(), mqttSource.getTopic());
             if (emqxClient.isConnected()) {
                 emqxClient.disconnect(null);
                 changeConnecting(emqxClient, "emqxClient", tenantId, targetId, operator);
@@ -465,7 +470,7 @@ public class SourceServiceImpl extends BaseService implements SourceService {
                 if (sourceInfo.getMqttSource() == null) {
                     throw new BusinessException("mqtt连接参数不能为空");
                 }
-                if (StringUtils.isBlank(sourceInfo.getMqttSource().getUsername()) || StringUtils.isBlank(sourceInfo.getMqttSource().getPassword()) || StringUtils.isBlank(sourceInfo.getMqttSource().getHostUrl()) || StringUtils.isBlank(sourceInfo.getMqttSource().getClientId()) || StringUtils.isBlank(sourceInfo.getMqttSource().getTopic())) {
+                if (StringUtils.isBlank(sourceInfo.getMqttSource().getUserName()) || StringUtils.isBlank(sourceInfo.getMqttSource().getPassword()) || StringUtils.isBlank(sourceInfo.getMqttSource().getHostUrl()) || StringUtils.isBlank(sourceInfo.getMqttSource().getClientId()) || StringUtils.isBlank(sourceInfo.getMqttSource().getTopic())) {
                     throw new BusinessException("mqtt连接参数缺失");
                 }
             } else if (SourceTypes.INFLUXDB.equals(type)) {

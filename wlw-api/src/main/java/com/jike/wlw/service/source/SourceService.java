@@ -12,9 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "资源信息服务")
-@RequestMapping(value = "service/source", produces = "application/json;charset=utf-8")
-public interface
-SourceService {
+public interface SourceService {
 
     @ApiOperation(value = "获取指定资源")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
@@ -25,9 +23,9 @@ SourceService {
     @ApiOperation(value = "新建资源")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
-    void create(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
-                @ApiParam(required = true, value = "新建资源请求参数") @RequestBody SourceSaveRq createRq,
-                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+    String create(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
+                  @ApiParam(required = true, value = "新建资源请求参数") @RequestBody SourceSaveRq createRq,
+                  @ApiParam(required = true, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
 
     @ApiOperation(value = "编辑资源")
@@ -36,28 +34,28 @@ SourceService {
     void modify(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
                 @ApiParam(required = true, value = "编辑资源请求参数") @RequestBody SourceSaveRq modifyRq,
-                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = true, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除资源")
     @RequestMapping(value = "/delete", method = RequestMethod.GET)
     @ResponseBody
     void delete(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = true, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "资源连接")
     @RequestMapping(value = "/connecting", method = RequestMethod.POST)
     @ResponseBody
     void connecting(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                     @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                    @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                    @ApiParam(required = true, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "资源断接")
     @RequestMapping(value = "/disConnect", method = RequestMethod.POST)
     @ResponseBody
     void disConnect(@ApiParam(required = true, value = "租户编号") @RequestParam(value = "tenantId") String tenantId,
                     @ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid,
-                    @ApiParam(required = true, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                    @ApiParam(required = true, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询资源")
     @RequestMapping(value = "/query", method = RequestMethod.POST)

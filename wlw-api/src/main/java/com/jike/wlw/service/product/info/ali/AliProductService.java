@@ -18,7 +18,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "阿里云产品服务")
-@RequestMapping(value = "service/product", produces = "application/json;charset=utf-8")
 public interface AliProductService extends BaseProductService {
 
     @ApiOperation(value = "根据ID获取产品")
