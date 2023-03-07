@@ -14,6 +14,7 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDelete
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.privatization.PrivateConsumerGroupService;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeFilter;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -187,7 +188,7 @@ public class PrivateConsumerGroupServiceImpl extends BaseService implements Priv
     }
 
     @Override
-    public List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId) throws BusinessException {
+    public ConsumerGroupStatusVO getStatus(String tenantId, String groupId, String iotInstanceId) throws BusinessException {
         if (StringUtils.isBlank(groupId)) {
             throw new BusinessException("消费组ID不能为空！");
         }

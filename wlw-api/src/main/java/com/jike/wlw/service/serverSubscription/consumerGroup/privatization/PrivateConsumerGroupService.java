@@ -8,6 +8,7 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreate
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -68,8 +69,8 @@ public interface PrivateConsumerGroupService extends BaseConsumerGroupService {
     @ApiOperation(value = "获取消费组状态")
     @RequestMapping(value = "/queryConsumerGroupStatus", method = RequestMethod.GET)
     @ResponseBody
-    List<ConsumerGroup> getStatus(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                                  @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                                  @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+    ConsumerGroupStatusVO getStatus(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                    @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
+                                    @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
 }

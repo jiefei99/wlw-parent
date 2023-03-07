@@ -21,6 +21,7 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDelete
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ali.AliConsumerGroupService;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ClientConnectionStatusVO;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
@@ -30,7 +31,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -133,7 +134,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
     }
 
     @Override
-    public List<ConsumerGroup> getStatus(String tenantId, String groupId, String iotInstanceId) {
+    public ConsumerGroupStatusVO getStatus(String tenantId, String groupId, String iotInstanceId) {
         try {
             if (StringUtils.isBlank(groupId)) {
                 throw new IllegalAccessException("消费组ID不能为空");
@@ -142,22 +143,27 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
             if (!response.getBody().getSuccess()) {
                 throw new BusinessException("获取消费组状态失败：" + response.getBody().getErrorMessage());
             }
-            List<ConsumerGroup> consumerGroupList = new ArrayList<>();
-            if (response.getBody().getClientConnectionStatusList() == null || response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo()==null || CollectionUtils.isEmpty(response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())) {
-                return consumerGroupList;
+            ConsumerGroupStatusVO groupStatusVO=new ConsumerGroupStatusVO();
+            if (response.getBody() == null ){
+                return groupStatusVO;
             }
+            BeanUtils.copyProperties(response.getBody(),groupStatusVO);
+            groupStatusVO.setLastConsumerDateTime(DateUtils.dealDateFormat(response.getBody().getLastConsumerTime()));
+            if (response.getBody().getClientConnectionStatusList()==null||
+            CollectionUtils.isEmpty( response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())){
+                return groupStatusVO;
+            }
+            List<ClientConnectionStatusVO> clientConnectionStatusVOList=new ArrayList<>();
             for (QueryConsumerGroupStatusResponseBodyClientConnectionStatusListConsumerGroupClientConnectionInfo info : response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo()) {
-                ConsumerGroup consumerGroup = new ConsumerGroup();
-                consumerGroup.setAccumulatedConsumeCountPerMinute(info.getAccumulatedConsumeCountPerMinute());
-                consumerGroup.setClientId(info.getClientId());
-                consumerGroup.setClientIpPort(info.getClientIpPort());
-                consumerGroup.setOnlineTime(info.getOnlineTime());
-                consumerGroup.setRealTimeConsumeCountPerMinute(info.getRealTimeConsumeCountPerMinute());
-                consumerGroup.setGroupId(groupId);
-                consumerGroup.setIotInstanceId(iotInstanceId);
-                consumerGroupList.add(consumerGroup);
+                ClientConnectionStatusVO clientConnectionStatusVO=new ClientConnectionStatusVO();
+                clientConnectionStatusVO.setClientId(info.getClientId());
+                clientConnectionStatusVO.setClientIpPort(info.getClientIpPort());
+                clientConnectionStatusVO.setAccumulatedConsumeCountPerMinute(info.getAccumulatedConsumeCountPerMinute());
+                clientConnectionStatusVO.setOnlineTime(new Date(info.getOnlineTime()));
+                clientConnectionStatusVO.setRealTimeConsumeCountPerMinute(info.getRealTimeConsumeCountPerMinute());
+                clientConnectionStatusVOList.add(clientConnectionStatusVO);
             }
-            return consumerGroupList;
+            return groupStatusVO;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);

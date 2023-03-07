@@ -9,6 +9,7 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -20,30 +21,30 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.List;
 
+
 @Api(tags = "阿里云消费组")
-//@RequestMapping(value = "service/consumerGroup", produces = "application/json;charset=utf-8")
 public interface AliConsumerGroupService extends BaseConsumerGroupService {
 
     @ApiOperation(value = "新建消费组")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
-    String create(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+    String create(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
                   @ApiParam(required = true, value = "添加消费组请求参数") @RequestBody ConsumerGroupCreateRq createRq,
-                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
     @ApiOperation(value = "编辑消费组")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
-    void modify(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+    void modify(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
                 @ApiParam(required = true, value = "编辑消费组请求参数") @RequestBody ConsumerGroupModifyRq modifyRq,
-                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除产品")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
-    void delete(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+    void delete(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
                 @ApiParam(required = true, value = "删除")  @RequestBody ConsumerGroupDeleteRq deleteRq,
-                @ApiParam(required = false, value = "操作人")@RequestParam(value = "operator") String operator)throws BusinessException;
+                @ApiParam(required = false, value = "操作人")@RequestParam(value = "operator",required = false) String operator)throws BusinessException;
 
     @ApiOperation(value = "清空消费组堆积消息")
     @RequestMapping(value = "/resetConsumerGroupPosition", method = RequestMethod.POST)
@@ -69,8 +70,8 @@ public interface AliConsumerGroupService extends BaseConsumerGroupService {
     @ApiOperation(value = "获取消费组状态")
     @RequestMapping(value = "/queryConsumerGroupStatus", method = RequestMethod.GET)
     @ResponseBody
-    List<ConsumerGroup> getStatus(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
-                           @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                           @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+    ConsumerGroupStatusVO getStatus(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                          @ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
+                                          @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
 
 }

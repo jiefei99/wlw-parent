@@ -201,26 +201,6 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
     }
 
     @Override
-    public void modifyStatus(String tenantId, EmployeeModifyStatusRq modifyStatusRq, String operator) throws BusinessException {
-        try {
-            if (StringUtil.isNullOrBlank(modifyStatusRq.getUserId())) {
-                throw new BusinessException("员工的用户id不可为空");
-            }
-            PEmployee perz = employeeDao.get(PEmployee.class, "userId",modifyStatusRq.getUserId(),"tenantId", tenantId, "isDeleted",0);
-            if (perz == null) {
-                throw new BusinessException("员工不存在");
-            }
-            UserModifyRq userModifyRq = new UserModifyRq();
-            userModifyRq.setUuid(perz.getUserId());
-            userModifyRq.setStatus(modifyStatusRq.getStatus());
-            userService.modify(tenantId, userModifyRq, operator);
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new BusinessException(e);
-        }
-    }
-
-    @Override
     public PagingResult<Employee> query(String tenantId, EmployeeFilter filter) throws BusinessException {
         try {
             if (StringUtils.isBlank(tenantId)){

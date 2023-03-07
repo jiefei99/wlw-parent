@@ -3,13 +3,13 @@ package com.jike.wlw.sys.web.controller.serverSubscription.consumptionGroup;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.service.author.user.employee.Employee;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreateRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
 import com.jike.wlw.sys.web.config.fegin.AliConsumerGroupFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
@@ -55,11 +55,11 @@ public class ConsumptionGroupController extends BaseController {
     @ApiOperation(value = "获取指定的消费组状态")
     @RequestMapping(value = "/getStatus", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Employee> getStatus(@RequestParam(value = "groupId") String groupId,
+    public ActionResult<ConsumerGroupStatusVO> getStatus(@RequestParam(value = "groupId") String groupId,
                                             @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
         try {
-            consumerGroupFeignClient.getStatus(getTenantId(),groupId,iotInstanceId);
-            return ActionResult.ok();
+            ConsumerGroupStatusVO status = consumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
+            return ActionResult.ok(status);
         } catch (Exception e) {
             return dealWithError(e);
         }
