@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "阿里服务端订阅")
-@RequestMapping(value = "service/subscribeRelation", produces = "application/json;charset=utf-8")
+
 public interface AliSubscribeRelationService extends BaseSubscribeRelationService {
     @ApiOperation(value = "新建服务端订阅")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
