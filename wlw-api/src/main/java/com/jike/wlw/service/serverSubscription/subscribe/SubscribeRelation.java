@@ -47,6 +47,10 @@ public class SubscribeRelation extends StandardEntity {
     private String mnsConfiguration;
     @ApiModelProperty("推送消息类型")
     private List<String> pushMessageType;
+
+    // 辅助字段
+    @ApiModelProperty("产品名称")
+    private String name;
 }
 
 
