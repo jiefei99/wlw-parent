@@ -105,17 +105,17 @@ public class SysWebAliConsumerGroupController extends BaseController {
         }
     }
 
-    @ApiOperation(value = "获取消费组状态")
-    @RequestMapping(value = "/queryConsumerGroupStatus", method = RequestMethod.GET)
-    @ResponseBody
-    public ActionResult<List<ConsumerGroup>> getStatus(@ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
-                                                       @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException{
-        try {
-            List<ConsumerGroup> result = aliConsumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
-            return ActionResult.ok(result);
-        } catch (Exception e) {
-            return dealWithError(e);
-        }
-    }
+//    @ApiOperation(value = "获取消费组状态")
+//    @RequestMapping(value = "/queryConsumerGroupStatus", method = RequestMethod.GET)
+//    @ResponseBody
+//    public ActionResult<List<ConsumerGroup>> getStatus(@ApiParam(required = true, value = "消费组Id") @RequestParam(value = "groupId") String groupId,
+//                                                       @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException{
+//        try {
+//            List<ConsumerGroup> result = aliConsumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
+//            return ActionResult.ok(result);
+//        } catch (Exception e) {
+//            return dealWithError(e);
+//        }
+//    }
 
 }

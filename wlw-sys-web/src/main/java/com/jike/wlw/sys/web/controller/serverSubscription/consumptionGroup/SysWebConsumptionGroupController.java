@@ -35,7 +35,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Api(value = "消费组", tags = {"消息订阅"})
 @RestController
 @RequestMapping(value = "/web/consumptionGroup", produces = "application/json;charset=utf-8")
-public class ConsumptionGroupController extends BaseController {
+public class SysWebConsumptionGroupController extends BaseController {
     @Autowired
     private AliConsumerGroupFeignClient consumerGroupFeignClient;
 

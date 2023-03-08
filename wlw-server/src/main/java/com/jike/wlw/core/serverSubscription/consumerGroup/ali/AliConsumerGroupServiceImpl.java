@@ -148,7 +148,9 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 return groupStatusVO;
             }
             BeanUtils.copyProperties(response.getBody(),groupStatusVO);
-            groupStatusVO.setLastConsumerDateTime(DateUtils.dealDateFormat(response.getBody().getLastConsumerTime()));
+            if (StringUtils.isNotBlank(response.getBody().getLastConsumerTime())){
+                groupStatusVO.setLastConsumerDateTime(DateUtils.dealDateFormat(response.getBody().getLastConsumerTime()));
+            }
             if (response.getBody().getClientConnectionStatusList()==null||
             CollectionUtils.isEmpty( response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())){
                 return groupStatusVO;
@@ -163,6 +165,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 clientConnectionStatusVO.setRealTimeConsumeCountPerMinute(info.getRealTimeConsumeCountPerMinute());
                 clientConnectionStatusVOList.add(clientConnectionStatusVO);
             }
+            groupStatusVO.setClientStatusList(clientConnectionStatusVOList);
             return groupStatusVO;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
