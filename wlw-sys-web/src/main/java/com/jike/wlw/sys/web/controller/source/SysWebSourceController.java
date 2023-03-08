@@ -7,6 +7,7 @@ import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.source.Source;
 import com.jike.wlw.service.source.SourceFilter;
 import com.jike.wlw.service.source.SourceSaveRq;
+import com.jike.wlw.service.source.SourceStatus;
 import com.jike.wlw.sys.web.config.fegin.SourceFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import com.jike.wlw.sys.web.sso.AppContext;
@@ -15,6 +16,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -120,9 +122,26 @@ public class SysWebSourceController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<Source>> query(@ApiParam(required = true, value = "查询条件") @RequestBody SourceFilter filter) throws BusinessException {
         try {
-            filter.setTenantIdEq(getTenantId());
             PagingResult<Source> result = sourceFeignClient.query(getTenantId(), filter);
             return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "获取当前租户已连接的资源")
+    @RequestMapping(value = "/getConnectedSource", method = RequestMethod.GET)
+    @ResponseBody
+    public ActionResult<Source> getConnectedSource() throws Exception {
+        try {
+            SourceFilter filter = new SourceFilter();
+            filter.setStatusEq(SourceStatus.CONNECTED);
+            filter.setDeletedEq(false);
+            PagingResult<Source> pagingResult = sourceFeignClient.query(getTenantId(), filter);
+            if (CollectionUtils.isEmpty(pagingResult.getData())) {
+                return ActionResult.ok();
+            }
+            return ActionResult.ok(pagingResult.getData().get(0));
         } catch (Exception e) {
             return dealWithError(e);
         }
