@@ -27,7 +27,7 @@ public class Product extends StandardEntity {
     private String description;
     @ApiModelProperty("备注")
     private String remark;
-    @ApiModelProperty("版本类型")
+    @ApiModelProperty("产品类型")//决定是否使用物模型功能，iothub_senior：使用物模型。iothub：不使用物模型。
     private String aliyunCommodityCode;
     @ApiModelProperty("认证方式")
     private AuthType authType;
@@ -53,5 +53,5 @@ public class Product extends StandardEntity {
     private Integer validateType;
     //产品发布成功后，不可编辑产品、物模型，删除产品。
     @ApiModelProperty("是否发布")
-    private PublishStateType ProductStatus;
+    private PublishStateType productStatus;
 }
