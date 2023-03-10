@@ -123,7 +123,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
                 ConsumerGroupVO consumerGroupVO = new ConsumerGroupVO();
                 consumerGroupVO.setId(info.getGroupId());
                 consumerGroupVO.setName(info.getGroupName());
-                consumerGroupVO.setCreated(DateUtils.dealDateFormat(info.getCreateTime()));
+                consumerGroupVO.setCreated(DateUtils.dealDateFormat(info.getCreateTime(),"yyyy-MM-dd'T'HH:mm:ss.SSS Z"));
                 consumerGroupList.add(consumerGroupVO);
             }
             return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), consumerGroupList);
@@ -149,7 +149,7 @@ public class AliConsumerGroupServiceImpl extends BaseService implements AliConsu
             }
             BeanUtils.copyProperties(response.getBody(),groupStatusVO);
             if (StringUtils.isNotBlank(response.getBody().getLastConsumerTime())){
-                groupStatusVO.setLastConsumerDateTime(DateUtils.dealDateFormat(response.getBody().getLastConsumerTime()));
+                groupStatusVO.setLastConsumerDateTime(DateUtils.dealDateFormat(response.getBody().getLastConsumerTime(),"yyyy-MM-dd'T'HH:mm:ss.SSS Z"));
             }
             if (response.getBody().getClientConnectionStatusList()==null||
             CollectionUtils.isEmpty( response.getBody().getClientConnectionStatusList().getConsumerGroupClientConnectionInfo())){

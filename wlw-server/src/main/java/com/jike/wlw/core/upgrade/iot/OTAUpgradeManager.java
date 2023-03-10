@@ -3,8 +3,8 @@ package com.jike.wlw.core.upgrade.iot;
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
 import com.aliyun.iot20180120.models.*;
+import com.aliyun.iot20180120.models.CreateOTAFirmwareRequest.CreateOTAFirmwareRequestMultiFiles;
 import com.aliyun.iot20180120.models.CreateOTAStaticUpgradeJobRequest.CreateOTAStaticUpgradeJobRequestTag;
-import com.aliyun.iot20180120.models.CreateOTAVerifyJobRequest.CreateOTAVerifyJobRequestTag;
 import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.core.upgrade.iot.entity.OTADynamicUpgradeJobRq;
@@ -16,11 +16,19 @@ import com.jike.wlw.core.upgrade.iot.entity.OTATaskJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTAUpgradeJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTAUploadRq;
+import com.jike.wlw.service.upgrade.ota.OTAFirmwareMultiFilesCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleDeleteRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleUpdateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,8 +40,8 @@ import java.util.List;
  * @Version 1.0
  */
 @Slf4j
-@Service
-public class OTAUpgrade {
+@Component
+public class OTAUpgradeManager {
 
     @Autowired
     private AliIotClient client;
@@ -50,7 +58,7 @@ public class OTAUpgrade {
     }
 
     public static void main(String[] args) {
-        OTAUpgrade upgrade=new OTAUpgrade();
+        OTAUpgradeManager upgrade=new OTAUpgradeManager();
         OTATaskRq otaTaskRq=new OTATaskRq();
         otaTaskRq.setTaskStatus("CONFIRM");
         otaTaskRq.setProductKey("a1GgN502dxa");
@@ -66,7 +74,7 @@ public class OTAUpgrade {
     //GenerateOTAUploadURL
     public GenerateOTAUploadURLResponse generateOTAUploadURL(OTAUploadRq otaUploadRq) throws Exception {
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         GenerateOTAUploadURLRequest request = new GenerateOTAUploadURLRequest();
         request.setIotInstanceId(otaUploadRq.getIotInstanceId());
         request.setFileSuffix(otaUploadRq.getFileSuffix());
@@ -78,7 +86,7 @@ public class OTAUpgrade {
     //GenerateDeviceNameListURL
     public GenerateDeviceNameListURLResponse generateDeviceNameListURL(OTAUploadRq otaUploadRq) throws Exception {
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         GenerateDeviceNameListURLRequest request = new GenerateDeviceNameListURLRequest();
         request.setIotInstanceId(otaUploadRq.getIotInstanceId());
         GenerateDeviceNameListURLResponse response = client.generateDeviceNameListURL(request);
@@ -87,78 +95,80 @@ public class OTAUpgrade {
     }
 
     //CreateOTAFirmware
-    public CreateOTAFirmwareResponse createOTAFirmware(OTAFirmwareRq otaFirmwareRq) throws Exception {
-        if (StringUtils.isBlank(otaFirmwareRq.getDestVersion())) {
+    public CreateOTAFirmwareResponse createOTAFirmware(OTAUpgradePackageCreateRq createRq) throws Exception {
+        if (StringUtils.isBlank(createRq.getDestVersion())) {
             throw new IllegalAccessException("当前OTA升级包的版本号不能为空");
         }
-        if (StringUtils.isBlank(otaFirmwareRq.getFirmwareName())) {
+        if (StringUtils.isBlank(createRq.getFirmwareName())) {
             throw new IllegalAccessException("OTA升级包名称不能为空");
         }
-        if (CollectionUtils.isNotEmpty(otaFirmwareRq.getMultiFiles())&&StringUtils.isBlank(otaFirmwareRq.getFirmwareUrl())) {
+        if (CollectionUtils.isNotEmpty(createRq.getMultiFiles())&&StringUtils.isBlank(createRq.getFirmwareUrl())) {
             throw new IllegalAccessException("OTA升级包存在文件时，文件Url不能为空");
         }
-        if (otaFirmwareRq.getType()!=null&&otaFirmwareRq.getType()==1&&StringUtils.isBlank(otaFirmwareRq.getSrcVersion())){
+        if (createRq.getType()!=null&&createRq.getType()==1&&StringUtils.isBlank(createRq.getSrcVersion())){
             throw new IllegalAccessException("使用差分升级包时，OTA模块版本号不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateOTAFirmwareRequest request = new CreateOTAFirmwareRequest();
-        request.setIotInstanceId(otaFirmwareRq.getIotInstanceId());
-        request.setDestVersion(otaFirmwareRq.getDestVersion());
-        request.setFirmwareDesc(otaFirmwareRq.getFirmwareDesc());
-        request.setFirmwareName(otaFirmwareRq.getFirmwareName());
-        request.setFirmwareSign(otaFirmwareRq.getFirmwareSign());
-        request.setFirmwareSize(otaFirmwareRq.getFirmwareSize());
-        request.setFirmwareUrl(otaFirmwareRq.getFirmwareUrl());
-        request.setModuleName(otaFirmwareRq.getModuleName());
-        request.setMultiFiles(otaFirmwareRq.getMultiFiles());
-        request.setNeedToVerify(otaFirmwareRq.isNeedToVerify());
-        request.setProductKey(otaFirmwareRq.getProductKey());
-        request.setSignMethod(otaFirmwareRq.getSignMethod());
-        request.setSrcVersion(otaFirmwareRq.getSrcVersion());
-        request.setType(otaFirmwareRq.getType());
-        request.setUdi(otaFirmwareRq.getUdi());
+        request.setIotInstanceId(createRq.getIotInstanceId());
+        request.setDestVersion(createRq.getDestVersion());
+        request.setFirmwareDesc(createRq.getFirmwareDesc());
+        request.setFirmwareName(createRq.getFirmwareName());
+        request.setFirmwareSign(createRq.getFirmwareSign());
+        request.setFirmwareSize(createRq.getFirmwareSize());
+        request.setFirmwareUrl(createRq.getFirmwareUrl());
+        request.setModuleName(createRq.getModuleName());
+        if (CollectionUtils.isNotEmpty(createRq.getMultiFiles())){
+            List<CreateOTAFirmwareRequestMultiFiles> multiFiles =new ArrayList<>();
+            for (OTAFirmwareMultiFilesCreateRq multiFile : createRq.getMultiFiles()) {
+                CreateOTAFirmwareRequestMultiFiles target=new CreateOTAFirmwareRequestMultiFiles();
+                BeanUtils.copyProperties(multiFile,target);
+                multiFiles.add(target);
+            }
+            request.setMultiFiles(multiFiles);
+        }
+        request.setNeedToVerify(createRq.isNeedToVerify());
+        request.setProductKey(createRq.getProductKey());
+        request.setSignMethod(createRq.getSignMethod());
+        request.setSrcVersion(createRq.getSrcVersion());
+        request.setType(createRq.getType());
+        request.setUdi(createRq.getUdi());
         CreateOTAFirmwareResponse response = client.createOTAFirmware(request);
         System.out.println("添加升级包" + JSON.toJSONString(response));
         return response;
     }
 
     //DeleteOTAFirmware
-    public DeleteOTAFirmwareResponse deleteOTAFirmware(OTAFirmwareRq upgrade) throws Exception {
-        if (StringUtils.isBlank(upgrade.getFirmwareId())) {
+    public DeleteOTAFirmwareResponse deleteOTAFirmware(String firmwareId,String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(firmwareId)) {
             throw new IllegalAccessException("需要删除的OTA升级包ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteOTAFirmwareRequest request = new DeleteOTAFirmwareRequest();
-        request.setIotInstanceId(upgrade.getIotInstanceId());
-        request.setFirmwareId(upgrade.getFirmwareId());
+        request.setIotInstanceId(iotInstanceId);
+        request.setFirmwareId(firmwareId);
         DeleteOTAFirmwareResponse response = client.deleteOTAFirmware(request);
         System.out.println("删除指定升级包" + JSON.toJSONString(response));
         return response;
     }
 
     //ListOTAFirmware
-    public ListOTAFirmwareResponse listOTAFirmware(OTAFirmwareRq upgrade) throws Exception {
-        if (upgrade.getCurrentPage() == null) {
-            throw new IllegalAccessException("需要显示的当前页数不能为空");
-        }
-        if (upgrade.getPageSize() == null) {
-            throw new IllegalAccessException("需要显示的每页数量不能为空");
-        }
-        if (upgrade.getCurrentPage() < 1) {
+    public ListOTAFirmwareResponse listOTAFirmware(OTAUpgradePackageFilter filter) throws Exception {
+        if (filter.getPage() < 1) {
             throw new IllegalAccessException("当前页显示页数从1开始排序，请重新选择");
         }
-        if (upgrade.getPageSize() < 0 || upgrade.getPageSize() > 100) {
+        if (filter.getPageSize() < 0 || filter.getPageSize() > 100) {
             throw new IllegalAccessException("每页数量最大限制100条，请重新选择");
         }
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAFirmwareRequest request = new ListOTAFirmwareRequest();
-        request.setIotInstanceId(upgrade.getIotInstanceId());
-        request.setCurrentPage(upgrade.getCurrentPage());
-        request.setProductKey(upgrade.getProductKey());
-        request.setDestVersion(upgrade.getDestVersion());
-        request.setPageSize(upgrade.getPageSize());
+        request.setIotInstanceId(filter.getIotInstanceId());
+        request.setCurrentPage(filter.getPage());
+        request.setProductKey(filter.getProductKey());
+        request.setDestVersion(filter.getDestVersion());
+        request.setPageSize(filter.getPageSize());
         ListOTAFirmwareResponse response = client.listOTAFirmware(request);
         System.out.println("查询升级包列表" + JSON.toJSONString(response));
         return response;
@@ -170,7 +180,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("需要删除的OTA升级包ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryOTAFirmwareRequest request = new QueryOTAFirmwareRequest();
         request.setIotInstanceId(upgrade.getIotInstanceId());
         request.setFirmwareId(upgrade.getFirmwareId());
@@ -197,7 +207,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("设备升级超时时间范围1 ~ 1440");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateOTAVerifyJobRequest request = new CreateOTAVerifyJobRequest();
         request.setIotInstanceId(otaUpgradeJobRq.getIotInstanceId());
         request.setFirmwareId(otaUpgradeJobRq.getFirmwareId());
@@ -247,7 +257,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("批次标签长度总和不能超过4096个字符");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateOTAStaticUpgradeJobRequest request = new CreateOTAStaticUpgradeJobRequest();
         request.setIotInstanceId(otaStaticUpgradeJobRq.getIotInstanceId());
         request.setFirmwareId(otaStaticUpgradeJobRq.getFirmwareId());
@@ -288,7 +298,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("批次标签不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateOTADynamicUpgradeJobRequest request = new CreateOTADynamicUpgradeJobRequest();
         request.setIotInstanceId(otaDynamicUpgradeJobRq.getIotInstanceId());
         request.setFirmwareId(otaDynamicUpgradeJobRq.getFirmwareId());
@@ -327,7 +337,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("显示返回页数不能为空且返回结果页数从1开始排序");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAJobByFirmwareRequest request = new ListOTAJobByFirmwareRequest();
         request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
         request.setFirmwareId(otaTaskJobRq.getFirmwareId());
@@ -356,7 +366,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("显示返回页数不能为空且返回结果页数从1开始排序");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAJobByDeviceRequest request = new ListOTAJobByDeviceRequest();
         request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
         request.setFirmwareId(otaTaskJobRq.getFirmwareId());
@@ -375,7 +385,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTATaskByJobRequest request = new ListOTATaskByJobRequest();
         request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
         request.setCurrentPage(otaTaskJobRq.getCurrentPage());
@@ -394,7 +404,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryOTAJobRequest request = new QueryOTAJobRequest();
         request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
         request.setJobId(otaTaskJobRq.getJobId());
@@ -409,7 +419,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CancelOTAStrategyByJobRequest request = new CancelOTAStrategyByJobRequest();
         request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
         request.setJobId(otaTaskJobRq.getJobId());
@@ -430,7 +440,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("设备名称不能为空且最多可传入200个设备名称");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CancelOTATaskByDeviceRequest request = new CancelOTATaskByDeviceRequest();
         request.setIotInstanceId(otaTaskByJobCanceRq.getIotInstanceId());
         request.setJobId(otaTaskByJobCanceRq.getJobId());
@@ -448,7 +458,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("OTA升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CancelOTATaskByJobRequest request = new CancelOTATaskByJobRequest();
         request.setIotInstanceId(otaTaskByJobCanceRq.getIotInstanceId());
         request.setJobId(otaTaskByJobCanceRq.getJobId());
@@ -463,79 +473,85 @@ public class OTAUpgrade {
     }
 
     //CreateOTAModule
-    public CreateOTAModuleResponse createOTAModule(OTAModuleRq otaModuleRq) throws Exception {
-        if (StringUtils.isBlank(otaModuleRq.getModuleName())) {
+    public CreateOTAModuleResponse createOTAModule(OTAUpgradeModuleCreateRq createRq) throws Exception {
+        if (StringUtils.isBlank(createRq.getModuleName())) {
             throw new IllegalAccessException("OTA模块名称不能为空");
         }
-        if (StringUtils.isBlank(otaModuleRq.getProductKey())) {
+        if (StringUtils.isBlank(createRq.getProductKey())) {
             throw new IllegalAccessException("OTA模块ProductKey不能为空");
         }
-        if (otaModuleRq.getModuleName().length() > 64) {
+        if (createRq.getModuleName().length() > 64) {
             throw new IllegalAccessException("OTA模块名称长度限制为1~64个字符");
         }
+        if (StringUtils.isNotBlank(createRq.getAliasName())&&createRq.getAliasName().length() > 64) {
+            throw new IllegalAccessException("OTA模块别名长度限制为1~64个字符");
+        }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CreateOTAModuleRequest request = new CreateOTAModuleRequest();
-        request.setIotInstanceId(otaModuleRq.getIotInstanceId());
-        request.setProductKey(otaModuleRq.getProductKey());
-        request.setModuleName(otaModuleRq.getModuleName());
-        request.setAliasName(otaModuleRq.getAliasName());
-        request.setDesc(otaModuleRq.getDesc());
+        request.setIotInstanceId(createRq.getIotInstanceId());
+        request.setProductKey(createRq.getProductKey());
+        request.setModuleName(createRq.getModuleName());
+        request.setAliasName(createRq.getAliasName());
+        request.setDesc(createRq.getDetails());
         CreateOTAModuleResponse response = client.createOTAModule(request);
         System.out.println("创建产品的OTA模块" + JSON.toJSONString(response));
         return response;
     }
 
     //UpdateOTAModule
-    public UpdateOTAModuleResponse updateOTAModule(OTAModuleRq otaModuleRq) throws Exception {
-        if (StringUtils.isBlank(otaModuleRq.getModuleName())) {
+    public UpdateOTAModuleResponse updateOTAModule(OTAUpgradeModuleUpdateRq updateRq) throws Exception {
+        if (StringUtils.isBlank(updateRq.getModuleName())) {
             throw new IllegalAccessException("OTA模块名称不能为空");
         }
-        if (StringUtils.isBlank(otaModuleRq.getProductKey())) {
+        if (StringUtils.isBlank(updateRq.getProductKey())) {
             throw new IllegalAccessException("OTA模块ProductKey不能为空");
         }
+        if (StringUtils.isNotBlank(updateRq.getAliasName())&&updateRq.getAliasName().length() > 64) {
+            throw new IllegalAccessException("OTA模块别名长度限制为1~64个字符");
+        }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         UpdateOTAModuleRequest request = new UpdateOTAModuleRequest();
-        request.setIotInstanceId(otaModuleRq.getIotInstanceId());
-        request.setProductKey(otaModuleRq.getProductKey());
-        request.setModuleName(otaModuleRq.getModuleName());
-        request.setAliasName(otaModuleRq.getAliasName());
-        request.setDesc(otaModuleRq.getDesc());
+        request.setIotInstanceId(updateRq.getIotInstanceId());
+        request.setProductKey(updateRq.getProductKey());
+        request.setModuleName(updateRq.getModuleName());
+        request.setAliasName(updateRq.getAliasName());
+        request.setDesc(updateRq.getDetails());
         UpdateOTAModuleResponse response = client.updateOTAModule(request);
         System.out.println("修改OTA模块别名、描述" + JSON.toJSONString(response));
         return response;
     }
 
     //DeleteOTAModule
-    public DeleteOTAModuleResponse deleteOTAModule(OTAModuleRq otaModuleRq) throws Exception {
-        if (StringUtils.isBlank(otaModuleRq.getModuleName())) {
+    public DeleteOTAModuleResponse deleteOTAModule(OTAUpgradeModuleDeleteRq deleteRq) throws Exception {
+        if (StringUtils.isBlank(deleteRq.getModuleName())) {
             throw new IllegalAccessException("OTA模块名称不能为空");
         }
-        if (StringUtils.isBlank(otaModuleRq.getProductKey())) {
+        if (StringUtils.isBlank(deleteRq.getProductKey())) {
             throw new IllegalAccessException("OTA模块ProductKey不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         DeleteOTAModuleRequest request = new DeleteOTAModuleRequest();
-        request.setIotInstanceId(otaModuleRq.getIotInstanceId());
-        request.setProductKey(otaModuleRq.getProductKey());
-        request.setModuleName(otaModuleRq.getModuleName());
+        request.setIotInstanceId(deleteRq.getIotInstanceId());
+        request.setProductKey(deleteRq.getProductKey());
+        request.setModuleName(deleteRq.getModuleName());
         DeleteOTAModuleResponse response = client.deleteOTAModule(request);
         System.out.println("删除自定义OTA模块" + JSON.toJSONString(response));
         return response;
     }
 
     //ListOTAModuleByProduct
-    public ListOTAModuleByProductResponse listOTAModuleByProduct(OTAModuleRq otaModuleRq) throws Exception {
-        if (StringUtils.isBlank(otaModuleRq.getProductKey())) {
+    public ListOTAModuleByProductResponse listOTAModuleByProduct(OTAUpgradeModuleFilter filter) throws Exception {
+        if (StringUtils.isBlank(filter.getProductKey())) {
             throw new IllegalAccessException("OTA模块ProductKey不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAModuleByProductRequest request = new ListOTAModuleByProductRequest();
-        request.setIotInstanceId(otaModuleRq.getIotInstanceId());
-        request.setProductKey(otaModuleRq.getProductKey());
+        request.setIotInstanceId(filter.getIotInstanceId());
+        request.setProductKey(filter.getProductKey());
         ListOTAModuleByProductResponse response = client.listOTAModuleByProduct(request);
         System.out.println("查询产品下的OTA模块列表" + JSON.toJSONString(response));
         return response;
@@ -547,7 +563,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("待确认的设备升级作业ID不能为空且最多可传入10个TaskId");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ConfirmOTATaskRequest request = new ConfirmOTATaskRequest();
         request.setIotInstanceId(otaTaskRq.getIotInstanceId());
         request.setTaskId(otaTaskRq.getTaskId());
@@ -562,7 +578,7 @@ public class OTAUpgrade {
             throw new IllegalAccessException("升级状态不能为空");
         }
         //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
-        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAUnfinishedTaskByDeviceRequest request = new ListOTAUnfinishedTaskByDeviceRequest();
         request.setIotInstanceId(otaTaskRq.getIotInstanceId());
         if (StringUtils.isNotBlank(otaTaskRq.getDeviceName()) && StringUtils.isNotBlank(otaTaskRq.getProductKey())) {

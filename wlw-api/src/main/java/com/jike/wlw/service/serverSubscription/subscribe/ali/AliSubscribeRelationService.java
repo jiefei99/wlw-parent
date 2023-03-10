@@ -12,7 +12,6 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.web.bind.annotation.*;
 
 @Api(tags = "阿里服务端订阅")
-
 public interface AliSubscribeRelationService extends BaseSubscribeRelationService {
     @ApiOperation(value = "新建服务端订阅")
     @RequestMapping(value = "/create", method = RequestMethod.POST)

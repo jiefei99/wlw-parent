@@ -43,7 +43,7 @@ public class SysWebConsumptionGroupController extends BaseController {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<ConsumerGroup> get(@ApiParam(required = true, value = "groupId") @RequestParam(value = "groupId") String groupId,
-                                           @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
+                                           @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
         try {
             ConsumerGroup consumerGroup = consumerGroupFeignClient.get(getTenantId(), groupId, iotInstanceId);
             return ActionResult.ok(consumerGroup);
@@ -56,7 +56,7 @@ public class SysWebConsumptionGroupController extends BaseController {
     @RequestMapping(value = "/getStatus", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<ConsumerGroupStatusVO> getStatus(@RequestParam(value = "groupId") String groupId,
-                                            @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
+                                            @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
         try {
             ConsumerGroupStatusVO status = consumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
             return ActionResult.ok(status);

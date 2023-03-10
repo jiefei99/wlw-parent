@@ -12,12 +12,14 @@ import java.util.Locale;
  */
 public class DateUtils {
 
-    //因为阿里返回都UTC时间格式，所以需要转换为东八区时间
-    public static Date dealDateFormat(String oldDateStr) {
+    //todo 因为阿里返回都UTC时间格式，所以需要转换为东八区时间
+    //暂时先写传递时间格式，后期我会改成正则去判断他的格式
+    public static Date dealDateFormat(String oldDateStr,String dateForm) {
         Date date = null;
         try {
             oldDateStr = oldDateStr.replace("Z", " UTC");
-            SimpleDateFormat df = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS Z");
+
+            SimpleDateFormat df = new SimpleDateFormat(dateForm);
             Date oldDate = df.parse(oldDateStr);
             SimpleDateFormat sdf = new SimpleDateFormat ("EEE MMM dd HH:mm:ss Z yyyy", Locale.UK);
             date = sdf.parse(oldDate.toString());
