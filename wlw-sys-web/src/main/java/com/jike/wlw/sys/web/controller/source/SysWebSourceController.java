@@ -91,7 +91,7 @@ public class SysWebSourceController extends BaseController {
     @ApiOperation(value = "连接资源信息")
     @RequestMapping(value = "/connecting", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> connecting(@ApiParam(required = true, value = "连接资源请求参数") @RequestParam String uuid) throws BusinessException {
+    public ActionResult<Void> connecting(@ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException {
         try {
             Assert.assertArgumentNotNull(uuid, "uuid");
 
@@ -106,7 +106,7 @@ public class SysWebSourceController extends BaseController {
     @ApiOperation(value = "断开资源信息")
     @RequestMapping(value = "/disConnect", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Void> disConnect(@ApiParam(required = true, value = "断开资源请求参数") @RequestParam String uuid) throws BusinessException {
+    public ActionResult<Void> disConnect(@ApiParam(required = true, value = "uuid") @RequestParam(value = "uuid") String uuid) throws BusinessException {
         try {
             Assert.assertArgumentNotNull(uuid, "uuid");
 

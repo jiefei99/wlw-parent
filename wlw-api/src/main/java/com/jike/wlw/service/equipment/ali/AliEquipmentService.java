@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @Api(tags = "阿里云设备服务")
-@RequestMapping(value = "service/equipment/aliyun", produces = "application/json;charset=utf-8")
 public interface AliEquipmentService extends BaseEquipmentService {
 
     @ApiOperation(value = "获取设备基础信息")

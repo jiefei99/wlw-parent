@@ -6,8 +6,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
 @ApiModel("产品SKU查询条件")
@@ -17,6 +15,8 @@ public class ProductFilter extends AbstractQueryFilter {
     private String tenantId;
     @ApiModelProperty("产品key等于")
     private String productKeyEq;
+    @ApiModelProperty("状态等于")
+    private String statusEq;
     @ApiModelProperty("实例ID")
     private String iotInstanceId;
     @ApiModelProperty("资源组ID")
