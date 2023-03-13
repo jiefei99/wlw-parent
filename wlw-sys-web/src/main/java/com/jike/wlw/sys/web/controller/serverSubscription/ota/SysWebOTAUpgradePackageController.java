@@ -3,16 +3,16 @@ package com.jike.wlw.sys.web.controller.serverSubscription.ota;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
-import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import com.jike.wlw.sys.web.config.fegin.AliOTAUpgradePackageFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +41,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ApiOperation(value = "根据查询条件查询OTA升级包")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<OTAUpgradePackageVO>> query(@RequestBody OTAUpgradePackageFilter filter) throws BusinessException {
+    public ActionResult<PagingResult<OTAUpgradePackageListVO>> query(@RequestBody OTAUpgradePackageFilter filter) throws BusinessException {
         try {
             if (filter.getPage()<0){
                 throw new BusinessException("页数从1开始排序，请重新选择");
@@ -49,8 +49,23 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             if (filter.getPageSize()<0||filter.getPageSize()>100){
                 throw new BusinessException("每页显示数量0-100，请重新选择");
             }
-            PagingResult<OTAUpgradePackageVO> query = aliOTAUpgradePackageFeignClient.query(getTenantId(), filter);
+            PagingResult<OTAUpgradePackageListVO> query = aliOTAUpgradePackageFeignClient.query(getTenantId(), filter);
             return ActionResult.ok(query);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+    @ApiOperation(value = "根据查询条件查询OTA升级包")
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @ResponseBody
+    public ActionResult<PagingResult<OTAUpgradePackageListVO>> get(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id,
+                                                                   @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(id)){
+            throw new BusinessException("OTA升级包ID不能为空");
+        }
+        try {
+            OTAUpgradePackageVO otaUpgradePackageVO = aliOTAUpgradePackageFeignClient.get(getTenantId(), id, iotInstanceId);
+            return ActionResult.ok(otaUpgradePackageVO);
         } catch (Exception e) {
             return dealWithError(e);
         }

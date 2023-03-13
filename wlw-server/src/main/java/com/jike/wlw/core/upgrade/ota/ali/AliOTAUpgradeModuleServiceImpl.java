@@ -53,7 +53,7 @@ public class AliOTAUpgradeModuleServiceImpl extends BaseService implements AliOT
                 OTAUpgradeModuleVO otaUpgradeModuleVO=new OTAUpgradeModuleVO();
                 BeanUtils.copyProperties(info,otaUpgradeModuleVO);
                 otaUpgradeModuleVO.setDetails(info.getDesc());
-                otaUpgradeModuleVO.setCreated(DateUtils.dealDateFormat(info.getGmtCreate(),"yyyy-MM-dd'T'HH:mm Z"));
+                otaUpgradeModuleVO.setCreated(DateUtils.dealDateFormat(info.getGmtCreate()));
                 otaUpgradeModuleVOListt.add(otaUpgradeModuleVO);
             }
             total=response.getBody().getData().size();

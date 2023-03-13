@@ -175,15 +175,15 @@ public class OTAUpgradeManager {
     }
 
     //QueryOTAFirmware
-    public QueryOTAFirmwareResponse queryOTAFirmware(OTAFirmwareRq upgrade) throws Exception {
-        if (StringUtils.isBlank(upgrade.getFirmwareId())) {
+    public QueryOTAFirmwareResponse queryOTAFirmware(String id, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(id)) {
             throw new IllegalAccessException("需要删除的OTA升级包ID不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryOTAFirmwareRequest request = new QueryOTAFirmwareRequest();
-        request.setIotInstanceId(upgrade.getIotInstanceId());
-        request.setFirmwareId(upgrade.getFirmwareId());
+        request.setIotInstanceId(iotInstanceId);
+        request.setFirmwareId(id);
         QueryOTAFirmwareResponse response = client.queryOTAFirmware(request);
         System.out.println("查询指定升级包的详细信息" + JSON.toJSONString(response));
         return response;

@@ -2,9 +2,11 @@ package com.jike.wlw.service.upgrade.ota.ali;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,8 +23,16 @@ public interface AliOTAUpgradePackageService {
     @ApiOperation(value = "获取OTA升级包列表")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    PagingResult<OTAUpgradePackageVO> query(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
-                                            @ApiParam(required = true, value = "查询请求参数") @RequestBody OTAUpgradePackageFilter filter) throws BusinessException;
+    PagingResult<OTAUpgradePackageListVO> query(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
+                                                @ApiParam(required = true, value = "查询请求参数") @RequestBody OTAUpgradePackageFilter filter) throws BusinessException;
+
+    @ApiOperation(value = "根据ID获取OTA升级包的详细信息")
+    @RequestMapping(value = "/get", method = RequestMethod.GET)
+    @ResponseBody
+    OTAUpgradePackageVO get(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                            @ApiParam(required = true, value = "OTA升级包ID") @RequestParam(value = "id") String id,
+                            @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+
 
     @ApiOperation(value = "保存OTA升级包")
     @RequestMapping(value = "/create", method = RequestMethod.POST)

@@ -2,16 +2,19 @@ package com.jike.wlw.core.upgrade.ota.ali;
 
 import com.aliyun.iot20180120.models.ListOTAFirmwareResponse;
 import com.aliyun.iot20180120.models.ListOTAFirmwareResponseBody.ListOTAFirmwareResponseBodyFirmwareInfoSimpleFirmwareInfo;
+import com.aliyun.iot20180120.models.QueryOTAFirmwareResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.upgrade.iot.OTAUpgradeManager;
+import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageStatusType;
 import com.jike.wlw.service.upgrade.ota.ali.AliOTAUpgradePackageService;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
@@ -42,8 +45,8 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
     private OTAUpgradeManager otaUpgradeManager;
 
     @Override
-    public PagingResult<OTAUpgradePackageVO> query(String tenantId, OTAUpgradePackageFilter filter) throws BusinessException {
-        List<OTAUpgradePackageVO> otaUpgradePackageVOList = new ArrayList<>();
+    public PagingResult<OTAUpgradePackageListVO> query(String tenantId, OTAUpgradePackageFilter filter) throws BusinessException {
+        List<OTAUpgradePackageListVO> otaUpgradePackageVOList = new ArrayList<>();
         int total = 0;
         try {
             ListOTAFirmwareResponse response = otaUpgradeManager.listOTAFirmware(filter);
@@ -52,16 +55,34 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, otaUpgradePackageVOList);
             }
             for (ListOTAFirmwareResponseBodyFirmwareInfoSimpleFirmwareInfo firmwareInfo : response.getBody().getFirmwareInfo().getSimpleFirmwareInfo()) {
-                OTAUpgradePackageVO otaUpgradePackageVO = new OTAUpgradePackageVO();
-                BeanUtils.copyProperties(firmwareInfo, otaUpgradePackageVO);
-                otaUpgradePackageVO.setStatus(OTAUpgradePackageStatusType.map.get(firmwareInfo.getStatus()));
-                otaUpgradePackageVO.setCreated(DateUtils.dealDateFormat(firmwareInfo.getUtcCreate(),"yyyy-MM-dd'T'HH:mm:ss.SSS Z"));
-                otaUpgradePackageVOList.add(otaUpgradePackageVO);
+                OTAUpgradePackageListVO otaUpgradePackageListVO = new OTAUpgradePackageListVO();
+                BeanUtils.copyProperties(firmwareInfo, otaUpgradePackageListVO);
+                otaUpgradePackageListVO.setStatus(OTAUpgradePackageStatusType.map.get(firmwareInfo.getStatus()));
+                otaUpgradePackageListVO.setCreated(DateUtils.dealDateFormatUTC(firmwareInfo.getUtcCreate()));
+                otaUpgradePackageVOList.add(otaUpgradePackageListVO);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, otaUpgradePackageVOList);
+    }
+
+    @Override
+    public OTAUpgradePackageVO get(String tenantId, String id, String iotInstanceId) throws BusinessException {
+        if (StringUtils.isBlank(id)){
+            throw new BusinessException("当前OTA升级包ID不能为空");
+        }
+        OTAUpgradePackageVO otaUpgradePackageVO=new OTAUpgradePackageVO();
+        try {
+            QueryOTAFirmwareResponse response = otaUpgradeManager.queryOTAFirmware(id, iotInstanceId);
+            if (response==null||!response.getBody().getSuccess()||response.getBody().getFirmwareInfo()==null){
+                return otaUpgradePackageVO;
+            }
+            BeanUtils.copyProperties(response.getBody().getFirmwareInfo(),otaUpgradePackageVO);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return otaUpgradePackageVO;
     }
 
     @Override
