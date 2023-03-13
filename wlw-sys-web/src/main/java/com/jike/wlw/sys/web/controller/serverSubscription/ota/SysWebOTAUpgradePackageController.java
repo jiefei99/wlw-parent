@@ -86,14 +86,14 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         }
     }
 
-    public ActionResult<Void> getOTAUploadUrl(){
-        try {
-            aliOTAUpgradePackageFeignClient.getOTAUploadUrl(getUserName());
-            return ActionResult.ok();
-        } catch (Exception e) {
-            return dealWithError(e);
-        }
-    }
+//    public ActionResult<Void> getOTAUploadUrl(){
+//        try {
+//            aliOTAUpgradePackageFeignClient.getOTAUploadUrl(getUserName());
+//            return ActionResult.ok();
+//        } catch (Exception e) {
+//            return dealWithError(e);
+//        }
+//    }
 }
 
 

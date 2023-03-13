@@ -37,9 +37,9 @@ public interface AliOTAUpgradePackageService {
     void delete(@ApiParam(required = true, value = "删除请求参数") @RequestBody OTAUpgradePackageDeleteRq deleteRq,
                 @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
-    @ApiOperation(value = "删除OTA升级包")
-    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-    @ResponseBody
-    void getOTAUploadUrl( @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
+//    @ApiOperation(value = "删除OTA升级包")
+//    @RequestMapping(value = "/delete", method = RequestMethod.POST)
+//    @ResponseBody
+//    void getOTAUploadUrl( @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
 }

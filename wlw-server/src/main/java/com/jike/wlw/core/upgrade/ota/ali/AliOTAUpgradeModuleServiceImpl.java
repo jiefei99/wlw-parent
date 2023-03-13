@@ -56,6 +56,7 @@ public class AliOTAUpgradeModuleServiceImpl extends BaseService implements AliOT
                 otaUpgradeModuleVO.setCreated(DateUtils.dealDateFormat(info.getGmtCreate(),"yyyy-MM-dd'T'HH:mm Z"));
                 otaUpgradeModuleVOListt.add(otaUpgradeModuleVO);
             }
+            total=response.getBody().getData().size();
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }

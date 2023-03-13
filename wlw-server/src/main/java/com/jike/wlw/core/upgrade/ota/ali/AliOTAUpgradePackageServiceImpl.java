@@ -91,10 +91,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         }
     }
 
-    @Override
-    public void getOTAUploadUrl(String operator) throws BusinessException {
-
-    }
+//    @Override
+//    public void getOTAUploadUrl(String operator) throws BusinessException {
+//
+//    }
 }
 
 
