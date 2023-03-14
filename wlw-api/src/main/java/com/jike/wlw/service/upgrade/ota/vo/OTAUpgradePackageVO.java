@@ -1,6 +1,7 @@
 package com.jike.wlw.service.upgrade.ota.vo;
 
 import com.geeker123.rumba.jpa.api.entity.StandardEntity;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -22,24 +23,21 @@ public class OTAUpgradePackageVO  extends StandardEntity {
     private String firmwareId;
     @ApiModelProperty("升级包名称")
     private String firmwareName;
-    @ApiModelProperty("productName")
-    private String productName;
-    @ApiModelProperty("productKey")
-    private String productKey;
     @ApiModelProperty("升级包签名")
     private String firmwareSign;
-    @ApiModelProperty("升级包版本号")
-    private String destVersion;
     @ApiModelProperty("签名算法")
     private String signMethod;
-    @ApiModelProperty("升级包状态")
-    private Integer status;
-    @ApiModelProperty("验证进度")
-    private Integer verifyProgress;
-    @ApiModelProperty("升级包描述")
-    private String firmwareDesc;
-    @ApiModelProperty("推送给设备的自定义信息")
-    private String udi;
+    @ApiModelProperty("类型")
+    private OTAUpgradePackageType type;
+    @ApiModelProperty("模块")
+    private String moduleName;
+    @ApiModelProperty("目标设备升级总数")
+    private int targetDeviceUpgradeTotal;
+    @ApiModelProperty("目标成功数")
+    private int targetSuccessTotal;
+    @ApiModelProperty("目标失败书")
+    private int targetFailTotal;
+    @ApiModelProperty("目标取消数")
+    private int targetCancelTotal;
 }
-
 

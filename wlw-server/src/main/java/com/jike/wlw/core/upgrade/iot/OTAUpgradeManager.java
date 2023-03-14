@@ -16,13 +16,7 @@ import com.jike.wlw.core.upgrade.iot.entity.OTATaskJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTAUpgradeJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTAUploadRq;
-import com.jike.wlw.service.upgrade.ota.OTAFirmwareMultiFilesCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleDeleteRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleUpdateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
+import com.jike.wlw.service.upgrade.ota.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -326,23 +321,23 @@ public class OTAUpgradeManager {
     }
 
     //ListOTAJobByFirmware
-    public ListOTAJobByFirmwareResponse listOTAJobByFirmware(OTATaskJobRq otaTaskJobRq) throws Exception {
-        if (StringUtils.isBlank(otaTaskJobRq.getFirmwareId())) {
+    public ListOTAJobByFirmwareResponse listOTAJobByFirmware(OTAUpgradePackageJobByFirmwareFilter filter) throws Exception {
+        if (StringUtils.isBlank(filter.getFirmwareId())) {
             throw new IllegalAccessException("升级包ID不能为空");
         }
-        if (otaTaskJobRq.getPageSize() == null || otaTaskJobRq.getPageSize() > 100) {
-            throw new IllegalAccessException("每页显示的升级包数量不能为空且最大限制为100。");
+        if ( filter.getPageSize() > 200) {
+            throw new IllegalAccessException("每页显示的升级包数量不能为空且最大限制为200。");
         }
-        if (otaTaskJobRq.getCurrentPage() == null || otaTaskJobRq.getCurrentPage() < 1) {
+        if (filter.getPage() < 1) {
             throw new IllegalAccessException("显示返回页数不能为空且返回结果页数从1开始排序");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTAJobByFirmwareRequest request = new ListOTAJobByFirmwareRequest();
-        request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
-        request.setFirmwareId(otaTaskJobRq.getFirmwareId());
-        request.setCurrentPage(otaTaskJobRq.getCurrentPage());
-        request.setPageSize(otaTaskJobRq.getPageSize());
+        request.setIotInstanceId(filter.getIotInstanceId());
+        request.setFirmwareId(filter.getFirmwareId());
+        request.setCurrentPage(filter.getPage());
+        request.setPageSize(filter.getPageSize());
         ListOTAJobByFirmwareResponse response = client.listOTAJobByFirmware(request);
         System.out.println("获取升级包下的升级批次列表" + JSON.toJSONString(response));
         return response;
@@ -380,34 +375,42 @@ public class OTAUpgradeManager {
     }
 
     //ListOTATaskByJob
-    public ListOTATaskByJobResponse listOTATaskByJob(OTATaskJobRq otaTaskJobRq) throws Exception {
-        if (StringUtils.isBlank(otaTaskJobRq.getJobId())) {
+    public ListOTATaskByJobResponse listOTATaskByJob(OTAUpgradePackageTackByJobFilter filter) throws Exception {
+        if (StringUtils.isBlank(filter.getJobId())) {
             throw new IllegalAccessException("升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         ListOTATaskByJobRequest request = new ListOTATaskByJobRequest();
-        request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
-        request.setCurrentPage(otaTaskJobRq.getCurrentPage());
-        request.setPageSize(otaTaskJobRq.getPageSize());
-        request.setDeviceNames(otaTaskJobRq.getDeviceNames());
-        request.setJobId(otaTaskJobRq.getJobId());
-        request.setTaskStatus(otaTaskJobRq.getTaskStatus());
+        request.setIotInstanceId(filter.getIotInstanceId());
+        request.setCurrentPage(filter.getPage());
+        request.setPageSize(filter.getPageSize());
+        //别问 问就是ux给的是input，接口支持多选。有集合最牛
+        if (StringUtils.isNotBlank(filter.getDeviceNameEq())&&CollectionUtils.isEmpty(filter.getDeviceNames())){
+            request.setDeviceNames(Arrays.asList(filter.getDeviceNameEq()));
+        }
+        if (CollectionUtils.isNotEmpty(filter.getDeviceNames())){
+            request.setDeviceNames(filter.getDeviceNames());
+        }
+        request.setJobId(filter.getJobId());
+        if (filter.getTaskStatus()!=null){
+            request.setTaskStatus(filter.getTaskStatus().name());
+        }
         ListOTATaskByJobResponse response = client.listOTATaskByJob(request);
         System.out.println("查询指定升级批次下的设备升级作业列表" + JSON.toJSONString(response));
         return response;
     }
 
     //QueryOTAJob
-    public QueryOTAJobResponse queryOTAJob(OTATaskJobRq otaTaskJobRq) throws Exception {
-        if (StringUtils.isBlank(otaTaskJobRq.getJobId())) {
+    public QueryOTAJobResponse queryOTAJob( String jobId, String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(jobId)) {
             throw new IllegalAccessException("升级批次Id不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         QueryOTAJobRequest request = new QueryOTAJobRequest();
-        request.setIotInstanceId(otaTaskJobRq.getIotInstanceId());
-        request.setJobId(otaTaskJobRq.getJobId());
+        request.setIotInstanceId(iotInstanceId);
+        request.setJobId(jobId);
         QueryOTAJobResponse response = client.queryOTAJob(request);
         System.out.println("查询指定升级批次的详情" + JSON.toJSONString(response));
         return response;
@@ -429,24 +432,24 @@ public class OTAUpgradeManager {
     }
 
     //CancelOTATaskByDevice
-    public CancelOTATaskByDeviceResponse cancelOTATaskByDevice(OTATaskByJobCanceRq otaTaskByJobCanceRq) throws Exception {
-        if (StringUtils.isBlank(otaTaskByJobCanceRq.getFirmwareId())) {
+    public CancelOTATaskByDeviceResponse cancelOTATaskByDevice(OTAUpgradePackageCancelTaskByDeviceRq cancelTaskByDeviceRq) throws Exception {
+        if (StringUtils.isBlank(cancelTaskByDeviceRq.getFirmwareId())) {
             throw new IllegalAccessException("OTA升级包Id不能为空");
         }
-        if (StringUtils.isBlank(otaTaskByJobCanceRq.getProductKey())) {
+        if (StringUtils.isBlank(cancelTaskByDeviceRq.getProductKey())) {
             throw new IllegalAccessException("取消升级的设备所属产品的ProductKey不能为空");
         }
-        if (CollectionUtils.isEmpty(otaTaskByJobCanceRq.getDeviceName()) || otaTaskByJobCanceRq.getDeviceName().size() > 200) {
+        if (CollectionUtils.isEmpty(cancelTaskByDeviceRq.getDeviceName()) || cancelTaskByDeviceRq.getDeviceName().size() > 200) {
             throw new IllegalAccessException("设备名称不能为空且最多可传入200个设备名称");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
 //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
         CancelOTATaskByDeviceRequest request = new CancelOTATaskByDeviceRequest();
-        request.setIotInstanceId(otaTaskByJobCanceRq.getIotInstanceId());
-        request.setJobId(otaTaskByJobCanceRq.getJobId());
-        request.setDeviceName(otaTaskByJobCanceRq.getDeviceName());
-        request.setProductKey(otaTaskByJobCanceRq.getProductKey());
-        request.setFirmwareId(otaTaskByJobCanceRq.getFirmwareId());
+        request.setIotInstanceId(cancelTaskByDeviceRq.getIotInstanceId());
+        request.setJobId(cancelTaskByDeviceRq.getJobId());
+        request.setDeviceName(cancelTaskByDeviceRq.getDeviceName());
+        request.setProductKey(cancelTaskByDeviceRq.getProductKey());
+        request.setFirmwareId(cancelTaskByDeviceRq.getFirmwareId());
         CancelOTATaskByDeviceResponse response = client.cancelOTATaskByDevice(request);
         System.out.println("取消指定升级包下状态为待升级的设备升级作业" + JSON.toJSONString(response));
         return response;

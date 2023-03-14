@@ -2,6 +2,7 @@ package com.jike.wlw.service.upgrade.ota.vo;
 
 import com.geeker123.rumba.jpa.api.entity.StandardEntity;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageStatusType;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -25,9 +26,9 @@ public class OTAUpgradePackageListVO extends StandardEntity {
     @ApiModelProperty("升级包名称")
     private String firmwareName;
     @ApiModelProperty("升级包类型")
-    private Integer type;
+    private OTAUpgradePackageType type;
     @ApiModelProperty("状态")
-    private OTAUpgradePackageStatusType status;
+    private OTAUpgradePackageStatusType statusType;
     @ApiModelProperty("所属产品名称")
     private String productName;
     @ApiModelProperty("所属产品productKey")

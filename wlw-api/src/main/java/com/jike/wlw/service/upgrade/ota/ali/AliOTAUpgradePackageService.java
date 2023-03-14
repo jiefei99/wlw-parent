@@ -2,10 +2,17 @@ package com.jike.wlw.service.upgrade.ota.ali;
 
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroup;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
+import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
+import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageInfoVO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import io.swagger.annotations.Api;
@@ -26,6 +33,32 @@ public interface AliOTAUpgradePackageService {
     PagingResult<OTAUpgradePackageListVO> query(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
                                                 @ApiParam(required = true, value = "查询请求参数") @RequestBody OTAUpgradePackageFilter filter) throws BusinessException;
 
+    @ApiOperation(value = "获取OTA升级包列表")
+    @RequestMapping(value = "/queryEquipment", method = RequestMethod.POST)
+    @ResponseBody
+    PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> queryEquipment(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
+                                                                         @ApiParam(required = true, value = "查询请求参数") @RequestBody OTAUpgradePackageTackByJobFilter filter) throws BusinessException;
+
+    @ApiOperation(value = "获取OTA升级包列表")
+    @RequestMapping(value = "/queryJobByFirmware", method = RequestMethod.POST)
+    @ResponseBody
+    PagingResult<OTAUpgradePackageJobBatchListVO> queryJobByFirmware(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
+                                                                     @ApiParam(required = true, value = "查询请求参数") @RequestBody OTAUpgradePackageJobByFirmwareFilter filter) throws BusinessException;
+
+    @ApiOperation(value = "根据ID获取OTA升级包的详细信息")
+    @RequestMapping(value = "/getInfo", method = RequestMethod.GET)
+    @ResponseBody
+    OTAUpgradePackageInfoDTO getInfo(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                     @ApiParam(required = true, value = "OTA升级包ID") @RequestParam(value = "id") String id,
+                                     @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+
+    @ApiOperation(value = "根据ID获取OTA升级包的详细信息")
+    @RequestMapping(value = "/getBatchInfo", method = RequestMethod.GET)
+    @ResponseBody
+    OTAUpgradePackageJobBatchInfoVO getJobBatchInfo(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                                    @ApiParam(required = true, value = "升级批次ID") @RequestParam(value = "jobId") String jobId,
+                                                    @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException;
+
     @ApiOperation(value = "根据ID获取OTA升级包的详细信息")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
@@ -38,8 +71,8 @@ public interface AliOTAUpgradePackageService {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     void create(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId",required = false) String tenantId,
-              @ApiParam(required = true, value = "创建请求参数") @RequestBody OTAUpgradePackageCreateRq createRq,
-              @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
+                @ApiParam(required = true, value = "创建请求参数") @RequestBody OTAUpgradePackageCreateRq createRq,
+                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
     @ApiOperation(value = "删除OTA升级包")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
@@ -47,9 +80,10 @@ public interface AliOTAUpgradePackageService {
     void delete(@ApiParam(required = true, value = "删除请求参数") @RequestBody OTAUpgradePackageDeleteRq deleteRq,
                 @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
-//    @ApiOperation(value = "删除OTA升级包")
-//    @RequestMapping(value = "/delete", method = RequestMethod.POST)
-//    @ResponseBody
-//    void getOTAUploadUrl( @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
+    @ApiOperation(value = "取消指定OTA升级包的设备升级")
+    @RequestMapping(value = "/cancelOTATaskByDevice", method = RequestMethod.POST)
+    @ResponseBody
+    Boolean cancelOTATaskByDevice(@ApiParam(required = true, value = "删除请求参数") @RequestBody OTAUpgradePackageCancelTaskByDeviceRq cancelTaskByDeviceRq,
+                                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator",required = false) String operator) throws BusinessException;
 
 }
