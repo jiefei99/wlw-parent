@@ -1,62 +1,10 @@
 package com.jike.wlw.core.equipment.ali.iot;
 
 import com.alibaba.fastjson.JSON;
-import com.aliyun.iot20180120.models.BatchCheckImportDeviceRequest;
-import com.aliyun.iot20180120.models.BatchCheckImportDeviceResponse;
-import com.aliyun.iot20180120.models.BatchCheckImportDeviceResponseBody;
-import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceRequest;
-import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceResponse;
-import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceResponseBody;
-import com.aliyun.iot20180120.models.BatchImportVehicleDeviceRequest;
-import com.aliyun.iot20180120.models.BatchImportVehicleDeviceResponse;
-import com.aliyun.iot20180120.models.BatchImportVehicleDeviceResponseBody;
-import com.aliyun.iot20180120.models.DeleteDeviceRequest;
-import com.aliyun.iot20180120.models.DeleteDeviceResponse;
-import com.aliyun.iot20180120.models.DeleteDeviceResponseBody;
-import com.aliyun.iot20180120.models.DisableThingRequest;
-import com.aliyun.iot20180120.models.DisableThingResponse;
-import com.aliyun.iot20180120.models.DisableThingResponseBody;
-import com.aliyun.iot20180120.models.EnableThingRequest;
-import com.aliyun.iot20180120.models.EnableThingResponse;
-import com.aliyun.iot20180120.models.EnableThingResponseBody;
-import com.aliyun.iot20180120.models.GetDeviceStatusRequest;
-import com.aliyun.iot20180120.models.GetDeviceStatusResponse;
-import com.aliyun.iot20180120.models.GetDeviceStatusResponseBody;
-import com.aliyun.iot20180120.models.ImportDeviceRequest;
-import com.aliyun.iot20180120.models.ImportDeviceResponse;
-import com.aliyun.iot20180120.models.ImportDeviceResponseBody;
-import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceRequest;
-import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceResponse;
-import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceByStatusRequest;
-import com.aliyun.iot20180120.models.QueryDeviceByStatusResponse;
-import com.aliyun.iot20180120.models.QueryDeviceByStatusResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceDetailRequest;
-import com.aliyun.iot20180120.models.QueryDeviceDetailResponse;
-import com.aliyun.iot20180120.models.QueryDeviceDetailResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceInfoRequest;
-import com.aliyun.iot20180120.models.QueryDeviceInfoResponse;
-import com.aliyun.iot20180120.models.QueryDeviceInfoResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceRequest;
-import com.aliyun.iot20180120.models.QueryDeviceResponse;
-import com.aliyun.iot20180120.models.QueryDeviceResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceStatisticsRequest;
-import com.aliyun.iot20180120.models.QueryDeviceStatisticsResponse;
-import com.aliyun.iot20180120.models.QueryDeviceStatisticsResponseBody;
-import com.aliyun.iot20180120.models.RegisterDeviceRequest;
-import com.aliyun.iot20180120.models.RegisterDeviceResponse;
-import com.aliyun.iot20180120.models.RegisterDeviceResponseBody;
+import com.aliyun.iot20180120.models.*;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.service.equipment.BatchCheckImportDeviceRq;
-import com.jike.wlw.service.equipment.BatchVehicleDeviceRq;
-import com.jike.wlw.service.equipment.EquipmentCreateRq;
-import com.jike.wlw.service.equipment.EquipmentGetRq;
-import com.jike.wlw.service.equipment.EquipmentImportDeviceRq;
-import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
-import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
+import com.jike.wlw.service.equipment.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -417,6 +365,69 @@ public class IemEquipmentManager {
                 log.error("批量校验导入的云网关设备失败：" + JSON.toJSONString(importRq));
                 throw new BusinessException("批量校验导入的云网关设备失败：" + JSON.toJSONString(importRq));
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 调用该接口批量修改设备备注名称。
+     */
+    public BatchUpdateDeviceNicknameResponseBody batchUpdateDeviceNickname(BatchUpdateDeviceNicknameRq nicknameRq) {
+        BatchUpdateDeviceNicknameRequest request = new BatchUpdateDeviceNicknameRequest();
+        BeanUtils.copyProperties(nicknameRq, request);
+
+        if (!CollectionUtils.isEmpty(nicknameRq.getDeviceNicknameInfo())) {
+            List<BatchUpdateDeviceNicknameRequest.BatchUpdateDeviceNicknameRequestDeviceNicknameInfo> deviceLists = new ArrayList<>();
+            for (BatchUpdateDeviceNicknameRq.DeviceNicknameInfo info : nicknameRq.getDeviceNicknameInfo()) {
+                BatchUpdateDeviceNicknameRequest.BatchUpdateDeviceNicknameRequestDeviceNicknameInfo requestInfo = new BatchUpdateDeviceNicknameRequest.BatchUpdateDeviceNicknameRequestDeviceNicknameInfo();
+                requestInfo.setDeviceName(info.getDeviceName());
+                requestInfo.setNickname(info.getNickname());
+                requestInfo.setProductKey(info.getProductKey());
+                requestInfo.setIotId(info.getIotId());
+                deviceLists.add(requestInfo);
+            }
+            request.setDeviceNicknameInfo(deviceLists);
+        }
+
+        try {
+            BatchUpdateDeviceNicknameResponse response = client.batchUpdateDeviceNickname(request);
+            if (response.getBody() != null) {
+                return response.getBody();
+            } else {
+                log.error("批量修改设备备注名称失败：" + JSON.toJSONString(nicknameRq));
+                throw new BusinessException("批量修改设备备注名称失败：" + JSON.toJSONString(nicknameRq));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 批量注册多个设备
+     *
+     * @param ProductKey 产品名称  必须
+     * @param Count      设备的数量 必须
+     * @Des 描述：
+     */
+    public BatchRegisterDeviceResponseBody batchRegisterDevice(String ProductKey, Integer Count) {
+        BatchRegisterDeviceRequest registerDeviceRequest = new BatchRegisterDeviceRequest();
+        registerDeviceRequest.setCount(Count);
+        registerDeviceRequest.setProductKey(ProductKey);
+
+        try {
+            BatchRegisterDeviceResponse response = client.batchRegisterDevice(registerDeviceRequest);
+
+            if (response.getBody() != null && response.getBody().getSuccess() != null && response.getBody().getSuccess()) {
+                log.info("批量注册多个设备成功" + JSON.toJSONString(response));
+                return response.getBody();
+            } else {
+                log.error("批量注册多个设备失败：" + JSON.toJSONString(response));
+                throw new BusinessException("批量注册多个设备失败：" + JSON.toJSONString(response));
+            }
+
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);

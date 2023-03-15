@@ -31,7 +31,7 @@ import com.aliyun.iot20180120.models.SetDevicesPropertyResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.jike.wlw.config.client.AliIotClient;
-import com.jike.wlw.core.physicalmodel.ali.iot.entity.DevicePropertyRq;
+import com.jike.wlw.service.equipment.ali.DevicePropertyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
