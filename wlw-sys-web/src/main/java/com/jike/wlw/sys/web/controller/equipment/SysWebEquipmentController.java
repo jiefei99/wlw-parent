@@ -4,20 +4,18 @@ import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.equipment.*;
-import com.jike.wlw.service.equipment.ali.BatchCheckImportDeviceResult;
-import com.jike.wlw.service.equipment.ali.BatchCheckVehicleDeviceResult;
-import com.jike.wlw.service.equipment.ali.BatchImportVehicleDeviceResult;
-import com.jike.wlw.service.equipment.ali.ImportDeviceResult;
-import com.jike.wlw.service.operation.log.OperationLog;
-import com.jike.wlw.service.operation.log.OperationLogFilter;
+import com.jike.wlw.service.equipment.ali.*;
+import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
+import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import com.jike.wlw.sys.web.config.fegin.AliEquipmentFeignClient;
-import com.jike.wlw.sys.web.config.fegin.OperationLogFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 版权所有，极客软创（厦门）信息科技有限公司，2023，所有权利保留。
@@ -64,7 +62,7 @@ public class SysWebEquipmentController extends BaseController {
     @ResponseBody
     ActionResult<String> create(@ApiParam(required = true, value = "新建设备请求参数") @RequestBody EquipmentCreateRq createRq) throws BusinessException{
         try {
-            ActionResult<String> result = aliEquipmentFeignClient.create(getTenantId(), createRq, getUserName());
+            ActionResult<String> result = aliEquipmentFeignClient.create(getTenantId(), createRq, "管理员");
 
             return ActionResult.ok(result);
         } catch (Exception e) {
@@ -223,6 +221,58 @@ public class SysWebEquipmentController extends BaseController {
     ActionResult<BatchCheckVehicleDeviceResult> batchCheckVehicleDevice(@ApiParam(required = true, value = "查询条件") @RequestBody BatchVehicleDeviceRq importRq) throws BusinessException{
         try {
             ActionResult<BatchCheckVehicleDeviceResult> result = aliEquipmentFeignClient.batchCheckVehicleDevice(getTenantId(), importRq);
+
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "批量修改设备备注名称")
+    @RequestMapping(value = "/batchUpdateDeviceNickname", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<Void> batchUpdateDeviceNickname(@ApiParam(required = true, value = "查询条件") @RequestBody BatchUpdateDeviceNicknameRq nicknameRq) throws BusinessException{
+        try {
+            aliEquipmentFeignClient.batchUpdateDeviceNickname(getTenantId(), nicknameRq);
+
+            return ActionResult.ok();
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "在指定产品下批量注册多个设备")
+    @RequestMapping(value = "/batchRegisterDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<String> batchRegisterDevice(@ApiParam(required = true, value = "批量注册多个设备请求参数") @RequestBody BatchRegisterDeviceRq deviceRq) throws BusinessException{
+        try {
+            ActionResult<String> result = aliEquipmentFeignClient.batchRegisterDevice(getTenantId(), deviceRq);
+
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "查询指定设备的期望属性值")
+    @RequestMapping(value = "/queryDeviceDesiredProperty", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<DesiredPropertyInfoDTO>> queryDeviceDesiredProperty(@ApiParam(required = true, value = "查询条件") @RequestBody DevicePropertyRq model) throws BusinessException{
+        try {
+            ActionResult<List<DesiredPropertyInfoDTO>> result = aliEquipmentFeignClient.queryDeviceDesiredProperty(getTenantId(), model);
+
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "查询指定设备或数字孪生节点，在指定时间段内，单个属性的数据")
+    @RequestMapping(value = "/queryDevicePropertyData", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<PropertyInfoDTO>> queryDevicePropertyData(@ApiParam(required = true, value = "查询条件") @RequestBody DevicePropertyRq model) throws BusinessException{
+        try {
+            ActionResult<List<PropertyInfoDTO>> result = aliEquipmentFeignClient.queryDevicePropertyData(getTenantId(), model);
 
             return ActionResult.ok(result);
         } catch (Exception e) {

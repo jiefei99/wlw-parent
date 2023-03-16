@@ -3,17 +3,9 @@ package com.jike.wlw.service.equipment.ali;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.service.equipment.BaseEquipmentService;
-import com.jike.wlw.service.equipment.BatchCheckImportDeviceRq;
-import com.jike.wlw.service.equipment.BatchVehicleDeviceRq;
-import com.jike.wlw.service.equipment.Equipment;
-import com.jike.wlw.service.equipment.EquipmentCreateRq;
-import com.jike.wlw.service.equipment.EquipmentGetRq;
-import com.jike.wlw.service.equipment.EquipmentImportDeviceRq;
-import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
-import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
+import com.jike.wlw.service.equipment.*;
+import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
+import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -22,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+
+import java.util.List;
 
 @Api(tags = "阿里云设备服务")
 public interface AliEquipmentService extends BaseEquipmentService {
@@ -103,4 +97,24 @@ public interface AliEquipmentService extends BaseEquipmentService {
     @RequestMapping(value = "/batchCheckVehicleDevice", method = RequestMethod.POST)
     @ResponseBody
     ActionResult<BatchCheckVehicleDeviceResult> batchCheckVehicleDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody BatchVehicleDeviceRq importRq) throws BusinessException;
+
+    @ApiOperation(value = "批量修改设备备注名称")
+    @RequestMapping(value = "/batchUpdateDeviceNickname", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<Void> batchUpdateDeviceNickname(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "查询条件") @RequestBody BatchUpdateDeviceNicknameRq nicknameRq) throws BusinessException;
+
+    @ApiOperation(value = "在指定产品下批量注册多个设备")
+    @RequestMapping(value = "/batchRegisterDevice", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<String> batchRegisterDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "批量注册多个设备请求参数") @RequestBody BatchRegisterDeviceRq deviceRq) throws BusinessException;
+
+    @ApiOperation(value = "查询指定设备的期望属性值")
+    @RequestMapping(value = "/queryDeviceDesiredProperty", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<DesiredPropertyInfoDTO>> queryDeviceDesiredProperty(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "设备属性值请求参数") @RequestBody DevicePropertyRq model) throws BusinessException;
+
+    @ApiOperation(value = "查询指定设备或数字孪生节点，在指定时间段内，单个属性的数据")
+    @RequestMapping(value = "/queryDevicePropertyData", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<PropertyInfoDTO>> queryDevicePropertyData(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "设备属性值请求参数") @RequestBody DevicePropertyRq model) throws BusinessException;
 }

@@ -1,42 +1,17 @@
 package com.jike.wlw.core.equipment.ali;
 
-import com.aliyun.iot20180120.models.BatchCheckImportDeviceResponseBody;
-import com.aliyun.iot20180120.models.BatchCheckVehicleDeviceResponseBody;
-import com.aliyun.iot20180120.models.BatchImportVehicleDeviceResponseBody;
-import com.aliyun.iot20180120.models.DeleteDeviceResponseBody;
-import com.aliyun.iot20180120.models.DisableThingResponseBody;
-import com.aliyun.iot20180120.models.EnableThingResponseBody;
-import com.aliyun.iot20180120.models.GetDeviceStatusResponseBody;
-import com.aliyun.iot20180120.models.ImportDeviceResponseBody;
-import com.aliyun.iot20180120.models.ListOTAModuleVersionsByDeviceResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceByStatusResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceDetailResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceInfoResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceResponseBody;
-import com.aliyun.iot20180120.models.QueryDeviceStatisticsResponseBody;
-import com.aliyun.iot20180120.models.RegisterDeviceResponseBody;
+import com.aliyun.iot20180120.models.*;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.equipment.ali.iot.IemEquipmentManager;
+import com.jike.wlw.core.physicalmodel.ali.iot.PhysicalModelUse;
 import com.jike.wlw.dao.TX;
-import com.jike.wlw.service.equipment.BatchCheckImportDeviceRq;
-import com.jike.wlw.service.equipment.BatchVehicleDeviceRq;
-import com.jike.wlw.service.equipment.Equipment;
-import com.jike.wlw.service.equipment.EquipmentCreateRq;
-import com.jike.wlw.service.equipment.EquipmentGetRq;
-import com.jike.wlw.service.equipment.EquipmentImportDeviceRq;
-import com.jike.wlw.service.equipment.EquipmentOTAModuleVersionRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByProductRq;
-import com.jike.wlw.service.equipment.EquipmentQueryByStatusRq;
-import com.jike.wlw.service.equipment.EquipmentStatisticsQueryRq;
-import com.jike.wlw.service.equipment.EquipmentStatus;
-import com.jike.wlw.service.equipment.ali.AliEquipmentService;
-import com.jike.wlw.service.equipment.ali.BatchCheckImportDeviceResult;
-import com.jike.wlw.service.equipment.ali.BatchCheckVehicleDeviceResult;
-import com.jike.wlw.service.equipment.ali.BatchImportVehicleDeviceResult;
-import com.jike.wlw.service.equipment.ali.ImportDeviceResult;
+import com.jike.wlw.service.equipment.*;
+import com.jike.wlw.service.equipment.ali.*;
+import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
+import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -56,6 +31,8 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
 
     @Autowired
     private IemEquipmentManager equipmentManager;
+    @Autowired
+    private PhysicalModelUse physicalModelUse;
 
     @Override
     public ActionResult<Equipment> getBasic(String tenantId, EquipmentGetRq getRq) throws BusinessException {
@@ -350,6 +327,88 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
                 return ActionResult.ok(result);
             } else {
                 return ActionResult.fail("批量校验导入的云网关设备失败，原因：" + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ActionResult<Void> batchUpdateDeviceNickname(String tenantId, BatchUpdateDeviceNicknameRq nicknameRq) throws BusinessException {
+        try {
+            BatchUpdateDeviceNicknameResponseBody response = equipmentManager.batchUpdateDeviceNickname(nicknameRq);
+            if (response != null && Boolean.TRUE.equals(response.getSuccess())) {
+
+                return ActionResult.ok();
+            } else {
+                return ActionResult.fail("批量修改设备备注名称失败，原因：" + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ActionResult<String> batchRegisterDevice(String tenantId, BatchRegisterDeviceRq deviceRq) throws BusinessException {
+        try {
+            BatchRegisterDeviceResponseBody response = equipmentManager.batchRegisterDevice(deviceRq.productKey, deviceRq.getCount());
+            if (response != null && Boolean.TRUE.equals(response.getSuccess())) {
+
+                return ActionResult.ok(response.getData().getApplyId());
+            } else {
+                return ActionResult.fail("批量注册设备失败，原因：" + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ActionResult<List<DesiredPropertyInfoDTO>> queryDeviceDesiredProperty(String tenantId, DevicePropertyRq model) throws BusinessException {
+        try {
+            List<DesiredPropertyInfoDTO> result = new ArrayList<>();
+            QueryDeviceDesiredPropertyResponse response = physicalModelUse.queryDeviceDesiredProperty(model);
+            if (response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
+                if (response.getBody() == null || response.getBody().getData() == null || response.getBody().getData().getList() == null || CollectionUtils.isEmpty(response.getBody().getData().getList().getDesiredPropertyInfo())) {
+                    return ActionResult.ok(result);
+                }
+                for (QueryDeviceDesiredPropertyResponseBody.QueryDeviceDesiredPropertyResponseBodyDataListDesiredPropertyInfo source : response.getBody().getData().getList().getDesiredPropertyInfo()) {
+                    DesiredPropertyInfoDTO desiredPropertyInfoDTO = new DesiredPropertyInfoDTO();
+                    BeanUtils.copyProperties(source, desiredPropertyInfoDTO);
+                    result.add(desiredPropertyInfoDTO);
+                }
+
+                return ActionResult.ok(result);
+            } else {
+                return ActionResult.fail("设备的期望属性值失败，原因：" + response.getBody().getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ActionResult<List<PropertyInfoDTO>> queryDevicePropertyData(String tenantId, DevicePropertyRq model) throws BusinessException {
+        try {
+            List<PropertyInfoDTO> result = new ArrayList<>();
+            QueryDevicePropertyDataResponse response = physicalModelUse.queryDevicePropertyData(model);
+            if (response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
+                if ( response.getBody().getData() == null || response.getBody().getData().getList() == null || CollectionUtils.isEmpty(response.getBody().getData().getList().getPropertyInfo())) {
+                    return ActionResult.ok(result);
+                }
+                for (QueryDevicePropertyDataResponseBody.QueryDevicePropertyDataResponseBodyDataListPropertyInfo source : response.getBody().getData().getList().getPropertyInfo()) {
+                    PropertyInfoDTO propertyInfoDTO = new PropertyInfoDTO();
+                    BeanUtils.copyProperties(source, propertyInfoDTO);
+                    result.add(propertyInfoDTO);
+                }
+
+                return ActionResult.ok(result);
+            } else {
+                return ActionResult.fail("查询设备的属性数据失败，原因：" + response.getBody().getErrorMessage());
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
