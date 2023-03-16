@@ -30,6 +30,8 @@ public class OTAUpgradePackageListDeviceTaskByJobVO extends StandardEntity {
     private String productKey;
     @ApiModelProperty("当前版本号")
     private String srcVersion;
+    @ApiModelProperty("taskId")
+    private String taskId;
     @ApiModelProperty("状态")
     private OTAUpgradePackageTaskStatusType taskStatus;
 }

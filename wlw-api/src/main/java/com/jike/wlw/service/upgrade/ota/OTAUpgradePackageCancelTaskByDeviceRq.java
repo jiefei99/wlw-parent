@@ -33,7 +33,7 @@ public class OTAUpgradePackageCancelTaskByDeviceRq extends Entity implements Ser
     @ApiModelProperty("升级批次ID")
     private String jobId;
     @ApiModelProperty("取消升级的设备名称")
-    private List<String> deviceName;
+    private List<String> deviceNameIn;
 }
 
 

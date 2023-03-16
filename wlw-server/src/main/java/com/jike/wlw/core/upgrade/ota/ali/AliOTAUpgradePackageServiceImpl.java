@@ -85,9 +85,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
     public PagingResult<OTAUpgradePackageListVO> query(String tenantId, OTAUpgradePackageFilter filter) throws BusinessException {
         List<OTAUpgradePackageListVO> otaUpgradePackageVOList = new ArrayList<>();
         int total = 0;
+        ListOTAFirmwareResponse response=null;
         try {
-            ListOTAFirmwareResponse response = otaUpgradeManager.listOTAFirmware(filter);
-            if (response.getBody() == null || response.getBody() == null || !response.getBody().getSuccess() ||
+            response = otaUpgradeManager.listOTAFirmware(filter);
+            if (response==null || response.getBody() == null || !response.getBody().getSuccess() ||
                     response.getBody().getFirmwareInfo() == null || CollectionUtils.isEmpty(response.getBody().getFirmwareInfo().getSimpleFirmwareInfo())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, otaUpgradePackageVOList);
             }
@@ -108,7 +109,7 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, otaUpgradePackageVOList);
+        return new PagingResult<>(filter.getPage(), filter.getPageSize(), response.getBody().getTotal(), otaUpgradePackageVOList);
     }
 
     @Override
@@ -230,10 +231,15 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             if (StringUtils.isNotBlank(response.getBody().getData().getJobStatus())) {
                 otaUpgradePackageJobBatchInfoVO.setJobStatusType(OTAUpgradePackageJobStatusType.valueOf(response.getBody().getData().getJobStatus()));
             }
-            if (StringUtils.isNotBlank(response.getBody().getData().getJobStatus())) {
+            if (StringUtils.isNotBlank(response.getBody().getData().getTargetSelection())) {
                 otaUpgradePackageJobBatchInfoVO.setTargetSelectionType(OTAUpgradePackageJobTargetSelectionType.valueOf(response.getBody().getData().getTargetSelection()));
             }
-            otaUpgradePackageJobBatchInfoVO.setUtcStartDate(DateUtils.dealDateFormatUTC(response.getBody().getData().getUtcStartTime()));
+            if (StringUtils.isNotBlank(response.getBody().getData().getSelectionType())) {
+                otaUpgradePackageJobBatchInfoVO.setSelectionType(OTAUpgradePackageJobSelectionType.valueOf(response.getBody().getData().getSelectionType()));
+            }
+            if (StringUtils.isNotBlank(response.getBody().getData().getUtcStartTime())){
+                otaUpgradePackageJobBatchInfoVO.setUtcStartDate(DateUtils.dealDateFormatUTC(response.getBody().getData().getUtcStartTime()));
+            }
             if (response.getBody().getData().getSrcVersions() != null) {
                 otaUpgradePackageJobBatchInfoVO.setSrcVersionList(response.getBody().getData().getSrcVersions().getSrcVersion());
             }
@@ -260,48 +266,48 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             if (response.getBody().getFirmwareInfo().getType() != null) {
                 otaUpgradePackageVO.setType(OTAUpgradePackageType.map.get(response.getBody().getFirmwareInfo().getType()));
             }
-            //计算目标设备数量
-            OTAUpgradePackageTackByJobFilter filter = new OTAUpgradePackageTackByJobFilter();
-            filter.setJobId(id);
-            filter.setIotInstanceId(iotInstanceId);
-            filter.setPage(1);
-            filter.setPageSize(100);
-            ListOTATaskByJobResponse listOTATaskByJobResponse = otaUpgradeManager.listOTATaskByJob(filter);
-            if (!listOTATaskByJobResponse.getBody().getSuccess() || listOTATaskByJobResponse.getBody().getData() == null || CollectionUtils.isEmpty(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo())) {
-                return otaUpgradePackageVO;
-            }
-            List<ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo> taskInfoList = new ArrayList<>();
-            taskInfoList.addAll(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo());
-            int forCount = (listOTATaskByJobResponse.getBody().getTotal() + 100 - 1) / 100; //总数不止一页的情况
-            for (int i = 0; i < forCount - 1; i++) {
-                filter.setPage(filter.getPage() + 1);
-                listOTATaskByJobResponse = otaUpgradeManager.listOTATaskByJob(filter);
-                if (!listOTATaskByJobResponse.getBody().getSuccess() || listOTATaskByJobResponse.getBody().getData() == null || CollectionUtils.isEmpty(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo())) {
-                    continue;
-                }
-                taskInfoList.addAll(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo());
-            }
-            int targetDeviceUpgradeTotal = 0;
-            int targetSuccessTotal = 0;
-            int targetFailTotal = 0;
-            int targetCancelTotal = 0;
-            for (ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo listOTATaskByJobResponseBodyDataSimpleOTATaskInfo : taskInfoList) {
-                if ("SUCCEEDED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
-                    targetSuccessTotal++;
-                }
-                if ("FAILED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
-                    targetFailTotal++;
-                }
-                if ("CANCELED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
-                    targetCancelTotal++;
-                }
-                targetDeviceUpgradeTotal++;
-            }
-            otaUpgradePackageVO.setTargetDeviceUpgradeTotal(targetDeviceUpgradeTotal);
-            otaUpgradePackageVO.setTargetCancelTotal(targetCancelTotal);
-            otaUpgradePackageVO.setTargetSuccessTotal(targetSuccessTotal);
-            otaUpgradePackageVO.setTargetFailTotal(targetFailTotal);
             return otaUpgradePackageVO;
+//            //计算目标设备数量
+//            OTAUpgradePackageTackByJobFilter filter = new OTAUpgradePackageTackByJobFilter();
+//            filter.setJobId(id);
+//            filter.setIotInstanceId(iotInstanceId);
+//            filter.setPage(1);
+//            filter.setPageSize(100);
+//            ListOTATaskByJobResponse listOTATaskByJobResponse = otaUpgradeManager.listOTATaskByJob(filter);
+//            if (!listOTATaskByJobResponse.getBody().getSuccess() || listOTATaskByJobResponse.getBody().getData() == null || CollectionUtils.isEmpty(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo())) {
+//                return otaUpgradePackageVO;
+//            }
+//            List<ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo> taskInfoList = new ArrayList<>();
+//            taskInfoList.addAll(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo());
+//            int forCount = (listOTATaskByJobResponse.getBody().getTotal() + 100 - 1) / 100; //总数不止一页的情况
+//            for (int i = 0; i < forCount - 1; i++) {
+//                filter.setPage(filter.getPage() + 1);
+//                listOTATaskByJobResponse = otaUpgradeManager.listOTATaskByJob(filter);
+//                if (!listOTATaskByJobResponse.getBody().getSuccess() || listOTATaskByJobResponse.getBody().getData() == null || CollectionUtils.isEmpty(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo())) {
+//                    continue;
+//                }
+//                taskInfoList.addAll(listOTATaskByJobResponse.getBody().getData().getSimpleOTATaskInfo());
+//            }
+//            int targetDeviceUpgradeTotal = 0;
+//            int targetSuccessTotal = 0;
+//            int targetFailTotal = 0;
+//            int targetCancelTotal = 0;
+//            for (ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo listOTATaskByJobResponseBodyDataSimpleOTATaskInfo : taskInfoList) {
+//                if ("SUCCEEDED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
+//                    targetSuccessTotal++;
+//                }
+//                if ("FAILED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
+//                    targetFailTotal++;
+//                }
+//                if ("CANCELED".equals(listOTATaskByJobResponseBodyDataSimpleOTATaskInfo.getTaskStatus())) {
+//                    targetCancelTotal++;
+//                }
+//                targetDeviceUpgradeTotal++;
+//            }
+//            otaUpgradePackageVO.setTargetDeviceUpgradeTotal(targetDeviceUpgradeTotal);
+//            otaUpgradePackageVO.setTargetCancelTotal(targetCancelTotal);
+//            otaUpgradePackageVO.setTargetSuccessTotal(targetSuccessTotal);
+//            otaUpgradePackageVO.setTargetFailTotal(targetFailTotal);
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
