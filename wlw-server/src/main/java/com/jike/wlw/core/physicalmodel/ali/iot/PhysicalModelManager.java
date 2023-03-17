@@ -7,6 +7,7 @@
 package com.jike.wlw.core.physicalmodel.ali.iot;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import com.aliyun.iot20180120.models.CopyThingModelRequest;
 import com.aliyun.iot20180120.models.CopyThingModelResponse;
 import com.aliyun.iot20180120.models.CreateThingModelRequest;
@@ -43,7 +44,6 @@ import com.jike.wlw.service.physicalmodel.PhysicalModelPublishRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelTslGetRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;

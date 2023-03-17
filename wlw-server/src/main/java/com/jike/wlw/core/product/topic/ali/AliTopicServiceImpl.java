@@ -18,7 +18,7 @@ import com.jike.wlw.service.product.topic.ali.AliTopicService;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;

@@ -6,35 +6,16 @@
  */
 package com.jike.wlw.core.physicalmodel.ali.iot;
 
+import com.alibaba.excel.util.CollectionUtils;
 import com.alibaba.fastjson.JSON;
 import com.aliyun.iot20180120.Client;
-import com.aliyun.iot20180120.models.InvokeThingServiceRequest;
-import com.aliyun.iot20180120.models.InvokeThingServiceResponse;
-import com.aliyun.iot20180120.models.InvokeThingsServiceRequest;
-import com.aliyun.iot20180120.models.InvokeThingsServiceResponse;
-import com.aliyun.iot20180120.models.QueryDeviceDesiredPropertyRequest;
-import com.aliyun.iot20180120.models.QueryDeviceDesiredPropertyResponse;
-import com.aliyun.iot20180120.models.QueryDeviceEventDataRequest;
-import com.aliyun.iot20180120.models.QueryDeviceEventDataResponse;
-import com.aliyun.iot20180120.models.QueryDevicePropertiesDataRequest;
-import com.aliyun.iot20180120.models.QueryDevicePropertiesDataResponse;
-import com.aliyun.iot20180120.models.QueryDevicePropertyDataRequest;
-import com.aliyun.iot20180120.models.QueryDevicePropertyDataResponse;
-import com.aliyun.iot20180120.models.QueryDeviceServiceDataRequest;
-import com.aliyun.iot20180120.models.QueryDeviceServiceDataResponse;
-import com.aliyun.iot20180120.models.SetDeviceDesiredPropertyRequest;
-import com.aliyun.iot20180120.models.SetDeviceDesiredPropertyResponse;
-import com.aliyun.iot20180120.models.SetDevicePropertyRequest;
-import com.aliyun.iot20180120.models.SetDevicePropertyResponse;
-import com.aliyun.iot20180120.models.SetDevicesPropertyRequest;
-import com.aliyun.iot20180120.models.SetDevicesPropertyResponse;
+import com.aliyun.iot20180120.models.*;
 import com.aliyun.teaopenapi.models.Config;
 import com.aliyun.teautil.models.RuntimeOptions;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.equipment.ali.DevicePropertyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.core.env.Environment;

@@ -3,7 +3,9 @@ package com.jike.wlw.service.equipment.ali;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.common.ImportData;
 import com.jike.wlw.service.equipment.*;
+import com.jike.wlw.service.equipment.ali.dto.BatchCheckDeviceNamesResultDTO;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import io.swagger.annotations.Api;
@@ -108,6 +110,16 @@ public interface AliEquipmentService extends BaseEquipmentService {
     @ResponseBody
     ActionResult<String> batchRegisterDevice(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "批量注册多个设备请求参数") @RequestBody BatchRegisterDeviceRq deviceRq) throws BusinessException;
 
+    @ApiOperation(value = "指定产品下批量自定义设备名称")
+    @RequestMapping(value = "/batchCheckDeviceNames", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<BatchCheckDeviceNamesResultDTO> batchCheckDeviceNames(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "指定产品下批量自定义设备名称参数") @RequestBody BatchCheckDeviceNamesRq namesRq) throws BusinessException;
+
+    @ApiOperation(value = "指定产品下批量自定义设备名称")
+    @RequestMapping(value = "/batchRegisterDeviceWithApplyId", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<Long> batchRegisterDeviceWithApplyId(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "根据申请批次ID批量注册设备请求参数") @RequestBody BatchRegisterDeviceWithApplyIdRq applyIdRq) throws BusinessException;
+
     @ApiOperation(value = "查询指定设备的期望属性值")
     @RequestMapping(value = "/queryDeviceDesiredProperty", method = RequestMethod.POST)
     @ResponseBody
@@ -117,4 +129,11 @@ public interface AliEquipmentService extends BaseEquipmentService {
     @RequestMapping(value = "/queryDevicePropertyData", method = RequestMethod.POST)
     @ResponseBody
     ActionResult<List<PropertyInfoDTO>> queryDevicePropertyData(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId, @ApiParam(required = true, value = "设备属性值请求参数") @RequestBody DevicePropertyRq model) throws BusinessException;
+
+    @ApiOperation(value = "设备信息导入")
+    @RequestMapping(value = "/batchImport", method = RequestMethod.GET)
+    @ResponseBody
+    ImportData batchImport(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                           @ApiParam(required = true, value = "产品Key") @RequestParam(value = "productKey") String productKey,
+                           @ApiParam(value = "excel文件路径", required = true) @RequestParam(value = "filePath") String filePath) throws BusinessException;
 }

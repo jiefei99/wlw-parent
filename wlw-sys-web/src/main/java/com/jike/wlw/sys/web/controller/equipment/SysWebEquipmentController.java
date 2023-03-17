@@ -3,6 +3,7 @@ package com.jike.wlw.sys.web.controller.equipment;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.common.ImportData;
 import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.*;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
@@ -273,6 +274,19 @@ public class SysWebEquipmentController extends BaseController {
     ActionResult<List<PropertyInfoDTO>> queryDevicePropertyData(@ApiParam(required = true, value = "查询条件") @RequestBody DevicePropertyRq model) throws BusinessException{
         try {
             ActionResult<List<PropertyInfoDTO>> result = aliEquipmentFeignClient.queryDevicePropertyData(getTenantId(), model);
+
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "设备信息导入")
+    @RequestMapping(value = "/batchImport", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<ImportData> batchImport(@ApiParam(required = true, value = "产品Key") @RequestBody BatchImportRq importRq) throws BusinessException{
+        try {
+            ImportData result = aliEquipmentFeignClient.batchImport(getTenantId(), importRq.getProductKey(), importRq.getFilePath());
 
             return ActionResult.ok(result);
         } catch (Exception e) {
