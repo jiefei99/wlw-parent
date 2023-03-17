@@ -40,7 +40,7 @@ import java.util.List;
 @Slf4j
 @RestController("productServiceAliImpl")
 @ApiModel("阿里产品服务实现")
-@RequestMapping(value = "service/product", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "service/aliProduct", produces = "application/json;charset=utf-8")
 public class AliProductServiceImpl extends BaseService implements AliProductService {
     @Autowired
     private IemProductManager productManager;

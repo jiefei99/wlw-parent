@@ -34,7 +34,7 @@ import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageStaticUpgradeJobCreateR
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageVerifyJobCreateRq;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

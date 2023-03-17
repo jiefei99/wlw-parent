@@ -433,4 +433,58 @@ public class IemEquipmentManager {
             throw new BusinessException(e.getMessage(), e);
         }
     }
+
+    /**
+     * 批量校验设备名称
+     *
+     * @param namesRq 设备名称批量校验请求参数 必须
+     * @Des 描述：
+     */
+    public BatchCheckDeviceNamesResponseBody batchCheckDeviceNames(BatchCheckDeviceNamesRq namesRq) {
+        BatchCheckDeviceNamesRequest request = new BatchCheckDeviceNamesRequest();
+        BeanUtils.copyProperties(namesRq, request);
+
+        try {
+            BatchCheckDeviceNamesResponse response = client.batchCheckDeviceNames(request);
+
+            if (response != null && response.getBody()!= null && response.getBody().getSuccess() != null && response.getBody().getSuccess()) {
+                log.info("批量校验设备名称成功" + JSON.toJSONString(response));
+                return response.getBody();
+            } else {
+                log.error("批量校验设备名称失败：" + JSON.toJSONString(response));
+                throw new BusinessException("批量校验设备名称失败：" + JSON.toJSONString(response));
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 根据申请批次ID（ApplyId）批量注册设备
+     *
+     * @param applyIdRq 根据申请批次ID（ApplyId）批量注册设备请求参数 必须
+     * @Des 描述：
+     */
+    public BatchRegisterDeviceWithApplyIdResponseBody batchRegisterDeviceWithApplyId(BatchRegisterDeviceWithApplyIdRq applyIdRq) {
+        BatchRegisterDeviceWithApplyIdRequest request = new BatchRegisterDeviceWithApplyIdRequest();
+        BeanUtils.copyProperties(applyIdRq, request);
+
+        try {
+            BatchRegisterDeviceWithApplyIdResponse response = client.batchRegisterDeviceWithApplyId(request);
+
+            if (response != null && response.getBody() != null && response.getBody().getSuccess() != null && response.getBody().getSuccess()) {
+                log.info("根据申请批次ID批量注册设备成功" + JSON.toJSONString(response));
+                return response.getBody();
+            } else {
+                log.error("根据申请批次ID批量注册设备失败：" + JSON.toJSONString(response));
+                throw new BusinessException("根据申请批次ID批量注册设备失败：" + JSON.toJSONString(response));
+            }
+
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
 }

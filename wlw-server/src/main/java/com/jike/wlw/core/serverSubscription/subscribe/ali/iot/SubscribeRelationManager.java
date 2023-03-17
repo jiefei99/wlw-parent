@@ -21,7 +21,7 @@ import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelationCreate
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelationModifyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

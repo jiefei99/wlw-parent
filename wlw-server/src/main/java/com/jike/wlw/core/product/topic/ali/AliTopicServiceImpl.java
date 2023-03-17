@@ -1,6 +1,5 @@
 package com.jike.wlw.core.product.topic.ali;
 
-import com.aliyun.iot20180120.models.CreateProductResponseBody;
 import com.aliyun.iot20180120.models.CreateProductTopicResponse;
 import com.aliyun.iot20180120.models.DeleteProductTopicResponse;
 import com.aliyun.iot20180120.models.QueryProductTopicResponse;
@@ -19,8 +18,9 @@ import com.jike.wlw.service.product.topic.ali.AliTopicService;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -36,6 +36,7 @@ import java.util.List;
 @Slf4j
 @RestController("topicServiceAliImpl")
 @ApiModel("阿里Topic服务实现")
+@RequestMapping(value = "service/aliTopic", produces = "application/json;charset=utf-8")
 public class AliTopicServiceImpl extends BaseService implements AliTopicService {
 
     @Autowired
@@ -60,7 +61,13 @@ public class AliTopicServiceImpl extends BaseService implements AliTopicService 
                 topic.setId(info.getId());
                 topic.setDesc(info.getDesc());
                 topic.setTopicShortName(info.getTopicShortName());
-                topic.setOperation(Operation.valueOf(info.getOperation()));
+                if ("0".equals(info.getOperation())) {
+                    topic.setOperation(Operation.SUB);
+                } else if ("1".equals(info.getOperation())) {
+                    topic.setOperation(Operation.PUB);
+                } else {
+                    topic.setOperation(Operation.ALL);
+                }
                 topic.setProductKey(info.getProductKey());
                 topicList.add(topic);
             }

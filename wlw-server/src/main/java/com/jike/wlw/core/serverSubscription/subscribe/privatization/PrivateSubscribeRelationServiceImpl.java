@@ -20,7 +20,7 @@ import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelationModify
 import com.jike.wlw.service.serverSubscription.subscribe.privatization.PrivateSubscribeRelationService;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
+import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

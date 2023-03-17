@@ -4,12 +4,15 @@ import com.aliyun.iot20180120.models.*;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.common.ImportData;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.equipment.ali.imp.EquipmentImporter;
 import com.jike.wlw.core.equipment.ali.iot.IemEquipmentManager;
 import com.jike.wlw.core.physicalmodel.ali.iot.PhysicalModelUse;
 import com.jike.wlw.dao.TX;
 import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.*;
+import com.jike.wlw.service.equipment.ali.dto.BatchCheckDeviceNamesResultDTO;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import io.swagger.annotations.ApiModel;
@@ -33,6 +36,8 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
     private IemEquipmentManager equipmentManager;
     @Autowired
     private PhysicalModelUse physicalModelUse;
+    @Autowired
+    private EquipmentImporter equipmentImporter;
 
     @Override
     public ActionResult<Equipment> getBasic(String tenantId, EquipmentGetRq getRq) throws BusinessException {
@@ -367,6 +372,40 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
     }
 
     @Override
+    public ActionResult<BatchCheckDeviceNamesResultDTO> batchCheckDeviceNames(String tenantId, BatchCheckDeviceNamesRq namesRq) throws BusinessException {
+        try {
+            BatchCheckDeviceNamesResultDTO result = new BatchCheckDeviceNamesResultDTO();
+            BatchCheckDeviceNamesResponseBody response = equipmentManager.batchCheckDeviceNames(namesRq);
+            if (response != null && Boolean.TRUE.equals(response.getSuccess())) {
+                BeanUtils.copyProperties(response.getData(), result);
+                return ActionResult.ok(result);
+            } else {
+                return ActionResult.fail("批量校验设备名称失败，原因：" + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ActionResult<Long> batchRegisterDeviceWithApplyId(String tenantId, BatchRegisterDeviceWithApplyIdRq applyIdRq) throws BusinessException {
+        try {
+            Long result = null;
+            BatchRegisterDeviceWithApplyIdResponseBody response = equipmentManager.batchRegisterDeviceWithApplyId(applyIdRq);
+            if (response != null && Boolean.TRUE.equals(response.getSuccess())) {
+                result = response.getData().getApplyId();
+                return ActionResult.ok(result);
+            } else {
+                return ActionResult.fail("根据申请批次ID批量注册设备失败，原因：" + response.getErrorMessage());
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
     public ActionResult<List<DesiredPropertyInfoDTO>> queryDeviceDesiredProperty(String tenantId, DevicePropertyRq model) throws BusinessException {
         try {
             List<DesiredPropertyInfoDTO> result = new ArrayList<>();
@@ -397,7 +436,7 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
             List<PropertyInfoDTO> result = new ArrayList<>();
             QueryDevicePropertyDataResponse response = physicalModelUse.queryDevicePropertyData(model);
             if (response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
-                if ( response.getBody().getData() == null || response.getBody().getData().getList() == null || CollectionUtils.isEmpty(response.getBody().getData().getList().getPropertyInfo())) {
+                if (response.getBody().getData() == null || response.getBody().getData().getList() == null || CollectionUtils.isEmpty(response.getBody().getData().getList().getPropertyInfo())) {
                     return ActionResult.ok(result);
                 }
                 for (QueryDevicePropertyDataResponseBody.QueryDevicePropertyDataResponseBodyDataListPropertyInfo source : response.getBody().getData().getList().getPropertyInfo()) {
@@ -410,6 +449,17 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
             } else {
                 return ActionResult.fail("查询设备的属性数据失败，原因：" + response.getBody().getErrorMessage());
             }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    @Override
+    public ImportData batchImport(String tenantId, String productKey, String filePath) throws BusinessException {
+        try {
+            ImportData importData = equipmentImporter.doImport(tenantId, productKey, filePath);
+            return importData;
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);

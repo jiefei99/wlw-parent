@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.Map;
 @Slf4j
 @RestController("modelServiceAliImpl")
 @ApiModel("阿里物模型服务实现")
+@RequestMapping(value = "service/aliPhysicalModel", produces = "application/json;charset=utf-8")
 public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManagerService {
     @Autowired
     private PhysicalModelManager manager;
@@ -89,7 +91,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
             String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
             if (StringUtils.isNotBlank(ppk)){
                 model.setVersion(JSON.parseObject(ppk).getString("version"));
-                model.setDesc(JSON.parseObject(ppk).getString("description"));
+                model.setDescription(JSON.parseObject(ppk).getString("description"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -244,7 +246,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
                 String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
                 if (StringUtils.isNotBlank(ppk)){
                     model.setVersion(JSON.parseObject(ppk).getString("version"));
-                    model.setDesc(JSON.parseObject(ppk).getString("description"));
+                    model.setDescription(JSON.parseObject(ppk).getString("description"));
                 }
             }
         } catch (Exception e) {

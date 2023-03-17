@@ -19,7 +19,6 @@ import com.aliyun.iot20180120.models.UpdateProductTopicResponse;
 import com.aliyun.teaopenapi.models.Config;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.product.topic.TopicCreateRq;
-import com.jike.wlw.service.product.topic.TopicFilter;
 import com.jike.wlw.service.product.topic.TopicModifyRq;
 import io.micrometer.core.instrument.util.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -71,7 +70,14 @@ public class TopicManager {
         request.setProductKey(topic.getProductKey());
         request.setDesc(topic.getDesc());
         request.setOperation(topic.getOperation().toString());
-        request.setTopicShortName(topic.getTopicShortName());
+        if (StringUtils.isNotBlank(topic.getTopicShortName())) {
+            int firstIndexOf = topic.getTopicShortName().indexOf("/");
+            if (firstIndexOf == 0) {
+                request.setTopicShortName(topic.getTopicShortName().substring(1, topic.getTopicShortName().length()));
+            } else {
+                request.setTopicShortName(topic.getTopicShortName());
+            }
+        }
         request.setIotInstanceId(topic.getIotInstanceId());
         CreateProductTopicResponse response = client.createProductTopic(request);
         System.out.println("产品创建自定义Topic类"+ JSON.toJSONString(response));
