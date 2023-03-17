@@ -30,7 +30,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @Api(value = "OTA模块", tags = {"OTA升级"})
 @RestController
-@RequestMapping(value = "/web/OTAUpgradeModule", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/web/OTAUpgradeModule/aliyun", produces = "application/json;charset=utf-8")
 public class SysWebOTAUpgradeModuleController extends BaseController {
     @Autowired
     private AliOTAUpgradeModuleFeignClient aliOTAUpgradeModuleFeignClient;

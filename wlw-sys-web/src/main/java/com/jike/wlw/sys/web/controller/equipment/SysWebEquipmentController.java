@@ -7,14 +7,19 @@ import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.*;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
+import com.jike.wlw.service.equipment.vo.EquipmentByNameVO;
 import com.jike.wlw.sys.web.config.fegin.AliEquipmentFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -52,6 +57,41 @@ public class SysWebEquipmentController extends BaseController {
             ActionResult<Equipment> result = aliEquipmentFeignClient.getDetail(getTenantId(), getRq);
 
             return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "获取设备名称")
+    @RequestMapping(value = "/queryName", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<PagingResult<EquipmentByNameVO>> queryName(@ApiParam(required = true, value = "获取设备详细信息请求参数") @RequestBody EquipmentQueryNameByProductRq filter) throws BusinessException{
+        try {
+            List<EquipmentByNameVO> list=new ArrayList();
+            if (StringUtils.isNotBlank(filter.getName())){
+                EquipmentGetRq equipmentGetRq=new EquipmentGetRq();
+                equipmentGetRq.setProductKey(filter.getProductKey());
+                equipmentGetRq.setDeviceName(filter.getName());
+                ActionResult<Equipment> detail = aliEquipmentFeignClient.getDetail(getTenantId(), equipmentGetRq);
+                if (detail==null||detail.getData()==null){
+                    return ActionResult.ok(new PagingResult<>(0,0,0,list));
+                }
+                EquipmentByNameVO equipmentByNameVO=new EquipmentByNameVO();
+                BeanUtils.copyProperties(detail.getData(),equipmentByNameVO);
+                list.add(equipmentByNameVO);
+                return ActionResult.ok(new PagingResult<>(filter.getCurrentPage(),filter.getPageSize(),1,list));
+            }else{
+                PagingResult<Equipment> result = aliEquipmentFeignClient.queryByProductKey(getTenantId(), filter);
+                if (result.getData()==null|| CollectionUtils.isEmpty(result.getData())){
+                    return ActionResult.ok(new PagingResult<>(0,0,0,list));
+                }
+                for (Equipment source : result.getData()) {
+                    EquipmentByNameVO equipmentByNameVO=new EquipmentByNameVO();
+                    BeanUtils.copyProperties(source,equipmentByNameVO);
+                    list.add(equipmentByNameVO);
+                }
+                return ActionResult.ok(new PagingResult<>(result.getPage(),result.getPageSize(),result.getTotal(),list));
+            }
         } catch (Exception e) {
             return dealWithError(e);
         }

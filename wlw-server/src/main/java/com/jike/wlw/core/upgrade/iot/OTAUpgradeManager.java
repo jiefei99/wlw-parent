@@ -13,7 +13,6 @@ import com.jike.wlw.base.Parameter;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskRq;
-import com.jike.wlw.core.upgrade.iot.entity.OTAUploadRq;
 import com.jike.wlw.service.upgrade.ota.OTAFirmwareMultiFilesCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleDeleteRq;

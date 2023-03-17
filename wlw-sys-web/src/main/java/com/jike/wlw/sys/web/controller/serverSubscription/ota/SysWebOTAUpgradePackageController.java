@@ -11,6 +11,7 @@ import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageReupgradeTaskRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTaskStatusType;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageVerifyJobCreateRq;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
@@ -52,7 +53,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @Api(value = "OTA升级包", tags = {"OTA升级"})
 @RestController
-@RequestMapping(value = "/web/OTAUpgradePackage", produces = "application/json;charset=utf-8")
+@RequestMapping(value = "/web/OTAUpgradePackage/aliyun", produces = "application/json;charset=utf-8")
 public class SysWebOTAUpgradePackageController extends BaseController {
 
     @Autowired
@@ -301,6 +302,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         try {
             aliOTAUpgradePackageFeignClient.reupgradeOTATask(reupgradeTaskRq, getUserName());
             return ActionResult.ok();
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "OTA升级包校验")
+    @RequestMapping(value = "/createOTAVerifyJob", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<String> createOTAVerifyJob(@RequestBody OTAUpgradePackageVerifyJobCreateRq verifyJobCreateRq) throws BusinessException {
+        try {
+            String otaVerifyJob = aliOTAUpgradePackageFeignClient.createOTAVerifyJob(verifyJobCreateRq, getUserName());
+            return ActionResult.ok(otaVerifyJob);
         } catch (Exception e) {
             return dealWithError(e);
         }

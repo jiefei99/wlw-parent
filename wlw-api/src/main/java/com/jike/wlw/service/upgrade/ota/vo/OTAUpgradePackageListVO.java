@@ -37,6 +37,8 @@ public class OTAUpgradePackageListVO extends StandardEntity {
     private String firmwareId;
     @ApiModelProperty("模块名称")
     private String moduleName;
+    @ApiModelProperty("待升OTA升级包版本号")//整包返回为空！
+    private String srcVersion;
 }
 
 
