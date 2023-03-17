@@ -8,11 +8,14 @@ import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageReupgradeTaskRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTaskStatusType;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchListVO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListBatchDeviceTaskByJobVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListDeviceTaskByJobVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageInfoVO;
@@ -36,6 +39,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @title: SysWebOTAUpgradeController
@@ -140,6 +146,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             return dealWithError(e);
         }
     }
+
     @ApiOperation(value = "刷新验证进度")
     @RequestMapping(value = "/getVerifyProgressInfo", method = RequestMethod.GET)
     @ResponseBody
@@ -151,6 +158,64 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         try {
             OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
             return ActionResult.ok(infoDTO.getVerifyProgress());
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "查询各个状态下的设备升级数")
+    @RequestMapping(value = "/getBatchDeviceTaskByJobNum", method = RequestMethod.GET)
+    @ResponseBody
+    public ActionResult<OTAUpgradePackageListBatchDeviceTaskByJobVO> getBatchDeviceTaskByJobNum(@ApiParam(required = true, value = "jobId") @RequestParam(value = "jobId") String jobId,
+                                                                                                @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(jobId)){
+            throw new BusinessException("OTA升级包ID不能为空");
+        }
+        try {
+            OTAUpgradePackageTackByJobFilter filter=new OTAUpgradePackageTackByJobFilter();
+            filter.setJobId(jobId);
+            filter.setPage(1);
+            filter.setPageSize(100);
+            PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
+            if (result==null||result.getData()==null||result.getTotal()==0||CollectionUtils.isEmpty(result.getData())){
+                return ActionResult.ok(new OTAUpgradePackageListBatchDeviceTaskByJobVO());
+            }
+            List<OTAUpgradePackageListDeviceTaskByJobDTO> batchDeviceList = new ArrayList<>();
+            batchDeviceList.addAll(result.getData());
+            Long forCount = (result.getTotal() + 100 - 1) / 100; //总数不止一页的情况
+            for (int i = 0; i < forCount - 1; i++) {
+                filter.setPage(filter.getPage() + 1);
+                result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
+                if (result==null||result.getData()==null||result.getTotal()==0||CollectionUtils.isEmpty(result.getData())){
+                    continue;
+                }
+                batchDeviceList.addAll(result.getData());
+            }
+            Map<OTAUpgradePackageTaskStatusType, Long> statusTypeCountMap = batchDeviceList.parallelStream().map(OTAUpgradePackageListDeviceTaskByJobDTO::getTaskStatus).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+            OTAUpgradePackageListBatchDeviceTaskByJobVO vo=new OTAUpgradePackageListBatchDeviceTaskByJobVO();
+            vo.setTotal(Long.valueOf(batchDeviceList.size()));
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM)!=null){
+                vo.setConfirmTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED)!=null){
+                vo.setFailedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED)!=null){
+                vo.setQueuedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED)!=null){
+                vo.setNotifiedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED)!=null){
+                vo.setSuccessTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED)!=null){
+                vo.setCanceledTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED));
+            }
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS)!=null){
+                vo.setUpgradingTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS));
+            }
+            return ActionResult.ok(vo);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -225,6 +290,17 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         try {
             Boolean flag = aliOTAUpgradePackageFeignClient.cancelOTATaskByDevice(cancelTaskByDeviceRq, getUserName());
             return ActionResult.ok(flag);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+    @ApiOperation(value = "重新发起升级失败或升级取消的设备升级作业")
+    @RequestMapping(value = "/reUpgradeOTATaskByDevice", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<Void> reUpgradeOTATaskByDevice(@RequestBody OTAUpgradePackageReupgradeTaskRq reupgradeTaskRq) throws BusinessException {
+        try {
+            aliOTAUpgradePackageFeignClient.reupgradeOTATask(reupgradeTaskRq, getUserName());
+            return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
         }

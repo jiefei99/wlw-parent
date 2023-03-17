@@ -37,6 +37,8 @@ public class OTAUpgradePackageInfoVO extends StandardEntity {
     private String firmwareSign;
     @ApiModelProperty("升级包版本号")
     private String destVersion;
+    @ApiModelProperty("待升级版本号")
+    private String srcVersion;
     @ApiModelProperty("签名算法")
     private String signMethod;
     @ApiModelProperty("升级包状态")

@@ -1,9 +1,12 @@
 package com.jike.wlw.service.upgrade.ota.vo;
 
+import com.geeker123.rumba.jpa.api.entity.StandardEntity;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTaskStatusType;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -15,23 +18,23 @@ import lombok.Setter;
 @Setter
 @Getter
 @ApiModel("OTA设备升级作业")
-public class OTAUpgradePackageListBatchDeviceTaskByJobVO extends OTAUpgradePackageListDeviceTaskByJobVO{
+public class OTAUpgradePackageListBatchDeviceTaskByJobVO extends StandardEntity {
     @ApiModelProperty("总数")
-    private int total;
+    private Long total=0L;
     @ApiModelProperty("待确认")
-    private int confirmTotal;
+    private Long confirmTotal=0L;
     @ApiModelProperty("待推送")
-    private int queuedTotal;
+    private Long queuedTotal=0L;
     @ApiModelProperty("已推送")
-    private int notifiedTotal;
+    private Long notifiedTotal=0L;
     @ApiModelProperty("升级中")
-    private int upgradingTotal;
+    private Long upgradingTotal=0L;
     @ApiModelProperty("升级成功")
-    private int successTotal;
+    private Long successTotal=0L;
     @ApiModelProperty("升级失败")
-    private int failedTotal;
+    private Long failedTotal=0L;
     @ApiModelProperty("已取消")
-    private int canceledTotal;
+    private Long canceledTotal=0L;
 }
 
 

@@ -42,9 +42,9 @@ public class OTAUpgradePackageJobBatchInfoVO extends StandardEntity {
     @ApiModelProperty("升级包状态")
     private OTAUpgradePackageJobStatusType jobStatusType;
     @ApiModelProperty("升级包推送速率")
-    private int maximumPerMinute;
+    private Integer maximumPerMinute;
     @ApiModelProperty("升级失败重试间隔")
-    private int retryInterval;
+    private Integer retryInterval;
     @ApiModelProperty("云端主动推送升级")
     private boolean needPush;
     @ApiModelProperty("APP确认升级")

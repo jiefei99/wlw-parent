@@ -36,6 +36,6 @@ public class OTAUpgradePackageTackByJobFilter extends AbstractQueryFilter {
     private String deviceNameEq;
     @ApiModelProperty("升级批次ID")
     private String jobId;
-    @ApiModelProperty("升级批次ID")
+    @ApiModelProperty("升级状态")
     private OTAUpgradePackageTaskStatusType taskStatus;
 }

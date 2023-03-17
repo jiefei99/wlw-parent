@@ -483,7 +483,7 @@ public class OTAUpgradeManager {
         if (StringUtils.isBlank(cancelTaskByDeviceRq.getProductKey())) {
             throw new IllegalAccessException("取消升级的设备所属产品的ProductKey不能为空");
         }
-        if (CollectionUtils.isEmpty(cancelTaskByDeviceRq.getDeviceName()) || cancelTaskByDeviceRq.getDeviceName().size() > 200) {
+        if (CollectionUtils.isEmpty(cancelTaskByDeviceRq.getDeviceNameIn()) || cancelTaskByDeviceRq.getDeviceNameIn().size() > 10) {
             throw new IllegalAccessException("设备名称不能为空且最多可传入200个设备名称");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
@@ -491,7 +491,7 @@ public class OTAUpgradeManager {
         CancelOTATaskByDeviceRequest request = new CancelOTATaskByDeviceRequest();
         request.setIotInstanceId(cancelTaskByDeviceRq.getIotInstanceId());
         request.setJobId(cancelTaskByDeviceRq.getJobId());
-        request.setDeviceName(cancelTaskByDeviceRq.getDeviceName());
+        request.setDeviceName(cancelTaskByDeviceRq.getDeviceNameIn());
         request.setProductKey(cancelTaskByDeviceRq.getProductKey());
         request.setFirmwareId(cancelTaskByDeviceRq.getFirmwareId());
         CancelOTATaskByDeviceResponse response = client.cancelOTATaskByDevice(request);
