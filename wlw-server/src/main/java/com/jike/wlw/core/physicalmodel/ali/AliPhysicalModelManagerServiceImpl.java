@@ -91,7 +91,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
             String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
             if (StringUtils.isNotBlank(ppk)){
                 model.setVersion(JSON.parseObject(ppk).getString("version"));
-                model.setDesc(JSON.parseObject(ppk).getString("description"));
+                model.setDescription(JSON.parseObject(ppk).getString("description"));
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -246,7 +246,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
                 String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
                 if (StringUtils.isNotBlank(ppk)){
                     model.setVersion(JSON.parseObject(ppk).getString("version"));
-                    model.setDesc(JSON.parseObject(ppk).getString("description"));
+                    model.setDescription(JSON.parseObject(ppk).getString("description"));
                 }
             }
         } catch (Exception e) {

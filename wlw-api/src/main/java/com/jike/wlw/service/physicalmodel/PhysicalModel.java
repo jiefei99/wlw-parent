@@ -16,25 +16,29 @@ public class PhysicalModel extends Entity {
     public static final String CATEGORYNAME = "categoryName"; //年 2021
     public static final String CATEGORYKEY = "categoryKey"; //年 2021
 
-    @ApiModelProperty("物模型编号")
-    private String id;
-    @ApiModelProperty("物模型名称")
-    private String name;
-    @ApiModelProperty("功能编号集合")
-    private List<String> functionIds;
-
-    @ApiModelProperty("版本")
-    private String version;
+    //@ApiModelProperty("物模型编号")
+    //private String id;
+    //@ApiModelProperty("物模型名称")
+    //private String name;
+    //@ApiModelProperty("功能编号集合")
+    //private List<String> functionIds;
+    //
+    //@ApiModelProperty("版本")
+    //private String version;
     @ApiModelProperty("物模型自定义模块标识符")
     private String functionBlockId;
     @ApiModelProperty("设备所属的产品ProductKey")
     private String productKey;
+    @ApiModelProperty("版本")
+    private String version;
     @ApiModelProperty("描述")
-    private String desc;
-    @ApiModelProperty("服务")
-    private List<Object> services;
-    @ApiModelProperty("事件")
-    private List<Object> events;
+    private String description;
+    @ApiModelProperty("自定义模块列表")
+    private List<FunctionBlock> functionBlocks;
     @ApiModelProperty("属性")
-    private List<Object> properties;
+    private List<Property> properties;
+    @ApiModelProperty("服务")
+    private List<Service> services;
+    @ApiModelProperty("事件")
+    private List<Event> events;
 }
