@@ -33,6 +33,7 @@ import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
@@ -50,6 +51,7 @@ import java.util.Map;
 @Slf4j
 @RestController("modelServiceAliImpl")
 @ApiModel("阿里物模型服务实现")
+@RequestMapping(value = "service/aliPhysicalModel", produces = "application/json;charset=utf-8")
 public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManagerService {
     @Autowired
     private PhysicalModelManager manager;

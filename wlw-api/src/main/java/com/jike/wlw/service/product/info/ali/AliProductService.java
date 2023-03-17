@@ -7,7 +7,6 @@ import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
-import com.jike.wlw.service.product.info.ProductQueryRq;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -32,14 +31,14 @@ public interface AliProductService extends BaseProductService {
     @ResponseBody
     String create(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                   @ApiParam(required = true, value = "添加产品请求参数") @RequestBody ProductCreateRq createRq,
-                  @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                  @ApiParam(required = false, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "编辑产品")
     @RequestMapping(value = "/modify", method = RequestMethod.POST)
     @ResponseBody
     void modify(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "编辑产品请求参数") @RequestBody ProductModifyRq modifyRq,
-                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = false, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据ID删除产品")
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
@@ -47,7 +46,7 @@ public interface AliProductService extends BaseProductService {
     void delete(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                 @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
                 @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
-                @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                @ApiParam(required = false, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "根据查询条件查询产品")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
@@ -61,7 +60,7 @@ public interface AliProductService extends BaseProductService {
     void publishProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                         @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
                         @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
-                        @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                        @ApiParam(required = false, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "取消指定产品的发布")
     @RequestMapping(value = "/cancelReleaseProduct", method = RequestMethod.POST)
@@ -69,6 +68,6 @@ public interface AliProductService extends BaseProductService {
     void unPublishProduct(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                           @ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
                           @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId,
-                          @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator") String operator) throws BusinessException;
+                          @ApiParam(required = false, value = "操作人") @RequestParam(required = false, value = "operator") String operator) throws BusinessException;
 
 }

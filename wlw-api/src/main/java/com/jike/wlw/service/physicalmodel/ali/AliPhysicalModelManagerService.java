@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Map;
 
 @Api(tags = "阿里物模型管理")
-@RequestMapping(value = "service/physicalModelManager", produces = "application/json;charset=utf-8")
 public interface AliPhysicalModelManagerService {
 
     @ApiOperation(value = "新建物模型")

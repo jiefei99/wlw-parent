@@ -26,7 +26,6 @@ import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.product.info.AliProductFilter;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductModifyRq;
-import com.jike.wlw.service.product.info.ProductQueryRq;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -101,13 +100,21 @@ public class IemProductManager {
         CreateProductRequest createProductRequest = new CreateProductRequest();
         BeanUtils.copyProperties(registerRq, createProductRequest);
         createProductRequest.setProductName(registerRq.getName());
-        createProductRequest.setProtocolType(registerRq.getProtocolType().toString().toLowerCase(Locale.ROOT));
-        createProductRequest.setNetType(registerRq.getNetType().toString());
-        createProductRequest.setAuthType(registerRq.getAuthType().toString().toLowerCase(Locale.ROOT));
-        //todo 暂时写死吧。。。
-        createProductRequest.setAliyunCommodityCode("iothub_senior"); //上传此编码支持产品使用物模型，否则不支持
-        createProductRequest.setAuthType("secret");  //设备接入物联网认证方式：secret--设备密钥； id2--使用物联网设备身份认证ID²； x509--使用设备X.509证书进行设备身份认证
-        createProductRequest.setValidateType(1); // 数据校验级别：1--弱校验，仅校验设备数据的idetifier和dataType字段； 2--免校验，流转全量数据
+        if (registerRq.getProtocolType() != null) {
+            createProductRequest.setProtocolType(registerRq.getProtocolType().toString().toLowerCase(Locale.ROOT));
+        }
+        if (registerRq.getNetType() != null) {
+            createProductRequest.setNetType(registerRq.getNetType().toString());
+        }
+        if (registerRq.getAuthType() != null) {
+            //设备接入物联网认证方式：secret--设备密钥； id2--使用物联网设备身份认证ID²； x509--使用设备X.509证书进行设备身份认证
+            createProductRequest.setAuthType(registerRq.getAuthType().toString().toLowerCase(Locale.ROOT));
+        }
+        if (StringUtils.isNotBlank(registerRq.getAliyunCommodityCode())) {
+            //上传此编码支持产品使用物模型，否则不支持
+            createProductRequest.setAliyunCommodityCode(registerRq.getAliyunCommodityCode());
+        }
+        createProductRequest.setValidateType(registerRq.getValidateType()); // 数据校验级别：1--弱校验，仅校验设备数据的idetifier和dataType字段； 2--免校验，流转全量数据
         RuntimeOptions runtime = new RuntimeOptions();
         try {
             CreateProductResponse productWithOptions = client.createProductWithOptions(createProductRequest, runtime);

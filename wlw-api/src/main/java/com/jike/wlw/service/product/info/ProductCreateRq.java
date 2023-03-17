@@ -43,7 +43,7 @@ public class ProductCreateRq extends Entity implements Serializable {
     private String iotInstanceId;
     @ApiModelProperty("入网凭证ID") //NetType选择为LORA时，该参数必需
     private String joinPermissionId;
-    @ApiModelProperty("产品版本类型")
+    @ApiModelProperty("产品版本类型")//不传入此参数：表示默认创建基础版产品，不支持使用物模型。传入此参数：仅支持输入iothub_senior，表示创建使用物模型的产品。此时需要同时传入参数DataFormat。
     private String aliyunCommodityCode;
     @ApiModelProperty("数据校验级别")   //1:弱校验   2:免校验  (不传默认弱校验)
     private int validateType=1;

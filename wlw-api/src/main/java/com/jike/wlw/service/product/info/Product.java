@@ -50,7 +50,7 @@ public class Product extends StandardEntity {
     @ApiModelProperty("网关协议类型")
     private ProtocolType protocolType;
     @ApiModelProperty("数据校验级别")
-    private Integer validateType;
+    private Integer validateType;//1：弱校验。2：免校验。
     //产品发布成功后，不可编辑产品、物模型，删除产品。
     @ApiModelProperty("是否发布")
     private PublishStateType productStatus;
