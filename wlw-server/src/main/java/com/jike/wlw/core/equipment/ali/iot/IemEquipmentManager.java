@@ -6,6 +6,7 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.service.equipment.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -483,6 +484,39 @@ public class IemEquipmentManager {
             }
 
         } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    public QueryDeviceBySQLResponse queryDeviceBySQL(String sql,String iotInstanceId){
+        if (StringUtils.isBlank(sql)){
+            throw new BusinessException("sql不能为空");
+        }
+        try{
+            QueryDeviceBySQLRequest request=new QueryDeviceBySQLRequest();
+            request.setSQL(sql);
+            request.setIotInstanceId(iotInstanceId);
+            QueryDeviceBySQLResponse response = client.queryDeviceBySQL(request);
+            return response;
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+    }
+
+    public QueryDeviceGroupListResponse queryDeviceGroupList(QueryDeviceGroupListFilter filter){
+        try {
+            QueryDeviceGroupListRequest request=new QueryDeviceGroupListRequest();
+            request.setCurrentPage(filter.getPage());
+            request.setIotInstanceId(filter.getIotInstanceId());
+            request.setPageSize(filter.getPageSize());
+            request.setGroupName(filter.getGroupName());
+            request.setGroupTypes(filter.getGroupTypes());
+            request.setSuperGroupId(filter.getSuperGroupId());
+            QueryDeviceGroupListResponse response = client.queryDeviceGroupList(request);
+            return response;
+        }catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }

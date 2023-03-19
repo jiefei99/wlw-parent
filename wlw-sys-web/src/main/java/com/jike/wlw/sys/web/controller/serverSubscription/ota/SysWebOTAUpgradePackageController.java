@@ -3,15 +3,7 @@ package com.jike.wlw.sys.web.controller.serverSubscription.ota;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageReupgradeTaskRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTaskStatusType;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageVerifyJobCreateRq;
+import com.jike.wlw.service.upgrade.ota.*;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
@@ -173,6 +165,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
+            //可以改成跟queryDeviceGroupList一样使用递归
             OTAUpgradePackageTackByJobFilter filter=new OTAUpgradePackageTackByJobFilter();
             filter.setJobId(jobId);
             filter.setPage(1);
@@ -314,6 +307,29 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         try {
             String otaVerifyJob = aliOTAUpgradePackageFeignClient.createOTAVerifyJob(verifyJobCreateRq, getUserName());
             return ActionResult.ok(otaVerifyJob);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "动态升级")
+    @RequestMapping(value = "/createOTADynamicUpgradeJob", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<String> createOTADynamicUpgradeJob(@RequestBody OTAUpgradePackageDynamicUpgradeJobCreateRq dynamicUpgradeJobCreateRq) throws BusinessException {
+        try {
+            String jobId = aliOTAUpgradePackageFeignClient.createOTADynamicUpgradeJob(dynamicUpgradeJobCreateRq, getUserName());
+            return ActionResult.ok(jobId);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+    @ApiOperation(value = "静态升级")
+    @RequestMapping(value = "/createOTAStaticUpgradeJob", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<String> createOTAStaticUpgradeJob(@RequestBody OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq) throws BusinessException {
+        try {
+            String jobId = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
+            return ActionResult.ok(jobId);
         } catch (Exception e) {
             return dealWithError(e);
         }

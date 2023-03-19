@@ -4,6 +4,7 @@ import com.aliyun.iot20180120.models.*;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.common.ImportData;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.equipment.ali.imp.EquipmentImporter;
@@ -15,16 +16,18 @@ import com.jike.wlw.service.equipment.ali.*;
 import com.jike.wlw.service.equipment.ali.dto.BatchCheckDeviceNamesResultDTO;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
+import com.jike.wlw.service.equipment.dto.DeviceGroupDTO;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
@@ -464,5 +467,88 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public List<String> queryDeviceVersionBySQL(String tenantId, EquipmentSqlFilter filter) throws BusinessException {
+        try {
+            if (StringUtils.isBlank(filter.getProductKey())) {
+                throw new BusinessException("productKey不能为空");
+            }
+            String countSql = "SELECT count(*) FROM device WHERE product_key =\"" + filter.getProductKey() + "\" AND status != \"DISABLE\"";
+            QueryDeviceBySQLResponse countResponse = equipmentManager.queryDeviceBySQL(countSql, filter.getIotInstanceId());
+            if (!countResponse.getBody().getSuccess()) {
+                throw new BusinessException(countResponse.getBody().getErrorMessage());
+            }
+            if (countResponse.getBody().getTotalCount() == 0) {
+                return new ArrayList<>();
+            }
+            Set<String> versionList = new HashSet<>();
+            if (StringUtils.isBlank(filter.getSql())) {
+                for (int i = 0; i < (countResponse.getBody().getTotalCount().intValue() + filter.getPageSize() - 1) / filter.getPageSize(); i++) {
+                    String sql = "SELECT * FROM device WHERE product_key =\"" + filter.getProductKey() + "\" AND status != \"DISABLE\" limit " + i * filter.getPageSize() + "," + filter.getPageSize();
+                    QueryDeviceBySQLResponse response = equipmentManager.queryDeviceBySQL(sql, filter.getIotInstanceId());
+                    //这里应该转成DTO，暂时先不处理
+                    if (!response.getBody().getSuccess() || CollectionUtils.isEmpty(response.getBody().getData())) {
+                        continue;
+                    }
+                    List<String> result = response.getBody().getData().parallelStream().filter(item->!CollectionUtils.isEmpty(item.getOTAModules())).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyData::getOTAModules).flatMap(Collection::parallelStream).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyDataOTAModules::getFirmwareVersion).distinct().collect(Collectors.toList());
+                    versionList.addAll(result);
+                }
+                return new ArrayList<>(versionList);
+            }
+            ;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+        return new ArrayList<>();
+    }
+
+    @Override
+    public List<DeviceGroupDTO> queryDeviceGroupList(String tenantId, QueryDeviceGroupListFilter filter) throws BusinessException {
+        List<DeviceGroupDTO> deviceGroupDTOList=new ArrayList<>();
+        try {
+            if (filter.isAllQueryFlag()){
+                filter.setGroupTypes(null);
+                deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
+                filter.setGroupTypes(Arrays.asList("LINK_PLATFORM_DYNAMIC"));
+                deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
+            }else{
+                deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+        return deviceGroupDTOList;
+    }
+
+    private List<DeviceGroupDTO> queryDeviceGroupList(QueryDeviceGroupListFilter filter) throws BusinessException{
+        List<DeviceGroupDTO> deviceGroupDTOList=new ArrayList<>();
+        try{
+            int page = filter.getPage()+1;
+            QueryDeviceGroupListResponse response = equipmentManager.queryDeviceGroupList(filter);
+            if (!response.getBody().getSuccess()||response.getBody().getData()==null&&CollectionUtils.isEmpty(response.getBody().getData().getGroupInfo())){
+                return deviceGroupDTOList;
+            }
+            for (QueryDeviceGroupListResponseBody.QueryDeviceGroupListResponseBodyDataGroupInfo source : response.getBody().getData().getGroupInfo()) {
+                DeviceGroupDTO target=new DeviceGroupDTO();
+                BeanUtils.copyProperties(source,target);
+                if (StringUtils.isNotBlank(source.getUtcCreate())){
+                    target.setCreated(DateUtils.dealDateFormatUTC(source.getUtcCreate()));
+                }
+                deviceGroupDTOList.add(target);
+            }
+            if (filter.getPageSize()*filter.getPage()<response.getBody().getTotal()){
+                filter.setPage(page);
+                List<DeviceGroupDTO> recursionList = queryDeviceGroupList(filter);
+                deviceGroupDTOList.addAll(recursionList);
+            }
+        }catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new BusinessException(e.getMessage(), e);
+        }
+        return deviceGroupDTOList;
     }
 }

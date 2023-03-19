@@ -32,8 +32,11 @@ public enum OTAUpgradePackageType {
     }
 
     public final static Map<Integer, OTAUpgradePackageType> map = new HashMap();
+    public final static Map<OTAUpgradePackageType, Integer> convertMap = new HashMap();
     static {
         map.put(0, OTAUpgradePackageType.FullOTA);
         map.put(1, OTAUpgradePackageType.IncrementOTA);
+        convertMap.put(OTAUpgradePackageType.FullOTA,0);
+        convertMap.put(OTAUpgradePackageType.IncrementOTA,1);
     }
 }

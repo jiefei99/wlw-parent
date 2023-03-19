@@ -1,25 +1,15 @@
 package com.jike.wlw.core.upgrade.ota.ali;
 
-import com.aliyun.iot20180120.models.CancelOTATaskByDeviceResponse;
-import com.aliyun.iot20180120.models.CreateOTADynamicUpgradeJobResponse;
-import com.aliyun.iot20180120.models.CreateOTAStaticUpgradeJobResponse;
-import com.aliyun.iot20180120.models.CreateOTAVerifyJobResponse;
-import com.aliyun.iot20180120.models.GenerateDeviceNameListURLResponse;
-import com.aliyun.iot20180120.models.GenerateOTAUploadURLResponse;
-import com.aliyun.iot20180120.models.ListOTAFirmwareResponse;
+import com.aliyun.iot20180120.models.*;
 import com.aliyun.iot20180120.models.ListOTAFirmwareResponseBody.ListOTAFirmwareResponseBodyFirmwareInfoSimpleFirmwareInfo;
-import com.aliyun.iot20180120.models.ListOTAJobByFirmwareResponse;
 import com.aliyun.iot20180120.models.ListOTAJobByFirmwareResponseBody.ListOTAJobByFirmwareResponseBodyDataSimpleOTAJobInfo;
-import com.aliyun.iot20180120.models.ListOTATaskByJobResponse;
-import com.aliyun.iot20180120.models.ListOTATaskByJobResponseBody;
 import com.aliyun.iot20180120.models.ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo;
-import com.aliyun.iot20180120.models.QueryOTAFirmwareResponse;
 import com.aliyun.iot20180120.models.QueryOTAFirmwareResponseBody.QueryOTAFirmwareResponseBodyFirmwareInfoMultiFiles;
-import com.aliyun.iot20180120.models.QueryOTAJobResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.core.BaseService;
+import com.jike.wlw.core.equipment.imp.EquipmentNameImporter;
 import com.jike.wlw.core.upgrade.iot.OTAUpgradeManager;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelStrategyByJobRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
@@ -80,6 +70,8 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
 
     @Autowired
     private OTAUpgradeManager otaUpgradeManager;
+    @Autowired
+    private EquipmentNameImporter equipmentNameImporter;
 
     @Override
     public PagingResult<OTAUpgradePackageListVO> query(String tenantId, OTAUpgradePackageFilter filter) throws BusinessException {
@@ -88,7 +80,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         ListOTAFirmwareResponse response=null;
         try {
             response = otaUpgradeManager.listOTAFirmware(filter);
-            if (response==null || response.getBody() == null || !response.getBody().getSuccess() ||
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response==null || response.getBody() == null  ||
                     response.getBody().getFirmwareInfo() == null || CollectionUtils.isEmpty(response.getBody().getFirmwareInfo().getSimpleFirmwareInfo())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, otaUpgradePackageVOList);
             }
@@ -120,7 +115,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         List<OTAUpgradePackageListDeviceTaskByJobDTO> list = new ArrayList<>();
         try {
             ListOTATaskByJobResponse response = otaUpgradeManager.listOTATaskByJob(filter);
-            if (response == null || response.getBody() == null || !response.getBody().getSuccess() || response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getSimpleOTATaskInfo())) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody() == null || response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getSimpleOTATaskInfo())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), 0, list);
             }
             for (ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo source : response.getBody().getData().getSimpleOTATaskInfo()) {
@@ -153,7 +151,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         ListOTAJobByFirmwareResponse response = null;
         try {
             response = otaUpgradeManager.listOTAJobByFirmware(filter);
-            if (response == null || response.getBody() == null || !response.getBody().getSuccess() || response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getSimpleOTAJobInfo())) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody() == null || response.getBody().getData() == null || CollectionUtils.isEmpty(response.getBody().getData().getSimpleOTAJobInfo())) {
                 return new PagingResult<>(filter.getPage(), filter.getPageSize(), 0, otaUpgradePackageJobBatchListVO);
             }
             for (ListOTAJobByFirmwareResponseBodyDataSimpleOTAJobInfo source : response.getBody().getData().getSimpleOTAJobInfo()) {
@@ -185,7 +186,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         OTAUpgradePackageInfoDTO otaUpgradePackageInfoDTO = new OTAUpgradePackageInfoDTO();
         try {
             QueryOTAFirmwareResponse response = otaUpgradeManager.queryOTAFirmware(id, iotInstanceId);
-            if (response == null || !response.getBody().getSuccess() || response.getBody().getFirmwareInfo() == null) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null  || response.getBody().getFirmwareInfo() == null) {
                 return otaUpgradePackageInfoDTO;
             }
             BeanUtils.copyProperties(response.getBody().getFirmwareInfo(), otaUpgradePackageInfoDTO);
@@ -224,7 +228,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         OTAUpgradePackageJobBatchInfoVO otaUpgradePackageJobBatchInfoVO = new OTAUpgradePackageJobBatchInfoVO();
         try {
             QueryOTAJobResponse response = otaUpgradeManager.queryOTAJob(jobId, iotInstanceId);
-            if (response == null || !response.getBody().getSuccess() || response.getBody().getData() == null) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null  || response.getBody().getData() == null) {
                 return otaUpgradePackageJobBatchInfoVO;
             }
             BeanUtils.copyProperties(response.getBody().getData(), otaUpgradePackageJobBatchInfoVO);
@@ -249,7 +256,6 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         return otaUpgradePackageJobBatchInfoVO;
     }
 
-    //todo 后期可以根据Api方法进行拆分
     @Override
     public OTAUpgradePackageVO get(String tenantId, String id, String iotInstanceId) throws BusinessException {
         if (StringUtils.isBlank(id)) {
@@ -259,7 +265,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         try {
             // 先查询OTA升级包的基本信息
             QueryOTAFirmwareResponse response = otaUpgradeManager.queryOTAFirmware(id, iotInstanceId);
-            if (response == null || !response.getBody().getSuccess() || response.getBody().getFirmwareInfo() == null) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody().getFirmwareInfo() == null) {
                 throw new BusinessException("找不到此OTA升级包");
             }
             BeanUtils.copyProperties(response.getBody().getFirmwareInfo(), otaUpgradePackageVO);
@@ -322,7 +331,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("升级包名称不能为空");
         }
         try {
-            otaUpgradeManager.createOTAFirmware(createRq);
+            CreateOTAFirmwareResponse response = otaUpgradeManager.createOTAFirmware(createRq);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -334,7 +346,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("升级包id不能为空");
         }
         try {
-            otaUpgradeManager.deleteOTAFirmware(deleteRq.getFirmwareId(), deleteRq.getIotInstanceId());
+            DeleteOTAFirmwareResponse response = otaUpgradeManager.deleteOTAFirmware(deleteRq.getFirmwareId(), deleteRq.getIotInstanceId());
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -353,7 +368,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         }
         try {
             CancelOTATaskByDeviceResponse resp = otaUpgradeManager.cancelOTATaskByDevice(cancelTaskByDeviceRq);
-            if (resp == null || resp.getBody() == null || resp.getBody().getSuccess() == null) {
+            if (!resp.getBody().getSuccess()){
+                throw new BusinessException(resp.getBody().getErrorMessage());
+            }
+            if (resp == null || resp.getBody() == null) {
                 return false;
             }
             return resp.getBody().getSuccess();
@@ -382,7 +400,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         CreateOTAVerifyJobResponse response = null;
         try {
             response = otaUpgradeManager.createOTAVerifyJob(verifyJobCreateRq);
-            if (response == null || response.getBody().getData() == null || !response.getBody().getSuccess()) {
+            if(!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody().getData() == null ) {
                 return null;
             }
         } catch (Exception e) {
@@ -424,7 +445,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("TaskId个数范围为1~10个");
         }
         try {
-            otaUpgradeManager.confirmOTATask(confirmTaskRq);
+            ConfirmOTATaskResponse response = otaUpgradeManager.confirmOTATask(confirmTaskRq);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -439,7 +463,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("升级批次ID不能为空");
         }
         try {
-            otaUpgradeManager.cancelOTATaskByJob(cancelTaskByJobRq);
+            CancelOTATaskByJobResponse response = otaUpgradeManager.cancelOTATaskByJob(cancelTaskByJobRq);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -454,7 +481,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("升级批次ID不能为空");
         }
         try {
-            otaUpgradeManager.cancelOTAStrategyByJob(cancelStrategyByJobRq);
+            CancelOTAStrategyByJobResponse response = otaUpgradeManager.cancelOTAStrategyByJob(cancelStrategyByJobRq);
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
         } catch (Exception e) {
             throw new BusinessException(e.getMessage());
         }
@@ -471,13 +501,16 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         if (StringUtils.isBlank(dynamicUpgradeJobCreateRq.getProductKey())) {
             throw new BusinessException("产品的ProductKey不能为空");
         }
-        if (CollectionUtils.isNotEmpty(dynamicUpgradeJobCreateRq.getTags()) && dynamicUpgradeJobCreateRq.getTags().size() > 10) {
+        if (CollectionUtils.isNotEmpty(dynamicUpgradeJobCreateRq.getTagList()) && dynamicUpgradeJobCreateRq.getTagList().size() > 10) {
             throw new BusinessException("最多添加10个批次标签");
         }
         CreateOTADynamicUpgradeJobResponse response = null;
         try {
             response = otaUpgradeManager.createOTADynamicUpgradeJob(dynamicUpgradeJobCreateRq);
-            if (response == null || response.getBody() == null || !response.getBody().getSuccess() || response.getBody().getData() == null) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody() == null || response.getBody().getData() == null) {
                 return null;
             }
         } catch (Exception e) {
@@ -487,7 +520,7 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
     }
 
     @Override
-    public String createOTAStaticUSgradeJob(OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq, String operator) throws BusinessException {
+    public String createOTAStaticUpgradeJob(OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq, String operator) throws BusinessException {
         if (staticUpgradeJobCreateRq == null) {
             throw new BusinessException("创建静态升级批次参数不能为空");
         }
@@ -500,13 +533,19 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         if (staticUpgradeJobCreateRq.getTargetSelection() == null) {
             throw new BusinessException("升级范围不能为空");
         }
-        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTags()) && staticUpgradeJobCreateRq.getTags().size() > 10) {
+        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTagList()) && staticUpgradeJobCreateRq.getTagList().size() > 10) {
             throw new BusinessException("最多添加10个批次标签");
         }
         CreateOTAStaticUpgradeJobResponse response = null;
         try {
+            if (StringUtils.isNotBlank(staticUpgradeJobCreateRq.getFilePath())){
+                staticUpgradeJobCreateRq.setTargetDeviceNameIn(equipmentNameImporter.doImport(null,staticUpgradeJobCreateRq.getFilePath()));
+            }
             response = otaUpgradeManager.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq);
-            if (response == null || response.getBody() == null || !response.getBody().getSuccess() || response.getBody().getData() == null) {
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response == null || response.getBody() == null || response.getBody().getData() == null) {
                 return null;
             }
         } catch (Exception e) {
@@ -520,7 +559,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO=new OTAUpgradePackageGenerateUrlInfoDTO();
         try {
             GenerateOTAUploadURLResponse response = otaUpgradeManager.generateOTAUploadURL(generateUrlRq);
-            if (response==null||response.getBody()==null||response.getBody().getData()==null||!response.getBody().getSuccess()){
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response==null||response.getBody()==null||response.getBody().getData()==null){
                 return urlInfoDTO;
             }
             urlInfoDTO.setUrl(response.getBody().getData().getFirmwareUrl());
@@ -542,7 +584,10 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO=new OTAUpgradePackageGenerateUrlInfoDTO();
         try {
             GenerateDeviceNameListURLResponse response = otaUpgradeManager.generateDeviceNameListURL(generateDeviceNameListUrlRq);
-            if (response==null||response.getBody()==null||response.getBody().getData()==null||!response.getBody().getSuccess()){
+            if (!response.getBody().getSuccess()){
+                throw new BusinessException(response.getBody().getErrorMessage());
+            }
+            if (response==null||response.getBody()==null||response.getBody().getData()==null){
                 return urlInfoDTO;
             }
             urlInfoDTO.setUrl(response.getBody().getData().getFileUrl());

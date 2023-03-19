@@ -8,6 +8,8 @@ import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.*;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
+import com.jike.wlw.service.equipment.dto.DeviceGroupDTO;
+import com.jike.wlw.service.equipment.vo.DeviceGroupVO;
 import com.jike.wlw.service.equipment.vo.EquipmentByNameVO;
 import com.jike.wlw.sys.web.config.fegin.AliEquipmentFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
@@ -329,6 +331,42 @@ public class SysWebEquipmentController extends BaseController {
             ImportData result = aliEquipmentFeignClient.batchImport(getTenantId(), importRq.getProductKey(), importRq.getFilePath());
 
             return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "sql批量查询库存")
+    @RequestMapping(value = "/batchSqlQueryByVersion", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<String>> batchSqlQueryByVersion(@ApiParam(required = true, value = "") @RequestBody EquipmentSqlFilter filter) throws BusinessException{
+        try {
+            if (StringUtils.isBlank(filter.getProductKey())){
+                throw new BusinessException("productKey不能为空");
+            }
+            List<String> result = aliEquipmentFeignClient.queryDeviceVersionBySQL(getTenantId(), filter);
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "查询分组")
+    @RequestMapping(value = "/queryDeviceGroupList", method = RequestMethod.POST)
+    @ResponseBody
+    ActionResult<List<DeviceGroupVO>> queryDeviceGroupList(@ApiParam(required = true, value = "") @RequestBody QueryDeviceGroupListFilter filter) throws BusinessException{
+        ArrayList<DeviceGroupVO> groupVOArrayList = new ArrayList<>();
+        try {
+            List<DeviceGroupDTO> result = aliEquipmentFeignClient.queryDeviceGroupList(getTenantId(), filter);
+            if (CollectionUtils.isEmpty(result)){
+                return ActionResult.ok(groupVOArrayList);
+            }
+            for (DeviceGroupDTO deviceGroupDTO : result) {
+                DeviceGroupVO vo=new DeviceGroupVO();
+                BeanUtils.copyProperties(deviceGroupDTO,vo);
+                groupVOArrayList.add(vo);
+            }
+            return ActionResult.ok(groupVOArrayList);
         } catch (Exception e) {
             return dealWithError(e);
         }

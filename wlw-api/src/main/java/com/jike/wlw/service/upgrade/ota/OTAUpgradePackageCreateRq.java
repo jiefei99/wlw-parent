@@ -42,7 +42,7 @@ public class OTAUpgradePackageCreateRq extends Entity implements Serializable {
     @ApiModelProperty("升级包描述")
     private String firmwareDesc;
     @ApiModelProperty("升级包类型")
-    private Integer type;
+    private OTAUpgradePackageType type;
     @ApiModelProperty("待升级OTA模块版本号")
     private String srcVersion;
     @ApiModelProperty("OTA模块名称")

@@ -13,26 +13,7 @@ import com.jike.wlw.base.Parameter;
 import com.jike.wlw.config.client.AliIotClient;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskJobRq;
 import com.jike.wlw.core.upgrade.iot.entity.OTATaskRq;
-import com.jike.wlw.service.upgrade.ota.OTAFirmwareMultiFilesCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleDeleteRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradeModuleUpdateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelStrategyByJobRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByJobRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageConfirmTaskRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDynamicUpgradeJobCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageGenerateDeviceNameListUrlRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageGenerateUrlRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobTargetSelectionType;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageReupgradeTaskRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageStaticUpgradeJobCreateRq;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
-import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageVerifyJobCreateRq;
+import com.jike.wlw.service.upgrade.ota.*;
 import lombok.extern.slf4j.Slf4j;
 import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -116,7 +97,7 @@ public class OTAUpgradeManager {
         if (CollectionUtils.isNotEmpty(createRq.getMultiFiles()) && StringUtils.isBlank(createRq.getFirmwareUrl())) {
             throw new IllegalAccessException("OTA升级包存在文件时，文件Url不能为空");
         }
-        if (createRq.getType() != null && createRq.getType() == 1 && StringUtils.isBlank(createRq.getSrcVersion())) {
+        if (createRq.getType() != null && OTAUpgradePackageType.IncrementOTA.equals(createRq.getType()) && StringUtils.isBlank(createRq.getSrcVersion())) {
             throw new IllegalAccessException("使用差分升级包时，OTA模块版本号不能为空");
         }
 //        Client client = createClient(env.getProperty("ali.iot.accessKey"), env.getProperty("ali.iot.accessSecret"));
@@ -143,7 +124,7 @@ public class OTAUpgradeManager {
         request.setProductKey(createRq.getProductKey());
         request.setSignMethod(createRq.getSignMethod());
         request.setSrcVersion(createRq.getSrcVersion());
-        request.setType(createRq.getType());
+        request.setType(OTAUpgradePackageType.convertMap.get(createRq.getType()));
         request.setUdi(createRq.getUdi());
         CreateOTAFirmwareResponse response = client.createOTAFirmware(request);
         System.out.println("添加升级包" + JSON.toJSONString(response));
@@ -226,13 +207,13 @@ public class OTAUpgradeManager {
         request.setTargetDeviceName(verifyJobCreateRq.getTargetDeviceNameIn());
         if (CollectionUtils.isNotEmpty(verifyJobCreateRq.getTagList())) {
             List<CreateOTAVerifyJobRequestTag> tags = new ArrayList<>();
-            CreateOTAVerifyJobRequestTag tag = new CreateOTAVerifyJobRequestTag();
             for (Parameter parameter : verifyJobCreateRq.getTagList()) {
+                CreateOTAVerifyJobRequestTag tag = new CreateOTAVerifyJobRequestTag();
                 if (StringUtils.isBlank(parameter.getName()) || StringUtils.isBlank(parameter.getValue())) {
                     continue;
                 }
                 tag.setKey(parameter.getName());
-                tag.setKey(parameter.getValue());
+                tag.setValue(parameter.getValue());
                 tags.add(tag);
             }
             request.setTag(tags);
@@ -254,7 +235,7 @@ public class OTAUpgradeManager {
         if (staticUpgradeJobCreateRq.getTargetSelection() == null) {
             throw new IllegalAccessException("升级范围不能为空");
         }
-        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTags()) && staticUpgradeJobCreateRq.getTags().size() > 10) {
+        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTagList()) && staticUpgradeJobCreateRq.getTagList().size() > 10) {
             throw new IllegalAccessException("仅支持最多添加10个批次标签");
         }
         if (staticUpgradeJobCreateRq.getSrcVersionIn().size() > 10) {
@@ -267,7 +248,7 @@ public class OTAUpgradeManager {
             throw new IllegalAccessException("分组类型不能为空");
         }
         int tagSize = 0;
-        for (Parameter tag : staticUpgradeJobCreateRq.getTags()) {
+        for (Parameter tag : staticUpgradeJobCreateRq.getTagList()) {
             tagSize = tag.getName().length() + tag.getValue().length();
         }
         if (tagSize > 4096) {
@@ -283,9 +264,9 @@ public class OTAUpgradeManager {
         request.setNeedConfirm(staticUpgradeJobCreateRq.getNeedConfirm());
         request.setNeedPush(staticUpgradeJobCreateRq.getNeedPush());
         request.setTargetDeviceName(staticUpgradeJobCreateRq.getTargetDeviceNameIn());
-        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTags())) {
+        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTagList())) {
             List<CreateOTAStaticUpgradeJobRequestTag> tags = new ArrayList<>();
-            for (Parameter parameter : staticUpgradeJobCreateRq.getTags()) {
+            for (Parameter parameter : staticUpgradeJobCreateRq.getTagList()) {
                 if (StringUtils.isBlank(parameter.getName()) || StringUtils.isBlank(parameter.getValue())) {
                     continue;
                 }
@@ -306,8 +287,12 @@ public class OTAUpgradeManager {
         request.setOverwriteMode(staticUpgradeJobCreateRq.getOverwriteMode());
         request.setRetryCount(staticUpgradeJobCreateRq.getRetryCount());
         request.setRetryInterval(staticUpgradeJobCreateRq.getRetryInterval());
-        request.setScheduleFinishTime(staticUpgradeJobCreateRq.getScheduleTime());
-        request.setScheduleTime(staticUpgradeJobCreateRq.getScheduleTime());
+        if (staticUpgradeJobCreateRq.getScheduleFinishTime()!=null){
+            request.setScheduleFinishTime(staticUpgradeJobCreateRq.getScheduleFinishTime().getTime());
+        }
+        if (staticUpgradeJobCreateRq.getScheduleTime()!=null){
+            request.setScheduleTime(staticUpgradeJobCreateRq.getScheduleTime().getTime());
+        }
         request.setSrcVersion(staticUpgradeJobCreateRq.getSrcVersionIn());
         request.setTargetSelection(staticUpgradeJobCreateRq.getTargetSelection().name());
         CreateOTAStaticUpgradeJobResponse response = client.createOTAStaticUpgradeJob(request);
@@ -332,9 +317,9 @@ public class OTAUpgradeManager {
         request.setDownloadProtocol(dynamicUpgradeJobCreateRq.getDownloadProtocol());
         request.setNeedConfirm(dynamicUpgradeJobCreateRq.getNeedConfirm());
         request.setNeedPush(dynamicUpgradeJobCreateRq.getNeedPush());
-        if (CollectionUtils.isNotEmpty(dynamicUpgradeJobCreateRq.getTags())) {
+        if (CollectionUtils.isNotEmpty(dynamicUpgradeJobCreateRq.getTagList())) {
             List<CreateOTADynamicUpgradeJobRequestTag> tags = new ArrayList<>();
-            for (Parameter parameter : dynamicUpgradeJobCreateRq.getTags()) {
+            for (Parameter parameter : dynamicUpgradeJobCreateRq.getTagList()) {
                 if (StringUtils.isBlank(parameter.getName()) || StringUtils.isBlank(parameter.getValue())) {
                     continue;
                 }

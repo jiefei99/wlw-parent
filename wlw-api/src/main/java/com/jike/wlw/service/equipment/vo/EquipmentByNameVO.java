@@ -17,7 +17,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @ApiModel("请求参数")
-public class EquipmentByNameVO extends Entity implements Serializable {
+public class EquipmentByNameVO extends Entity {
 
     private static final long serialVersionUID = 2501498364862758014L;
     private String name;

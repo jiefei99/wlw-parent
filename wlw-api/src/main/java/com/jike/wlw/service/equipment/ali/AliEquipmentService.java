@@ -8,6 +8,7 @@ import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.dto.BatchCheckDeviceNamesResultDTO;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
+import com.jike.wlw.service.equipment.dto.DeviceGroupDTO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -136,4 +137,16 @@ public interface AliEquipmentService extends BaseEquipmentService {
     ImportData batchImport(@ApiParam(required = true, value = "租户") @RequestParam(value = "tenantId") String tenantId,
                            @ApiParam(required = true, value = "产品Key") @RequestParam(value = "productKey") String productKey,
                            @ApiParam(value = "excel文件路径", required = true) @RequestParam(value = "filePath") String filePath) throws BusinessException;
+
+    @ApiOperation(value = "查询设备版本")
+    @RequestMapping(value = "/queryDeviceVersionBySQL", method = RequestMethod.POST)
+    @ResponseBody
+    List<String> queryDeviceVersionBySQL(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                         @ApiParam(required = true, value = "") @RequestBody EquipmentSqlFilter filter) throws BusinessException;
+
+    @ApiOperation(value = "查询分组列表")
+    @RequestMapping(value = "/queryDeviceGroupList", method = RequestMethod.POST)
+    @ResponseBody
+    List<DeviceGroupDTO> queryDeviceGroupList(@ApiParam(required = false, value = "租户") @RequestParam(value = "tenantId") String tenantId,
+                                              @ApiParam(required = true, value = "") @RequestBody QueryDeviceGroupListFilter filter) throws BusinessException;
 }

@@ -27,7 +27,7 @@ public class OTAUpgradePackageDynamicUpgradeJobCreateRq extends Entity implement
     @ApiModelProperty("ProductKey")
     private String productKey;
     @ApiModelProperty("批次标签")
-    private List<Parameter> tags;
+    private List<Parameter> tagList;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
     @ApiModelProperty("自动重试的时间间隔")

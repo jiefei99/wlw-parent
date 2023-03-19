@@ -62,9 +62,9 @@ public class OTADynamicUpgradeJobRq implements Serializable {
     @ApiModelProperty("是否自主控制设备OTA升级")
     private boolean needConfirm=false;
     @ApiModelProperty("待升级版本号列表")
-    private List<String> srcVersion;
+    private List<String> srcVersions;
     @ApiModelProperty("定向升级设备名称列表")
-    private List<String> targetDeviceName;;
+    private List<String> targetDeviceNameIn;;
     @ApiModelProperty("批次标签")
     private List<CreateOTADynamicUpgradeJobRequest.CreateOTADynamicUpgradeJobRequestTag> tag;
 }

@@ -134,7 +134,7 @@ public interface AliOTAUpgradePackageService {
     @ApiOperation(value = "创建静态升级策略")
     @RequestMapping(value = "/createOTAStaticUpgradeJob", method = RequestMethod.POST)
     @ResponseBody
-    String createOTAStaticUSgradeJob(@ApiParam(required = true, value = "请求参数") @RequestBody OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq,
+    String createOTAStaticUpgradeJob(@ApiParam(required = true, value = "请求参数") @RequestBody OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq,
                                      @ApiParam(required = false, value = "操作人") @RequestParam(value = "operator", required = false) String operator) throws BusinessException;
 
     @ApiOperation(value = "生成升级包文件上传到OSS的URL及详细信息")

@@ -62,7 +62,7 @@ public class OTAStaticUpgradeJobRq implements Serializable {
     @ApiModelProperty("待升级版本号列表")
     private List<String> srcVersion;
     @ApiModelProperty("定向升级设备名称列表")
-    private List<String> targetDeviceName;;
+    private List<String> targetDeviceNameIn;;
     @ApiModelProperty("批次标签")
     private List<CreateOTAStaticUpgradeJobRequest.CreateOTAStaticUpgradeJobRequestTag> tag;
 }

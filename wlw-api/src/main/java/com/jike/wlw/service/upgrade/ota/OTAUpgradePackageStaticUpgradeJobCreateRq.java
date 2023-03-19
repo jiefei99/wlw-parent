@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -29,11 +30,11 @@ public class OTAUpgradePackageStaticUpgradeJobCreateRq extends Entity implements
     @ApiModelProperty("升级范围")
     private OTAUpgradePackageJobTargetSelectionType targetSelection;
     @ApiModelProperty("批次标签")
-    private List<Parameter> tags;
+    private List<Parameter> tagList;
     @ApiModelProperty("实例Id")
     private String iotInstanceId;
     @ApiModelProperty("指定发起升级的时间")
-    private Long scheduleTime;
+    private Date scheduleTime;
     @ApiModelProperty("自动重试的时间间隔")
     private Integer retryInterval;
     @ApiModelProperty("自动重试次数")
@@ -47,7 +48,7 @@ public class OTAUpgradePackageStaticUpgradeJobCreateRq extends Entity implements
     @ApiModelProperty("定向升级的设备名称列表")
     private List<String> targetDeviceNameIn;
     @ApiModelProperty("结束升级的时间")
-    private Long scheduleFinishTime;
+    private Date scheduleFinishTime;
     @ApiModelProperty("是否覆盖之前的升级任务")
     private Integer overwriteMode = 1;
     @ApiModelProperty("定向升级设备列表文件的URL")
@@ -64,6 +65,8 @@ public class OTAUpgradePackageStaticUpgradeJobCreateRq extends Entity implements
     private Boolean needPush = Boolean.TRUE;
     @ApiModelProperty("是否自主控制设备OTA升级")
     private Boolean needConfirm = Boolean.FALSE;
+
+    private String filePath;
     //注意事项：全量或者灰度升级才可以使用此参数（如果是差分升级这个参数使用的得是待升级版本号），定向和分组升级不能使用此参数
     //        不能重复，且最多传入10个
     @ApiModelProperty("待升级版本号列表")
