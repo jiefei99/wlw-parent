@@ -2,7 +2,6 @@ package com.jike.wlw.sys.web.controller.product.physicalModel;
 
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
-import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.physicalmodel.PhysicalModel;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCopyRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
@@ -174,7 +173,7 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ApiOperation(value = "查询指定产品已发布物模型中的功能定义详情")
     @RequestMapping(value = "/queryPublish", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<PhysicalModel>> queryPublish(@ApiParam(required = true, value = "查询物模型请求参数") @RequestBody PhysicalModelPublishQueryRq filter) throws BusinessException {
+    public ActionResult<PhysicalModel> queryPublish(@ApiParam(required = true, value = "查询物模型请求参数") @RequestBody PhysicalModelPublishQueryRq filter) throws BusinessException {
         try {
             PhysicalModel result = aliPhysicalModelFeignClient.queryPublish(getTenantId(), filter);
             return ActionResult.ok(result);
@@ -186,7 +185,7 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ApiOperation(value = "查询指定产品物模型中的功能定义详情（包括未发布）")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<PagingResult<PhysicalModel>> get(@ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelGetRq modelGetRq) throws Exception {
+    public ActionResult<PhysicalModel> get(@ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelGetRq modelGetRq) throws Exception {
         try {
             PhysicalModel result = aliPhysicalModelFeignClient.get(getTenantId(), modelGetRq);
             return ActionResult.ok(result);

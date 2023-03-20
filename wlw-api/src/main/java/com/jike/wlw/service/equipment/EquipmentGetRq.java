@@ -22,4 +22,6 @@ public class EquipmentGetRq extends Entity implements Serializable {
     public String iotInstanceId;
     @ApiModelProperty("所属产品的ProductKey")
     public String productKey;
+    @ApiModelProperty("设备ID")
+    public String iotId;
 }

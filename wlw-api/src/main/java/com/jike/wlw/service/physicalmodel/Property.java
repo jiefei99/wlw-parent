@@ -35,9 +35,9 @@ public class Property implements Serializable {
     @ApiModelProperty("是否是自定义功能")
     private Boolean custom;
     //dataSpecs、dataSpecsList为数据规范。除属性、服务、事件和参数定义数据以外，其他数据都属于数据规范,dataSpecs和dataSpecsList之中必须传入且只能传入一个
-    @ApiModelProperty("dataSpecs")//非列表型（INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY）的数据规范存储在dataSpecs中
+    @ApiModelProperty("数据规范")//非列表型（INT、FLOAT、DOUBLE、TEXT、DATE、ARRAY）的数据规范存储在dataSpecs中
     private DataSpecs dataSpecs;
-    @ApiModelProperty("dataSpecsList")//列表型（ENUM、BOOL、STRUCT）的数据规范存储在dataSpecsList中
+    @ApiModelProperty("数据规范")//列表型（ENUM、BOOL、STRUCT）的数据规范存储在dataSpecsList中
     private List<DataSpecsTwo> dataSpecsList;
 
 }
