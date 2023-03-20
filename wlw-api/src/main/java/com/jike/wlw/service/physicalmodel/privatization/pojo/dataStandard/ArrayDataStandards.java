@@ -31,9 +31,9 @@ public class ArrayDataStandards extends Entity {
     private Long size;
     @ApiModelProperty("元素的数据类型")
     private DataType childDataType;
-    @ApiModelProperty("数据")
+    @ApiModelProperty("数据规范")
     private String dataSpecs;
-    @ApiModelProperty("数据")
+    @ApiModelProperty("数据规范")
     private List<String> dataSpecsList;
 }
 

@@ -34,9 +34,9 @@ public class StructDataStandards extends Entity {
     private String childDataType;
     @ApiModelProperty("子参数名称")
     private String childName;
-    @ApiModelProperty("数据")
+    @ApiModelProperty("数据规范")
     private String dataSpecs;
-    @ApiModelProperty("数据")
+    @ApiModelProperty("数据规范")
     private List<String> dataSpecsList;
 }
 

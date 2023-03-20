@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
+import java.util.List;
 
 /**
  * @author wza
@@ -16,27 +17,29 @@ import java.io.Serializable;
 @ApiModel
 public class DataSpecsTwo implements Serializable {
     private static final long serialVersionUID = 1800112445891755898L;
-
-    @ApiModelProperty("备注")
+    //ARRAY和STRUCT类型数据相互嵌套时，最多支持递归嵌套2层（父和子）
+    @ApiModelProperty("数据类型")
     private String dataType;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("属性名称")
     private String name;
     //dataType为ENUM
-    @ApiModelProperty("备注")
+    @ApiModelProperty("是否是自定义功能")
     private Boolean custom;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("默认值")
     private String defaultValue;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("枚举值")
     private Integer value;
 
     //dataType为STRUCT
-    @ApiModelProperty("备注")
+    @ApiModelProperty("结构体中子参数的数据类型")
     private String childDataType;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("结构体中的子参数名称")
     private String childName;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("结构体中的子参数的标识符")
     private String identifier;
-    @ApiModelProperty("备注")
+    @ApiModelProperty("数据规范")
     private DataSpecs dataSpecs;
+    @ApiModelProperty("数据规范")
+    private List<DataSpecsTwo> dataSpecsList;
 
 }
