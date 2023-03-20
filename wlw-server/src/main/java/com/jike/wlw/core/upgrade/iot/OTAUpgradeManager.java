@@ -94,9 +94,6 @@ public class OTAUpgradeManager {
         if (StringUtils.isBlank(createRq.getFirmwareName())) {
             throw new IllegalAccessException("OTA升级包名称不能为空");
         }
-        if (CollectionUtils.isNotEmpty(createRq.getMultiFiles()) && StringUtils.isBlank(createRq.getFirmwareUrl())) {
-            throw new IllegalAccessException("OTA升级包存在文件时，文件Url不能为空");
-        }
         if (createRq.getType() != null && OTAUpgradePackageType.IncrementOTA.equals(createRq.getType()) && StringUtils.isBlank(createRq.getSrcVersion())) {
             throw new IllegalAccessException("使用差分升级包时，OTA模块版本号不能为空");
         }
@@ -238,7 +235,7 @@ public class OTAUpgradeManager {
         if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getTagList()) && staticUpgradeJobCreateRq.getTagList().size() > 10) {
             throw new IllegalAccessException("仅支持最多添加10个批次标签");
         }
-        if (staticUpgradeJobCreateRq.getSrcVersionIn().size() > 10) {
+        if (CollectionUtils.isNotEmpty(staticUpgradeJobCreateRq.getSrcVersionIn())&&staticUpgradeJobCreateRq.getSrcVersionIn().size() > 10) {
             throw new IllegalAccessException("仅支持最多添加10个版本号");
         }
         if (OTAUpgradePackageJobTargetSelectionType.GRAY.equals(staticUpgradeJobCreateRq.getTargetSelection()) && StringUtils.isBlank(staticUpgradeJobCreateRq.getGrayPercent())) {

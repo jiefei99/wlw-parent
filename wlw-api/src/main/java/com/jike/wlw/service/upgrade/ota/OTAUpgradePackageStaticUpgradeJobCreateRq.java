@@ -66,9 +66,7 @@ public class OTAUpgradePackageStaticUpgradeJobCreateRq extends Entity implements
     @ApiModelProperty("是否自主控制设备OTA升级")
     private Boolean needConfirm = Boolean.FALSE;
 
-    private String filePath;
-    //注意事项：全量或者灰度升级才可以使用此参数（如果是差分升级这个参数使用的得是待升级版本号），定向和分组升级不能使用此参数
-    //        不能重复，且最多传入10个
+//    private String filePath;
     @ApiModelProperty("待升级版本号列表")
     private List<String> srcVersionIn;
 }

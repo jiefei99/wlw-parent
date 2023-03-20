@@ -1,16 +1,34 @@
 package com.jike.wlw.core.upgrade.ota.ali;
 
-import com.aliyun.iot20180120.models.*;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.nacos.common.utils.CollectionUtils;
+import com.aliyun.iot20180120.models.CancelOTAStrategyByJobResponse;
+import com.aliyun.iot20180120.models.CancelOTATaskByDeviceResponse;
+import com.aliyun.iot20180120.models.CancelOTATaskByJobResponse;
+import com.aliyun.iot20180120.models.ConfirmOTATaskResponse;
+import com.aliyun.iot20180120.models.CreateOTADynamicUpgradeJobResponse;
+import com.aliyun.iot20180120.models.CreateOTAFirmwareResponse;
+import com.aliyun.iot20180120.models.CreateOTAStaticUpgradeJobResponse;
+import com.aliyun.iot20180120.models.CreateOTAVerifyJobResponse;
+import com.aliyun.iot20180120.models.DeleteOTAFirmwareResponse;
+import com.aliyun.iot20180120.models.GenerateDeviceNameListURLResponse;
+import com.aliyun.iot20180120.models.GenerateOTAUploadURLResponse;
+import com.aliyun.iot20180120.models.ListOTAFirmwareResponse;
 import com.aliyun.iot20180120.models.ListOTAFirmwareResponseBody.ListOTAFirmwareResponseBodyFirmwareInfoSimpleFirmwareInfo;
+import com.aliyun.iot20180120.models.ListOTAJobByFirmwareResponse;
 import com.aliyun.iot20180120.models.ListOTAJobByFirmwareResponseBody.ListOTAJobByFirmwareResponseBodyDataSimpleOTAJobInfo;
+import com.aliyun.iot20180120.models.ListOTATaskByJobResponse;
 import com.aliyun.iot20180120.models.ListOTATaskByJobResponseBody.ListOTATaskByJobResponseBodyDataSimpleOTATaskInfo;
+import com.aliyun.iot20180120.models.QueryOTAFirmwareResponse;
 import com.aliyun.iot20180120.models.QueryOTAFirmwareResponseBody.QueryOTAFirmwareResponseBodyFirmwareInfoMultiFiles;
+import com.aliyun.iot20180120.models.QueryOTAJobResponse;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.core.equipment.imp.EquipmentNameImporter;
 import com.jike.wlw.core.upgrade.iot.OTAUpgradeManager;
+import com.jike.wlw.service.upgrade.ota.OTAFirmwareMultiFilesCreateRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelStrategyByJobRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
 import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByJobRq;
@@ -44,13 +62,20 @@ import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
-import com.alibaba.nacos.common.utils.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -331,6 +356,17 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
             throw new BusinessException("升级包名称不能为空");
         }
         try {
+//            List<OTAFirmwareMultiFilesCreateRq> multiFiles=new ArrayList<>();
+//            for (int i = 0; i < 2; i++) {
+//                OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), operator);
+//                postObject(urlInfoDTO.getKey(),urlInfoDTO.getHost(),urlInfoDTO.getPolicy(), urlInfoDTO.getAccessKeyId(),urlInfoDTO.getSignature(),"rs"+i );
+//                OTAFirmwareMultiFilesCreateRq otaFirmwareMultiFilesCreateRq=new OTAFirmwareMultiFilesCreateRq();
+//                otaFirmwareMultiFilesCreateRq.setUrl(urlInfoDTO.getUrl());
+//                otaFirmwareMultiFilesCreateRq.setName("rs"+i );
+//                multiFiles.add(otaFirmwareMultiFilesCreateRq);
+//            }
+//            createRq.setFirmwareUrl(null);
+//            createRq.setMultiFiles(multiFiles);
             CreateOTAFirmwareResponse response = otaUpgradeManager.createOTAFirmware(createRq);
             if (!response.getBody().getSuccess()){
                 throw new BusinessException(response.getBody().getErrorMessage());
@@ -538,9 +574,9 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         }
         CreateOTAStaticUpgradeJobResponse response = null;
         try {
-            if (StringUtils.isNotBlank(staticUpgradeJobCreateRq.getFilePath())){
-                staticUpgradeJobCreateRq.setTargetDeviceNameIn(equipmentNameImporter.doImport(null,staticUpgradeJobCreateRq.getFilePath()));
-            }
+//            if (StringUtils.isNotBlank(staticUpgradeJobCreateRq.getFilePath())){
+//                staticUpgradeJobCreateRq.setTargetDeviceNameIn(equipmentNameImporter.doImport(null,staticUpgradeJobCreateRq.getFilePath()));
+//            }
             response = otaUpgradeManager.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq);
             if (!response.getBody().getSuccess()){
                 throw new BusinessException(response.getBody().getErrorMessage());
@@ -603,6 +639,33 @@ public class AliOTAUpgradePackageServiceImpl extends BaseService implements AliO
         }
         return urlInfoDTO;
     }
+
+//    public static boolean postObject(String key,
+//                                     String host,
+//                                     String policy,
+//                                     String ossAccessKeyId,
+//                                     String signature,
+//                                     String data) throws IOException {
+//        CloseableHttpClient httpClient = HttpClients.createDefault();
+//        HttpPost uploadFile = new HttpPost(host);
+//        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+//        builder.addTextBody("key", key, ContentType.TEXT_PLAIN);
+//        builder.addTextBody("policy", policy, ContentType.TEXT_PLAIN);
+//        builder.addTextBody("OSSAccessKeyId", ossAccessKeyId, ContentType.TEXT_PLAIN);
+//        builder.addTextBody("signature", signature, ContentType.TEXT_PLAIN);
+//        builder.addTextBody("success_action_status", "200", ContentType.TEXT_PLAIN);
+//        builder.addBinaryBody("file", data.getBytes());
+//
+//        HttpEntity multipart = builder.build();
+//        uploadFile.setEntity(multipart);
+//        CloseableHttpResponse response = httpClient.execute(uploadFile);
+//
+//        if (response.getStatusLine().getStatusCode() == 200) {
+//            return true;
+//        }
+//
+//        return false;
+//    }
 }
 
 

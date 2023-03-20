@@ -4,8 +4,10 @@ import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.jike.wlw.service.upgrade.ota.*;
+import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageGenerateUrlInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageGenerateUrlInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListBatchDeviceTaskByJobVO;
@@ -151,6 +153,20 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         try {
             OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
             return ActionResult.ok(infoDTO.getVerifyProgress());
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
+    @ApiOperation(value = "获取上传url")
+    @RequestMapping(value = "/generateOTAUploadURL", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<OTAUpgradePackageGenerateUrlInfoVO> generateOTAUploadURL(@ApiParam(required = true, value = "id") @RequestBody OTAUpgradePackageGenerateUrlRq generateUrlRq) throws Exception {
+        try {
+            OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(generateUrlRq, getUserName());
+            OTAUpgradePackageGenerateUrlInfoVO vo=new OTAUpgradePackageGenerateUrlInfoVO();
+            BeanUtils.copyProperties(urlInfoDTO,vo);
+            return ActionResult.ok(vo);
         } catch (Exception e) {
             return dealWithError(e);
         }
