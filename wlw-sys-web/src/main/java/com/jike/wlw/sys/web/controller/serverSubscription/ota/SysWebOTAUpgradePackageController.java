@@ -1,5 +1,6 @@
 package com.jike.wlw.sys.web.controller.serverSubscription.ota;
 
+import com.alibaba.fastjson.JSON;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
@@ -22,6 +23,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
@@ -31,8 +39,12 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.support.MultipartFilter;
 
+import java.io.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -351,6 +363,101 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         }
     }
 
+    @ApiOperation(value = "上传升级包")
+    @RequestMapping(value = "/uploadUpgrade", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<Map<String,String>> uploadUpgrade(@RequestBody MultipartFile multipartFile) throws BusinessException {
+        if (multipartFile==null){
+            throw new BusinessException("升级包不能为空");
+        }
+        Map<String,String> uploadMap=new HashMap<>();
+        try {
+//            String jobId = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
+//            return ActionResult.ok(jobId);
+                OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), getUserName());
+                File file = multipartFileToFile(multipartFile);
+                String strFile = fileToString(file);
+                postObject(urlInfoDTO.getKey(),urlInfoDTO.getHost(),urlInfoDTO.getPolicy(),urlInfoDTO.getAccessKeyId(),urlInfoDTO.getSignature(),strFile);
+                uploadMap.put(file.getName(),urlInfoDTO.getUrl());
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+        return ActionResult.ok(uploadMap);
+    }
+
+        public static boolean postObject(String key,
+                                     String host,
+                                     String policy,
+                                     String ossAccessKeyId,
+                                     String signature,
+                                     String data) throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        HttpPost uploadFile = new HttpPost(host);
+        MultipartEntityBuilder builder = MultipartEntityBuilder.create();
+        builder.addTextBody("key", key, ContentType.TEXT_PLAIN);
+        builder.addTextBody("policy", policy, ContentType.TEXT_PLAIN);
+        builder.addTextBody("OSSAccessKeyId", ossAccessKeyId, ContentType.TEXT_PLAIN);
+        builder.addTextBody("signature", signature, ContentType.TEXT_PLAIN);
+        builder.addTextBody("success_action_status", "200", ContentType.TEXT_PLAIN);
+        builder.addBinaryBody("file", data.getBytes());
+
+        HttpEntity multipart = builder.build();
+        uploadFile.setEntity(multipart);
+        CloseableHttpResponse response = httpClient.execute(uploadFile);
+
+        if (response.getStatusLine().getStatusCode() == 200) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * 将MultipartFile转换为File
+     * @param multiFile
+     * @return
+     */
+    public static File multipartFileToFile(MultipartFile multiFile) {
+        // 获取文件名
+        String fileName = multiFile.getOriginalFilename();
+        // 获取文件后缀
+        String prefix = fileName.substring(fileName.lastIndexOf("."));
+        // 若须要防止生成的临时文件重复,能够在文件名后添加随机码
+        try {
+            File file = File.createTempFile(fileName, prefix);
+            multiFile.transferTo(file);
+            return file;
+        } catch (Exception e) {
+            log.error("MultipartFile转File失败",e);
+        }
+        return null;
+    }
+
+    /**
+     * 读取文件内容
+     * @param file
+     * @return
+     */
+    public static String fileToString(File file) throws IOException {
+        if (file.exists()) {
+            byte[] data = new byte[(int) file.length()];
+            boolean result;
+            FileInputStream inputStream = null;
+            try {
+                inputStream = new FileInputStream(file);
+                int len = inputStream.read(data);
+                result = len == data.length;
+            } finally {
+                if (inputStream != null) {
+                    inputStream.close();
+                }
+            }
+            if (result) {
+                return new String(data);
+            }
+        }
+        return null;
+    }
 }
 
 

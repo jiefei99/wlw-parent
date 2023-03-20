@@ -19,19 +19,19 @@ public class OTAUpgradePackageGenerateUrlInfoDTO extends StandardEntity {
     private static final long serialVersionUID = 6355133829103467737L;
 
     @ApiModelProperty("文件的URL")
-    public String url;
+    private String url;
     @ApiModelProperty("接入域名")
-    public String host;
+    private String host;
     @ApiModelProperty("调用OSS的接口PostObject上传对象（即文件）的名称，包含OSS对象的完整路径")
-    public String key;
+    private String key;
     @ApiModelProperty("对象存储类型")
-    public String objectStorage;
+    private String objectStorage;
     @ApiModelProperty("验证")
-    public String policy;
+    private String policy;
     @ApiModelProperty("签名信息")
-    public String signature;
+    private String signature;
     @ApiModelProperty("AccessKeyId")
-    public String accessKeyId;
+    private String accessKeyId;
 }
 
 
