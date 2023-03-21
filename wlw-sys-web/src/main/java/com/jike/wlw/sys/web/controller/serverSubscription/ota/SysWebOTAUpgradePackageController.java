@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.geeker123.rumba.commons.util.JsonUtil;
+import com.geeker123.rumba.oss.CloudStorageConfig;
+import com.geeker123.rumba.oss.OSSFactory;
 import com.jike.wlw.service.upgrade.ota.*;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageGenerateUrlInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
@@ -37,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,10 +74,10 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<OTAUpgradePackageListVO>> query(@RequestBody OTAUpgradePackageFilter filter) throws BusinessException {
         try {
-            if (filter.getPage()<0){
+            if (filter.getPage() < 0) {
                 throw new BusinessException("页数从1开始排序，请重新选择");
             }
-            if (filter.getPageSize()<0||filter.getPageSize()>100){
+            if (filter.getPageSize() < 0 || filter.getPageSize() > 100) {
                 throw new BusinessException("每页显示数量0-100，请重新选择");
             }
             PagingResult<OTAUpgradePackageListVO> query = aliOTAUpgradePackageFeignClient.query(getTenantId(), filter);
@@ -88,23 +92,23 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<OTAUpgradePackageListDeviceTaskByJobVO>> queryEquipment(@RequestBody OTAUpgradePackageTackByJobFilter filter) throws BusinessException {
         try {
-            if (filter.getPage()<0){
+            if (filter.getPage() < 0) {
                 throw new BusinessException("页数从1开始排序，请重新选择");
             }
-            if (filter.getPageSize()<0||filter.getPageSize()>100){
+            if (filter.getPageSize() < 0 || filter.getPageSize() > 100) {
                 throw new BusinessException("每页显示数量0-100，请重新选择");
             }
-            List<OTAUpgradePackageListDeviceTaskByJobVO> list=new ArrayList<>();
-            PagingResult<OTAUpgradePackageListDeviceTaskByJobVO> resultVO=new PagingResult<>();
+            List<OTAUpgradePackageListDeviceTaskByJobVO> list = new ArrayList<>();
+            PagingResult<OTAUpgradePackageListDeviceTaskByJobVO> resultVO = new PagingResult<>();
             PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> resp = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
             resultVO.setPage(resp.getPage());
             resultVO.setPageCount(resp.getPageCount());
             resultVO.setPageSize(resp.getPageSize());
             resultVO.setTotal(resp.getTotal());
-            if (resp.getData()!=null&&!CollectionUtils.isEmpty(resp.getData())){
+            if (resp.getData() != null && !CollectionUtils.isEmpty(resp.getData())) {
                 for (OTAUpgradePackageListDeviceTaskByJobDTO source : resp.getData()) {
-                    OTAUpgradePackageListDeviceTaskByJobVO target=new OTAUpgradePackageListDeviceTaskByJobVO();
-                    BeanUtils.copyProperties(source,target);
+                    OTAUpgradePackageListDeviceTaskByJobVO target = new OTAUpgradePackageListDeviceTaskByJobVO();
+                    BeanUtils.copyProperties(source, target);
                     list.add(target);
                 }
             }
@@ -120,13 +124,13 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<OTAUpgradePackageJobBatchListVO>> queryJobByFirmware(@RequestBody OTAUpgradePackageJobByFirmwareFilter filter) throws BusinessException {
         try {
-            if (filter.getPage()<0){
+            if (filter.getPage() < 0) {
                 throw new BusinessException("页数从1开始排序，请重新选择");
             }
-            if (filter.getPageSize()<0||filter.getPageSize()>200){
+            if (filter.getPageSize() < 0 || filter.getPageSize() > 200) {
                 throw new BusinessException("每页显示数量0-200，请重新选择");
             }
-            if (StringUtils.isBlank(filter.getFirmwareId())){
+            if (StringUtils.isBlank(filter.getFirmwareId())) {
                 throw new BusinessException("升级包ID不能为空");
             }
             PagingResult<OTAUpgradePackageJobBatchListVO> result = aliOTAUpgradePackageFeignClient.queryJobByFirmware(getTenantId(), filter);
@@ -140,14 +144,14 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/getInfo", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<OTAUpgradePackageInfoVO> getInfo(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id,
-                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(id)){
+                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(id)) {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
             OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
-            OTAUpgradePackageInfoVO target=new OTAUpgradePackageInfoVO();
-            BeanUtils.copyProperties(infoDTO,target);
+            OTAUpgradePackageInfoVO target = new OTAUpgradePackageInfoVO();
+            BeanUtils.copyProperties(infoDTO, target);
             return ActionResult.ok(target);
         } catch (Exception e) {
             return dealWithError(e);
@@ -158,8 +162,8 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/getVerifyProgressInfo", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<Integer> getVerifyProgressInfo(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id,
-                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(id)){
+                                                       @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(id)) {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
@@ -176,8 +180,8 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     public ActionResult<OTAUpgradePackageGenerateUrlInfoVO> generateOTAUploadURL(@ApiParam(required = true, value = "id") @RequestBody OTAUpgradePackageGenerateUrlRq generateUrlRq) throws Exception {
         try {
             OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(generateUrlRq, getUserName());
-            OTAUpgradePackageGenerateUrlInfoVO vo=new OTAUpgradePackageGenerateUrlInfoVO();
-            BeanUtils.copyProperties(urlInfoDTO,vo);
+            OTAUpgradePackageGenerateUrlInfoVO vo = new OTAUpgradePackageGenerateUrlInfoVO();
+            BeanUtils.copyProperties(urlInfoDTO, vo);
             return ActionResult.ok(vo);
         } catch (Exception e) {
             return dealWithError(e);
@@ -188,18 +192,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/getBatchDeviceTaskByJobNum", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<OTAUpgradePackageListBatchDeviceTaskByJobVO> getBatchDeviceTaskByJobNum(@ApiParam(required = true, value = "jobId") @RequestParam(value = "jobId") String jobId,
-                                                                                                @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(jobId)){
+                                                                                                @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(jobId)) {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
             //可以改成跟queryDeviceGroupList一样使用递归
-            OTAUpgradePackageTackByJobFilter filter=new OTAUpgradePackageTackByJobFilter();
+            OTAUpgradePackageTackByJobFilter filter = new OTAUpgradePackageTackByJobFilter();
             filter.setJobId(jobId);
             filter.setPage(1);
             filter.setPageSize(100);
             PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
-            if (result==null||result.getData()==null||result.getTotal()==0||CollectionUtils.isEmpty(result.getData())){
+            if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
                 return ActionResult.ok(new OTAUpgradePackageListBatchDeviceTaskByJobVO());
             }
             List<OTAUpgradePackageListDeviceTaskByJobDTO> batchDeviceList = new ArrayList<>();
@@ -208,33 +212,33 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             for (int i = 0; i < forCount - 1; i++) {
                 filter.setPage(filter.getPage() + 1);
                 result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
-                if (result==null||result.getData()==null||result.getTotal()==0||CollectionUtils.isEmpty(result.getData())){
+                if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
                     continue;
                 }
                 batchDeviceList.addAll(result.getData());
             }
             Map<OTAUpgradePackageTaskStatusType, Long> statusTypeCountMap = batchDeviceList.parallelStream().map(OTAUpgradePackageListDeviceTaskByJobDTO::getTaskStatus).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-            OTAUpgradePackageListBatchDeviceTaskByJobVO vo=new OTAUpgradePackageListBatchDeviceTaskByJobVO();
+            OTAUpgradePackageListBatchDeviceTaskByJobVO vo = new OTAUpgradePackageListBatchDeviceTaskByJobVO();
             vo.setTotal(Long.valueOf(batchDeviceList.size()));
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM) != null) {
                 vo.setConfirmTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED) != null) {
                 vo.setFailedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED) != null) {
                 vo.setQueuedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED) != null) {
                 vo.setNotifiedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED) != null) {
                 vo.setSuccessTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED) != null) {
                 vo.setCanceledTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED));
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS)!=null){
+            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS) != null) {
                 vo.setUpgradingTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS));
             }
             return ActionResult.ok(vo);
@@ -247,8 +251,8 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/getJobBatchInfo", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<OTAUpgradePackageJobBatchInfoVO> getJobBatchInfo(@ApiParam(required = true, value = "jobId") @RequestParam(value = "jobId") String jobId,
-                                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(jobId)){
+                                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(jobId)) {
             throw new BusinessException("升级批次ID不能为空");
         }
         try {
@@ -263,8 +267,8 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<OTAUpgradePackageVO> get(@ApiParam(required = true, value = "id") @RequestParam(value = "id") String id,
-                                                 @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
-        if (StringUtils.isBlank(id)){
+                                                 @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
+        if (StringUtils.isBlank(id)) {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
@@ -279,10 +283,10 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     public ActionResult<Void> create(@RequestBody OTAUpgradePackageCreateRq createRq) throws BusinessException {
-        if (StringUtils.isBlank(createRq.getDestVersion())){
+        if (StringUtils.isBlank(createRq.getDestVersion())) {
             throw new BusinessException("当前OTA升级包版本号不能为空");
         }
-        if (StringUtils.isBlank(createRq.getFirmwareName())){
+        if (StringUtils.isBlank(createRq.getFirmwareName())) {
             throw new BusinessException("升级包名称不能为空");
         }
         try {
@@ -316,6 +320,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             return dealWithError(e);
         }
     }
+
     @ApiOperation(value = "重新发起升级失败或升级取消的设备升级作业")
     @RequestMapping(value = "/reUpgradeOTATaskByDevice", method = RequestMethod.POST)
     @ResponseBody
@@ -351,6 +356,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             return dealWithError(e);
         }
     }
+
     @ApiOperation(value = "静态升级")
     @RequestMapping(value = "/createOTAStaticUpgradeJob", method = RequestMethod.POST)
     @ResponseBody
@@ -366,26 +372,26 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ApiOperation(value = "上传升级包")
     @RequestMapping(value = "/uploadUpgrade", method = RequestMethod.POST)
     @ResponseBody
-    public ActionResult<Map<String,String>> uploadUpgrade(@RequestBody MultipartFile multipartFile) throws BusinessException {
-        if (multipartFile==null){
+    public ActionResult<Map<String, String>> uploadUpgrade(@RequestParam("multipartFile") MultipartFile multipartFile) throws BusinessException {
+        if (multipartFile == null) {
             throw new BusinessException("升级包不能为空");
         }
-        Map<String,String> uploadMap=new HashMap<>();
+        Map<String, String> uploadMap = new HashMap<>();
         try {
 //            String jobId = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
 //            return ActionResult.ok(jobId);
-                OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), getUserName());
-                File file = multipartFileToFile(multipartFile);
-                String strFile = fileToString(file);
-                postObject(urlInfoDTO.getKey(),urlInfoDTO.getHost(),urlInfoDTO.getPolicy(),urlInfoDTO.getAccessKeyId(),urlInfoDTO.getSignature(),strFile);
-                uploadMap.put(file.getName(),urlInfoDTO.getUrl());
+            OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), getUserName());
+            File file = multipartFileToFile(multipartFile);
+            String strFile = fileToString(file);
+            postObject(urlInfoDTO.getKey(), urlInfoDTO.getHost(), urlInfoDTO.getPolicy(), urlInfoDTO.getAccessKeyId(), urlInfoDTO.getSignature(), strFile);
+            uploadMap.put(file.getName(), urlInfoDTO.getUrl());
         } catch (Exception e) {
             return dealWithError(e);
         }
         return ActionResult.ok(uploadMap);
     }
 
-        public static boolean postObject(String key,
+    public static boolean postObject(String key,
                                      String host,
                                      String policy,
                                      String ossAccessKeyId,
@@ -414,6 +420,7 @@ public class SysWebOTAUpgradePackageController extends BaseController {
 
     /**
      * 将MultipartFile转换为File
+     *
      * @param multiFile
      * @return
      */
@@ -428,13 +435,14 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             multiFile.transferTo(file);
             return file;
         } catch (Exception e) {
-            log.error("MultipartFile转File失败",e);
+            log.error("MultipartFile转File失败", e);
         }
         return null;
     }
 
     /**
      * 读取文件内容
+     *
      * @param file
      * @return
      */
