@@ -125,7 +125,7 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @RequestMapping(value = "/delete", method = RequestMethod.POST)
     @ResponseBody
     public ActionResult<Void> delete(
-            @ApiParam(required = true, value = "删除请求参数") @RequestParam(value = "productKey") PhysicalModelDelRq modelDelRq) throws Exception {
+            @ApiParam(required = true, value = "删除请求参数") @RequestBody PhysicalModelDelRq modelDelRq) throws Exception {
         try {
             aliPhysicalModelFeignClient.delete(getTenantId(), modelDelRq, AppContext.getContext().getUserName());
             return ActionResult.ok();
