@@ -99,6 +99,12 @@
                 <groupId>com.geeker123.rumba</groupId>
                 <artifactId>rumba-web-base</artifactId>
                 <version>${rumba.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-reload4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.alibaba</groupId>
@@ -140,6 +146,12 @@
                 <groupId>com.geeker123.rumba</groupId>
                 <artifactId>rumba-oss</artifactId>
                 <version>${rumba.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>org.slf4j</groupId>
+                        <artifactId>slf4j-reload4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
             <dependency>
                 <groupId>com.geeker123.rumba</groupId>
