@@ -39,5 +39,7 @@ public class Property implements Serializable {
     private DataSpecs dataSpecs;
     @ApiModelProperty("数据规范")//列表型（ENUM、BOOL、STRUCT）的数据规范存储在dataSpecsList中
     private List<DataSpecsTwo> dataSpecsList;
+    @ApiModelProperty("描述")
+    private String description;
 
 }

@@ -95,7 +95,9 @@ public class PhysicalModelManager {
         request.setIotInstanceId(model.getIotInstanceId());
         request.setIdentifier(model.getIdentifier());
         request.setFunctionBlockName(model.getFunctionBlockName());
-        request.setThingModelJson(new JSONObject(model.getThingModelJson()).toString());
+        if (StringUtils.isNotBlank(model.getThingModelJson())) {
+            request.setThingModelJson(new JSONObject(model.getThingModelJson()).toString());
+        }
         UpdateThingModelResponse response = client.updateThingModel(request);
         System.out.println("指定更新物模型单个功能：" + JSON.toJSONString(response));
         return response;

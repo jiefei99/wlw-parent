@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.util.Map;
 
 /**
  * @title: PhysicalModelCreateRq
@@ -30,8 +29,8 @@ public class PhysicalModelCreateRq extends Entity implements Serializable {
     private String functionBlockId;
     @ApiModelProperty("物模型的自定义模块名称")
     private String functionBlockName;
-    @ApiModelProperty("描述")
-    private String details;
+    //@ApiModelProperty("描述")
+    //private String details;
 }
 
 
