@@ -33,7 +33,8 @@ public interface AuthService {
     @RequestMapping(value = "/saveRole", method = RequestMethod.POST)
     @ResponseBody
     void saveRole(@ApiParam(value = "角色", required = true) @RequestBody Role role,
-                  @ApiParam(value = "租户ID", required = true) @RequestParam(value = "tenantId") String tenantId) throws BusinessException;
+                  @ApiParam(value = "租户ID", required = true) @RequestParam(value = "tenantId") String tenantId,
+                  @ApiParam(value = "操作者", required = true) @RequestParam(value = "operator") String operator) throws BusinessException;
 
     @ApiOperation(value = "删除角色")
     @RequestMapping(value = "/removeRole", method = RequestMethod.GET)
