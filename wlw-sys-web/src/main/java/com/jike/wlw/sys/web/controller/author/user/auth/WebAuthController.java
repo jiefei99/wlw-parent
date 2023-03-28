@@ -48,7 +48,7 @@ public class WebAuthController extends BaseController {
     @ResponseBody
     public ActionResult<Void> saveRole(@ApiParam(value = "角色", required = true) @RequestBody Role role) throws BusinessException {
         try {
-            authFeignClient.saveRole(role, getTenantId());
+            authFeignClient.saveRole(role, getTenantId(), "system");
 
             return ActionResult.ok();
         } catch (Exception e) {

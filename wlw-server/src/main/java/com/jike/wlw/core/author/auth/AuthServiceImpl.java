@@ -63,19 +63,30 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
     @TX
     @Override
-    public void saveRole(Role role, String tenantId) throws BusinessException {
+    public void saveRole(Role role, String tenantId, String operator) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(role.getName())) {
                 throw new BusinessException("角色名称不能为空");
             }
-
-            PRole perz = authDao.get(PRole.class, "name", role.getName());
-            if (perz != null) {
-                throw new BusinessException("当前角色名称已存在，无法创建");
+            PRole perz = null;
+            if (StringUtil.isNullOrBlank(role.getUuid())) {
+                perz = authDao.get(PRole.class, "name", role.getName());
+                if (perz != null) {
+                    throw new BusinessException("当前角色名称已存在，无法创建");
+                }
+            } else {
+                perz = authDao.get(PRole.class, role.getUuid());
             }
-            perz = new PRole();
-            BeanUtils.copyProperties(role, perz);
-            perz.setTenantId(tenantId);
+
+            if (perz == null) {
+                perz = new PRole();
+                BeanUtils.copyProperties(role, perz);
+                perz.setTenantId(tenantId);
+                perz.onCreated(operator);
+            } else if (!StringUtil.isNullOrBlank(perz.getUuid())){
+                BeanUtils.copyProperties(role, perz, "tenantId", "uuid", "created", "creator", "modified", "modifier");
+                perz.onModified(operator);
+            }
 
             authDao.save(perz);
         } catch (Exception e) {
@@ -86,7 +97,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
     @TX
     @Override
-    public void removeRole(String roleId,String tenantId) throws BusinessException {
+    public void removeRole(String roleId, String tenantId) throws BusinessException {
         try {
             authDao.removeRole(roleId, tenantId);
         } catch (Exception e) {
@@ -274,7 +285,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
 
     @TX
     @Override
-    public void removeUserRoles(String tenantId,String userId) throws BusinessException {
+    public void removeUserRoles(String tenantId, String userId) throws BusinessException {
         try {
             if (StringUtil.isNullOrBlank(tenantId)) {
                 throw new BusinessException("租户Id不能为空");
