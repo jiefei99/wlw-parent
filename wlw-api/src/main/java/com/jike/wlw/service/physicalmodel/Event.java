@@ -34,4 +34,6 @@ public class Event implements Serializable {
     private Boolean required;//必填
     @ApiModelProperty("是否是自定义功能")
     private Boolean custom;//必填
+    @ApiModelProperty("描述")
+    private String description;
 }
