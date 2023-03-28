@@ -89,7 +89,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
             model.setProductKey(modelGetRq.getProductKey());
             model.setFunctionBlockId(modelGetRq.getFunctionBlockId());
             String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
-            if (StringUtils.isNotBlank(ppk)){
+            if (StringUtils.isNotBlank(ppk)) {
                 model.setVersion(JSON.parseObject(ppk).getString("version"));
                 model.setDescription(JSON.parseObject(ppk).getString("description"));
             }
@@ -101,18 +101,18 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public List<ModelVersion> getVersion(String tenantId, String productKey, String iotInstanceId) throws BusinessException {
-        List<ModelVersion> versionList= new ArrayList<>();
+        List<ModelVersion> versionList = new ArrayList<>();
         try {
             if (StringUtils.isBlank(productKey)) {
                 throw new IllegalAccessException("物模型产品的ProductKey属性值不能为空");
             }
             ListThingModelVersionResponse response = manager.listThingModelVersion(productKey, iotInstanceId);
             List<ListThingModelVersionResponseBodyDataModelVersions> modelVersions = response.getBody().getData().getModelVersions();
-            if (CollectionUtils.isEmpty(modelVersions)){
+            if (CollectionUtils.isEmpty(modelVersions)) {
                 return versionList;
             }
             for (ListThingModelVersionResponseBodyDataModelVersions modelVersion : modelVersions) {
-                ModelVersion version=new ModelVersion();
+                ModelVersion version = new ModelVersion();
                 version.setModelVersion(modelVersion.getModelVersion());
                 version.setCreated(new Date(modelVersion.getGmtCreate()));
                 version.setDescription(modelVersion.getDescription());
@@ -126,7 +126,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public PhysicalModelTsl getTslPublished(String tenantId, PhysicalModelPubTslGetRq modelGetRq) throws BusinessException {
-        PhysicalModelTsl modelTsl=new PhysicalModelTsl();
+        PhysicalModelTsl modelTsl = new PhysicalModelTsl();
         try {
             if (modelGetRq == null) {
                 throw new IllegalAccessException("创建物模型参数不能为空");
@@ -146,7 +146,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public PhysicalModelTsl getTsl(String tenantId, PhysicalModelTslGetRq modelGetRq) throws BusinessException {
-        PhysicalModelTsl modelTsl=new PhysicalModelTsl();
+        PhysicalModelTsl modelTsl = new PhysicalModelTsl();
         try {
             if (modelGetRq == null) {
                 throw new IllegalAccessException("创建物模型参数不能为空");
@@ -166,13 +166,13 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public PhysicalModel getCategory(String tenantId, String categoryKey, String resourceGroupId, String iotInstanceId) throws BusinessException {
-        PhysicalModel model=new PhysicalModel();
+        PhysicalModel model = new PhysicalModel();
         try {
             if (StringUtils.isBlank(categoryKey)) {
                 throw new IllegalAccessException("物模型产品的ProductKey属性值不能为空");
             }
             GetThingTemplateResponse response = manager.getThingTemplate(categoryKey, resourceGroupId, iotInstanceId);
-            if (StringUtils.isNotBlank(response.getBody().getThingModelJSON())){
+            if (StringUtils.isNotBlank(response.getBody().getThingModelJSON())) {
                 model = JSONObject.parseObject(response.getBody().getThingModelJSON(), PhysicalModel.class);
             }
         } catch (Exception e) {
@@ -213,14 +213,14 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public List<Map<String, String>> queryTemplates(String tenantId, String iotInstanceId) throws BusinessException {
-        List<Map<String, String>> list=new ArrayList<>();
+        List<Map<String, String>> list = new ArrayList<>();
         try {
             ListThingTemplatesResponse response = manager.listThingTemplates(iotInstanceId);
             List<ListThingTemplatesResponseBodyData> data = response.getBody().getData();
             for (ListThingTemplatesResponseBodyData item : data) {
-                Map<String,String> map =new HashMap<>();
-                map.put(PhysicalModel.CATEGORYKEY,item.getCategoryKey());
-                map.put(PhysicalModel.CATEGORYNAME,item.getCategoryName());
+                Map<String, String> map = new HashMap<>();
+                map.put(PhysicalModel.CATEGORYKEY, item.getCategoryKey());
+                map.put(PhysicalModel.CATEGORYNAME, item.getCategoryName());
                 list.add(map);
             }
         } catch (Exception e) {
@@ -231,7 +231,7 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
 
     @Override
     public PhysicalModel queryPublish(String tenantId, PhysicalModelPublishQueryRq filter) throws BusinessException {
-        PhysicalModel model=new PhysicalModel();
+        PhysicalModel model = new PhysicalModel();
         try {
             if (filter == null) {
                 throw new IllegalAccessException("查询物模型参数不能为空");
@@ -240,11 +240,11 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
                 throw new IllegalAccessException("产品的ProductKey不能为空");
             }
             QueryThingModelPublishedResponse response = manager.queryThingModelPublished(filter);
-            if (StringUtils.isNotBlank(response.getBody().getData().getThingModelJson())){
-                model= JSONObject.parseObject(response.getBody().getData().getThingModelJson(), PhysicalModel.class);
+            if (response.getBody() != null && response.getBody().getData() != null && StringUtils.isNotBlank(response.getBody().getData().getThingModelJson())) {
+                model = JSONObject.parseObject(response.getBody().getData().getThingModelJson(), PhysicalModel.class);
                 model.setProductKey(filter.getProductKey());
                 String ppk = JSON.parseObject(response.getBody().getData().getThingModelJson()).getString("_ppk");
-                if (StringUtils.isNotBlank(ppk)){
+                if (StringUtils.isNotBlank(ppk)) {
                     model.setVersion(JSON.parseObject(ppk).getString("version"));
                     model.setDescription(JSON.parseObject(ppk).getString("description"));
                 }
