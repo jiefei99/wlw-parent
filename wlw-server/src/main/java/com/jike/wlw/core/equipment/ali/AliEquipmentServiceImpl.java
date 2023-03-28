@@ -208,10 +208,13 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
     public PagingResult<Equipment> queryByStatus(String tenantId, EquipmentQueryByStatusRq queryRq) throws BusinessException {
         try {
             QueryDeviceByStatusResponseBody response = equipmentManager.queryDeviceByStatus(queryRq);
-            if (!response.getSuccess() || response.getData() == null || CollectionUtils.isEmpty(response.getData().getSimpleDeviceInfo())) {
+            if (!response.getSuccess()) {
                 throw new BusinessException("根据设备状态查询设备列表失败：" + response.getErrorMessage());
             }
             List<Equipment> result = new ArrayList<>();
+            if (response.getData() == null || CollectionUtils.isEmpty(response.getData().getSimpleDeviceInfo())) {
+                return new PagingResult<>(queryRq.getCurrentPage(), queryRq.getPageSize(), response.getTotal(), result);
+            }
             for (QueryDeviceByStatusResponseBody.QueryDeviceByStatusResponseBodyDataSimpleDeviceInfo deviceInfo : response.getData().getSimpleDeviceInfo()) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(deviceInfo, equipment);
@@ -232,10 +235,13 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
     public PagingResult<Equipment> queryByProductKey(String tenantId, EquipmentQueryByProductRq queryRq) throws BusinessException {
         try {
             QueryDeviceResponseBody response = equipmentManager.queryDeviceByProductKey(queryRq);
-            if (!response.getSuccess() || response.getData() == null || CollectionUtils.isEmpty(response.getData().getDeviceInfo())) {
+            if (!response.getSuccess()) {
                 throw new BusinessException("根据设备状态查询设备列表失败：" + response.getErrorMessage());
             }
             List<Equipment> result = new ArrayList<>();
+            if (response.getData() == null || CollectionUtils.isEmpty(response.getData().getDeviceInfo())) {
+                return new PagingResult<>(queryRq.getCurrentPage(), queryRq.getPageSize(), response.getTotal(), result);
+            }
             for (QueryDeviceResponseBody.QueryDeviceResponseBodyDataDeviceInfo deviceInfo : response.getData().getDeviceInfo()) {
                 Equipment equipment = new Equipment();
                 BeanUtils.copyProperties(deviceInfo, equipment);
