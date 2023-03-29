@@ -1,6 +1,7 @@
 package com.jike.wlw.service.equipment;
 
 import com.geeker123.rumba.jpa.api.entity.StandardEntity;
+import com.jike.wlw.service.product.info.Product;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -82,4 +83,7 @@ public class Equipment extends StandardEntity {
     private String appKey;
     @ApiModelProperty("节点类型")//ALIYUNDEFINED：阿里云颁发类型，需同时传入DevEui和PinCode。USERDEFINED：用户自定义类型，需同时传入DevEui、JoinEui和AppKey。
     private String loraNodeType;
+    // 辅助属性
+    @ApiModelProperty("产品信息")
+    public Product product;
 }

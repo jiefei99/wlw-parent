@@ -2,6 +2,7 @@ package com.jike.wlw.sys.web.controller.subscription.subscribe;
 
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupSubscribeCreateRq;
 import com.jike.wlw.service.serverSubscription.subscribe.SubscribeRelation;
@@ -74,8 +75,10 @@ public class SysWebAliSubscribeRelationController extends BaseController {
     public ActionResult<SubscribeRelation> get(@ApiParam(required = true, value = "删除服务端订阅请求参数") @RequestBody SubscribeRq subscribeRq) throws BusinessException {
         try {
             SubscribeRelation result = aliSubscribeRelationFeignClient.get(getTenantId(), subscribeRq.getProductKey(), subscribeRq.getType(), subscribeRq.getIotInstanceId());
-            Product product = aliProductFeignClient.get(getTenantId(), result.getProductKey(), subscribeRq.getIotInstanceId());
-            result.setName(product.getName());
+            if (result != null) {
+                Product product = aliProductFeignClient.get(getTenantId(), result.getProductKey(), subscribeRq.getIotInstanceId());
+                result.setName(product.getName());
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);

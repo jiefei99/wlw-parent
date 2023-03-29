@@ -4,6 +4,8 @@ import com.aliyun.iot20180120.models.*;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
+import com.geeker123.rumba.commons.util.StringUtil;
+import com.geeker123.rumba.jpa.api.entity.Parts;
 import com.jike.wlw.common.DateUtils;
 import com.jike.wlw.common.ImportData;
 import com.jike.wlw.core.BaseService;
@@ -11,12 +13,17 @@ import com.jike.wlw.core.equipment.ali.imp.EquipmentImporter;
 import com.jike.wlw.core.equipment.ali.iot.IemEquipmentManager;
 import com.jike.wlw.core.physicalmodel.ali.iot.PhysicalModelUse;
 import com.jike.wlw.dao.TX;
+import com.jike.wlw.dao.author.user.role.PRole;
+import com.jike.wlw.service.author.user.role.Role;
+import com.jike.wlw.service.author.user.role.RoleFilter;
 import com.jike.wlw.service.equipment.*;
 import com.jike.wlw.service.equipment.ali.*;
 import com.jike.wlw.service.equipment.ali.dto.BatchCheckDeviceNamesResultDTO;
 import com.jike.wlw.service.equipment.ali.dto.DesiredPropertyInfoDTO;
 import com.jike.wlw.service.equipment.ali.dto.PropertyInfoDTO;
 import com.jike.wlw.service.equipment.dto.DeviceGroupDTO;
+import com.jike.wlw.service.operation.log.OperationLog;
+import com.jike.wlw.service.product.info.ProductFilter;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -418,6 +425,11 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
     public ActionResult<List<DesiredPropertyInfoDTO>> queryDeviceDesiredProperty(String tenantId, DevicePropertyRq model) throws BusinessException {
         try {
             List<DesiredPropertyInfoDTO> result = new ArrayList<>();
+            List<String> identifierList = new ArrayList<>();
+            if (!StringUtil.isNullOrBlank(model.getIdentifier())) {
+                identifierList.add(model.getIdentifier());
+            }
+            model.setIdentifierList(identifierList);
             QueryDeviceDesiredPropertyResponse response = physicalModelUse.queryDeviceDesiredProperty(model);
             if (response.getBody() != null && Boolean.TRUE.equals(response.getBody().getSuccess())) {
                 if (response.getBody() == null || response.getBody().getData() == null || response.getBody().getData().getList() == null || CollectionUtils.isEmpty(response.getBody().getData().getList().getDesiredPropertyInfo())) {
@@ -498,7 +510,7 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
                     if (!response.getBody().getSuccess() || CollectionUtils.isEmpty(response.getBody().getData())) {
                         continue;
                     }
-                    List<String> result = response.getBody().getData().parallelStream().filter(item->!CollectionUtils.isEmpty(item.getOTAModules())).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyData::getOTAModules).flatMap(Collection::parallelStream).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyDataOTAModules::getFirmwareVersion).distinct().collect(Collectors.toList());
+                    List<String> result = response.getBody().getData().parallelStream().filter(item -> !CollectionUtils.isEmpty(item.getOTAModules())).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyData::getOTAModules).flatMap(Collection::parallelStream).map(QueryDeviceBySQLResponseBody.QueryDeviceBySQLResponseBodyDataOTAModules::getFirmwareVersion).distinct().collect(Collectors.toList());
                     versionList.addAll(result);
                 }
                 return new ArrayList<>(versionList);
@@ -513,14 +525,14 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
 
     @Override
     public List<DeviceGroupDTO> queryDeviceGroupList(String tenantId, QueryDeviceGroupListFilter filter) throws BusinessException {
-        List<DeviceGroupDTO> deviceGroupDTOList=new ArrayList<>();
+        List<DeviceGroupDTO> deviceGroupDTOList = new ArrayList<>();
         try {
-            if (filter.isAllQueryFlag()){
+            if (filter.isAllQueryFlag()) {
                 filter.setGroupTypes(null);
                 deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
                 filter.setGroupTypes(Arrays.asList("LINK_PLATFORM_DYNAMIC"));
                 deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
-            }else{
+            } else {
                 deviceGroupDTOList.addAll(queryDeviceGroupList(filter));
             }
         } catch (Exception e) {
@@ -530,28 +542,28 @@ public class AliEquipmentServiceImpl extends BaseService implements AliEquipment
         return deviceGroupDTOList;
     }
 
-    private List<DeviceGroupDTO> queryDeviceGroupList(QueryDeviceGroupListFilter filter) throws BusinessException{
-        List<DeviceGroupDTO> deviceGroupDTOList=new ArrayList<>();
-        try{
-            int page = filter.getPage()+1;
+    private List<DeviceGroupDTO> queryDeviceGroupList(QueryDeviceGroupListFilter filter) throws BusinessException {
+        List<DeviceGroupDTO> deviceGroupDTOList = new ArrayList<>();
+        try {
+            int page = filter.getPage() + 1;
             QueryDeviceGroupListResponse response = equipmentManager.queryDeviceGroupList(filter);
-            if (!response.getBody().getSuccess()||response.getBody().getData()==null&&CollectionUtils.isEmpty(response.getBody().getData().getGroupInfo())){
+            if (!response.getBody().getSuccess() || response.getBody().getData() == null && CollectionUtils.isEmpty(response.getBody().getData().getGroupInfo())) {
                 return deviceGroupDTOList;
             }
             for (QueryDeviceGroupListResponseBody.QueryDeviceGroupListResponseBodyDataGroupInfo source : response.getBody().getData().getGroupInfo()) {
-                DeviceGroupDTO target=new DeviceGroupDTO();
-                BeanUtils.copyProperties(source,target);
-                if (StringUtils.isNotBlank(source.getUtcCreate())){
+                DeviceGroupDTO target = new DeviceGroupDTO();
+                BeanUtils.copyProperties(source, target);
+                if (StringUtils.isNotBlank(source.getUtcCreate())) {
                     target.setCreated(DateUtils.dealDateFormatUTC(source.getUtcCreate()));
                 }
                 deviceGroupDTOList.add(target);
             }
-            if (filter.getPageSize()*filter.getPage()<response.getBody().getTotal()){
+            if (filter.getPageSize() * filter.getPage() < response.getBody().getTotal()) {
                 filter.setPage(page);
                 List<DeviceGroupDTO> recursionList = queryDeviceGroupList(filter);
                 deviceGroupDTOList.addAll(recursionList);
             }
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new BusinessException(e.getMessage(), e);
         }

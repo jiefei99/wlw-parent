@@ -101,10 +101,13 @@ public class AliSubscribeRelationServiceImpl extends BaseService implements AliS
                 throw new BusinessException("订阅中的产品的ProductKey不能为空");
             }
             QuerySubscribeRelationResponse response = subscribeRelationManager.querySubscribeRelation(productKey, type, iotInstanceId);
-            if (!response.getBody().getSuccess()) {
+            if (!response.getBody().getSuccess() && !("Subscription does not exist").equals(response.getBody().getErrorMessage())) {
                 throw new BusinessException("查询订阅失败，原因：" + response.getBody().getErrorMessage());
             }
             SubscribeRelation subscribeRelation = new SubscribeRelation();
+            if (("Subscription does not exist").equals(response.getBody().getErrorMessage())) {
+                return null;
+            }
             subscribeRelation.setConsumerGroupIds(response.getBody().getConsumerGroupIds());
             List<String> pushMsgTypeList = new ArrayList<>();
             addListProp(pushMsgTypeList, response.getBody().getDeviceDataFlag(), SubscribeRelation.DEVICE_DATA_FLAG);
