@@ -112,7 +112,9 @@ public class AliProductServiceImpl extends BaseService implements AliProductServ
             }
             DeleteProductResponse response = productManager.deleteProduct(productKey, iotInstanceId);
             if (!response.getBody().getSuccess()) {
-                throw new BusinessException("产品删除失败，原因：" + response.getBody().getErrorMessage());
+                if (!"iot.prod.NotExistedProduct".equals(response.getBody().getCode())) {
+                    throw new BusinessException("产品删除失败，原因：" + response.getBody().getErrorMessage());
+                }
             }
         } catch (Exception e) {
             log.error(e.getMessage(), e);
