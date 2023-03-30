@@ -4,11 +4,13 @@ import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
 import com.geeker123.rumba.commons.util.StringUtil;
 import com.jike.wlw.core.BaseService;
-import com.jike.wlw.dao.author.user.role.PRoleMenu;
+import com.jike.wlw.dao.TX;
 import com.jike.wlw.service.author.AuthFilter;
 import com.jike.wlw.service.author.auth.RolePermissionMenu;
 import com.jike.wlw.service.author.auth.RolePermissionMenuCreateRq;
-import com.jike.wlw.service.author.user.role.*;
+import com.jike.wlw.service.author.user.role.Role;
+import com.jike.wlw.service.author.user.role.RolePermissionMenuService;
+import com.jike.wlw.service.author.user.role.RoleService;
 import com.jike.wlw.service.operation.log.OperationLog;
 import com.jike.wlw.service.operation.log.OperationLogService;
 import com.jike.wlw.service.operation.log.OperationType;
@@ -36,6 +38,7 @@ public class RolePermissionMenuServiceImpl extends BaseService implements RolePe
     @Autowired
     private OperationLogService operationLogService;
 
+    @TX
     @Override
     public void saveRolePermissionMenus(RolePermissionMenuCreateRq createRq, String tenantId) throws BusinessException {
         try {

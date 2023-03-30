@@ -360,6 +360,7 @@ public class AuthServiceImpl extends BaseService implements AuthService {
         EmployeeFilter filter = new EmployeeFilter();
         filter.setUserIdIn(userIds);
         filter.setTenantIdEq(tenantId);
+        filter.setParts("user");
         List<Employee> userList = employeeService.query(tenantId, filter).getData();
 
         Map<String, Employee> employeeMapper = new HashMap<>();

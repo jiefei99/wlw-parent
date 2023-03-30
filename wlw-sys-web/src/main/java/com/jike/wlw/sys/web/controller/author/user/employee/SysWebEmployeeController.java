@@ -148,4 +148,18 @@ public class SysWebEmployeeController extends BaseController {
         }
     }
 
+    @ApiOperation(value = "根据查询条件查询员工")
+    @RequestMapping(value = "/queryEmployeeAndUser", method = RequestMethod.POST)
+    @ResponseBody
+    public ActionResult<PagingResult<Employee>> queryEmployeeAndUser(@ApiParam(required = true, value = "查询条件") @RequestBody EmployeeFilter filter) throws BusinessException {
+        try {
+            filter.setAdminEq(false);
+            filter.setParts("user,pwdAccount");
+            PagingResult<Employee> result = employeeFeignClient.query(getTenantId(), filter);
+            return ActionResult.ok(result);
+        } catch (Exception e) {
+            return dealWithError(e);
+        }
+    }
+
 }

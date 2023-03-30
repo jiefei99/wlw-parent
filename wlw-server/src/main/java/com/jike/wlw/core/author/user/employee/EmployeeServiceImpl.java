@@ -12,9 +12,11 @@ import com.geeker123.rumba.jpa.api.entity.Parts;
 import com.jike.wlw.core.BaseService;
 import com.jike.wlw.dao.TX;
 import com.jike.wlw.dao.author.login.account.AccountUserDao;
+import com.jike.wlw.dao.author.login.account.PAccountUser;
 import com.jike.wlw.dao.author.user.PUser;
 import com.jike.wlw.dao.author.user.employee.EmployeeDao;
 import com.jike.wlw.dao.author.user.employee.PEmployee;
+import com.jike.wlw.service.author.login.account.AccountUserFilter;
 import com.jike.wlw.service.author.user.User;
 import com.jike.wlw.service.author.user.UserCreateRq;
 import com.jike.wlw.service.author.user.UserFilter;
@@ -223,6 +225,9 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
                 if (parts.contains(Employee.PARTS_USER)) {
                     fetchUser(tenantId, result);
                 }
+                if (parts.contains(Employee.PARTS_PWD_ACCOUNT)) {
+                    fetchPwdAccount(tenantId, result);
+                }
             }
 
             return new PagingResult<>(filter.getPage(), filter.getPageSize(), total, result);
@@ -270,6 +275,30 @@ public class EmployeeServiceImpl extends BaseService implements EmployeeService 
         }
         for (Employee employee : employeeList) {
             employee.setUser(userMap.get(employee.getUserId()));
+        }
+    }
+
+    /**
+     * 获取账号密码信息
+     */
+    private void fetchPwdAccount(String tenantId, List<Employee> employeeList) {
+        if (CollectionUtils.isEmpty(employeeList)) {
+            return;
+        }
+        List<String> employeeUserIds = employeeList.parallelStream().map(Employee::getUserId).collect(Collectors.toList());
+        AccountUserFilter filter = new AccountUserFilter();
+        filter.setUserIds(employeeUserIds);
+        filter.setTenantId(tenantId);
+        List<PAccountUser> accountUsers = userDao.query(filter);
+        Map<String, PAccountUser> accountUserMap = new HashMap<>();
+        for (PAccountUser perz : accountUsers) {
+            if (!accountUserMap.containsKey(perz.getUserId())) {
+                accountUserMap.put(perz.getUserId(), perz);
+            }
+        }
+        for (Employee employee : employeeList) {
+            employee.setLoginId(accountUserMap.get(employee.getUserId()).getLoginId());
+            employee.setPassword(accountUserMap.get(employee.getUserId()).getPassword());
         }
     }
 
