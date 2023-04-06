@@ -8,10 +8,13 @@ import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupCreate
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupDeleteRq;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupFilter;
 import com.jike.wlw.service.serverSubscription.consumerGroup.ConsumerGroupModifyRq;
-import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
 import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupStatusVO;
+import com.jike.wlw.service.serverSubscription.consumerGroup.vo.ConsumerGroupVO;
+import com.jike.wlw.service.source.Source;
+import com.jike.wlw.service.source.SourceTypes;
 import com.jike.wlw.sys.web.config.fegin.AliConsumerGroupFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.source.SysWebSourceController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -38,15 +41,26 @@ import org.springframework.web.bind.annotation.RestController;
 public class SysWebConsumptionGroupController extends BaseController {
     @Autowired
     private AliConsumerGroupFeignClient consumerGroupFeignClient;
+    @Autowired
+    private SysWebSourceController sourceController;
 
     @ApiOperation(value = "获取指定的消费组信息")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<ConsumerGroup> get(@ApiParam(required = true, value = "groupId") @RequestParam(value = "groupId") String groupId,
-                                           @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
+                                           @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
         try {
-            ConsumerGroup consumerGroup = consumerGroupFeignClient.get(getTenantId(), groupId, iotInstanceId);
-            return ActionResult.ok(consumerGroup);
+            ConsumerGroup result = new ConsumerGroup();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = consumerGroupFeignClient.get(getTenantId(), groupId, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -56,10 +70,19 @@ public class SysWebConsumptionGroupController extends BaseController {
     @RequestMapping(value = "/getStatus", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<ConsumerGroupStatusVO> getStatus(@RequestParam(value = "groupId") String groupId,
-                                            @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId",required = false) String iotInstanceId) throws Exception {
+                                                         @ApiParam(required = false, value = "iotInstanceId") @RequestParam(value = "iotInstanceId", required = false) String iotInstanceId) throws Exception {
         try {
-            ConsumerGroupStatusVO status = consumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
-            return ActionResult.ok(status);
+            ConsumerGroupStatusVO result = new ConsumerGroupStatusVO();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = consumerGroupFeignClient.getStatus(getTenantId(), groupId, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -73,8 +96,18 @@ public class SysWebConsumptionGroupController extends BaseController {
             if (filter != null && StringUtils.isNotBlank(filter.getNameLike())) {
                 filter.setFuzzy(true);
             }
-            PagingResult<ConsumerGroupVO> query = consumerGroupFeignClient.query(getTenantId(), filter);
-            return ActionResult.ok(query);
+            PagingResult<ConsumerGroupVO> result = new PagingResult<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = consumerGroupFeignClient.query(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -88,7 +121,15 @@ public class SysWebConsumptionGroupController extends BaseController {
             if (deleteRq == null || StringUtils.isBlank(deleteRq.getId())) {
                 throw new BusinessException("删除消费组ID不能为空");
             }
-            consumerGroupFeignClient.delete(getTenantId(), deleteRq, getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                consumerGroupFeignClient.delete(getTenantId(), deleteRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -103,8 +144,18 @@ public class SysWebConsumptionGroupController extends BaseController {
             if (createRq == null) {
                 throw new BusinessException("新建条件不能为空");
             }
-            String id = consumerGroupFeignClient.create(getTenantId(), createRq, getUserName());
-            return ActionResult.ok(id);
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = consumerGroupFeignClient.create(getTenantId(), createRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -118,7 +169,15 @@ public class SysWebConsumptionGroupController extends BaseController {
             if (modifyRq == null) {
                 throw new BusinessException("修改条件不能为空");
             }
-            consumerGroupFeignClient.modify(getTenantId(), modifyRq, getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                consumerGroupFeignClient.modify(getTenantId(), modifyRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);

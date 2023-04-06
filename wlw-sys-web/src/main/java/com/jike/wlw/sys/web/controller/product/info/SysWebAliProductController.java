@@ -8,8 +8,11 @@ import com.jike.wlw.service.product.info.Product;
 import com.jike.wlw.service.product.info.ProductCreateRq;
 import com.jike.wlw.service.product.info.ProductFilter;
 import com.jike.wlw.service.product.info.ProductModifyRq;
+import com.jike.wlw.service.source.Source;
+import com.jike.wlw.service.source.SourceTypes;
 import com.jike.wlw.sys.web.config.fegin.AliProductFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.source.SysWebSourceController;
 import com.jike.wlw.sys.web.sso.AppContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -35,13 +38,24 @@ public class SysWebAliProductController extends BaseController {
 
     @Autowired
     private AliProductFeignClient aliProductFeignClient;
+    @Autowired
+    private SysWebSourceController sourceController;
 
     @ApiOperation(value = "获取指定的产品信息")
     @RequestMapping(value = "/get", method = RequestMethod.GET)
     @ResponseBody
     public ActionResult<Product> get(@ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey, @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
         try {
-            Product result = aliProductFeignClient.get(getTenantId(), productKey, iotInstanceId);
+            Product result = new Product();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliProductFeignClient.get(getTenantId(), productKey, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -54,7 +68,17 @@ public class SysWebAliProductController extends BaseController {
     public ActionResult<String> create(@ApiParam(required = true, value = "新增产品请求参数") @RequestBody ProductCreateRq createRq) throws BusinessException {
         try {
             Assert.assertArgumentNotNull(createRq, "createRq");
-            String result = aliProductFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliProductFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -68,7 +92,16 @@ public class SysWebAliProductController extends BaseController {
         try {
             Assert.assertArgumentNotNull(modifyRq, "modifyRq");
 
-            aliProductFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliProductFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -83,7 +116,16 @@ public class SysWebAliProductController extends BaseController {
             @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
         try {
             Assert.assertArgumentNotNull(productKey, "productKey");
-            aliProductFeignClient.delete(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliProductFeignClient.delete(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -99,7 +141,15 @@ public class SysWebAliProductController extends BaseController {
         try {
             Assert.assertArgumentNotNull(productKey, "productKey");
 
-            aliProductFeignClient.publishProduct(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliProductFeignClient.publishProduct(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -115,7 +165,15 @@ public class SysWebAliProductController extends BaseController {
         try {
             Assert.assertArgumentNotNull(productKey, "productKey");
 
-            aliProductFeignClient.unPublishProduct(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliProductFeignClient.unPublishProduct(getTenantId(), productKey, iotInstanceId, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -127,7 +185,16 @@ public class SysWebAliProductController extends BaseController {
     @ResponseBody
     public ActionResult<PagingResult<Product>> query(@ApiParam(required = true, value = "查询产品请求参数") @RequestBody ProductFilter filter) throws BusinessException {
         try {
-            PagingResult<Product> result = aliProductFeignClient.query(getTenantId(), filter);
+            PagingResult<Product> result = new PagingResult<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliProductFeignClient.query(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);

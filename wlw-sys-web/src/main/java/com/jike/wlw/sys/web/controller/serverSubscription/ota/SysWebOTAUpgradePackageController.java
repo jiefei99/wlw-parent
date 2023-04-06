@@ -1,26 +1,36 @@
 package com.jike.wlw.sys.web.controller.serverSubscription.ota;
 
-import com.alibaba.fastjson.JSON;
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
 import com.geeker123.rumba.commons.paging.PagingResult;
-import com.geeker123.rumba.commons.util.JsonUtil;
-import com.geeker123.rumba.oss.CloudStorageConfig;
-import com.geeker123.rumba.oss.OSSFactory;
-import com.jike.wlw.service.upgrade.ota.*;
+import com.jike.wlw.service.source.Source;
+import com.jike.wlw.service.source.SourceTypes;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCancelTaskByDeviceRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDeleteRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageDynamicUpgradeJobCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageGenerateUrlRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageJobByFirmwareFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageReupgradeTaskRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageStaticUpgradeJobCreateRq;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTackByJobFilter;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageTaskStatusType;
+import com.jike.wlw.service.upgrade.ota.OTAUpgradePackageVerifyJobCreateRq;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageGenerateUrlInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageInfoDTO;
 import com.jike.wlw.service.upgrade.ota.dto.OTAUpgradePackageListDeviceTaskByJobDTO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageGenerateUrlInfoVO;
+import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageJobBatchListVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListBatchDeviceTaskByJobVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListDeviceTaskByJobVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageListVO;
-import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageInfoVO;
 import com.jike.wlw.service.upgrade.ota.vo.OTAUpgradePackageVO;
 import com.jike.wlw.sys.web.config.fegin.AliOTAUpgradePackageFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.source.SysWebSourceController;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
@@ -40,13 +50,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.support.MultipartFilter;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -68,6 +78,8 @@ public class SysWebOTAUpgradePackageController extends BaseController {
 
     @Autowired
     private AliOTAUpgradePackageFeignClient aliOTAUpgradePackageFeignClient;
+    @Autowired
+    private SysWebSourceController sourceController;
 
     @ApiOperation(value = "根据查询条件查询OTA升级包")
     @RequestMapping(value = "/query", method = RequestMethod.POST)
@@ -80,8 +92,19 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             if (filter.getPageSize() < 0 || filter.getPageSize() > 100) {
                 throw new BusinessException("每页显示数量0-100，请重新选择");
             }
-            PagingResult<OTAUpgradePackageListVO> query = aliOTAUpgradePackageFeignClient.query(getTenantId(), filter);
-            return ActionResult.ok(query);
+
+            PagingResult<OTAUpgradePackageListVO> result = new PagingResult<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.query(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -99,21 +122,30 @@ public class SysWebOTAUpgradePackageController extends BaseController {
                 throw new BusinessException("每页显示数量0-100，请重新选择");
             }
             List<OTAUpgradePackageListDeviceTaskByJobVO> list = new ArrayList<>();
-            PagingResult<OTAUpgradePackageListDeviceTaskByJobVO> resultVO = new PagingResult<>();
-            PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> resp = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
-            resultVO.setPage(resp.getPage());
-            resultVO.setPageCount(resp.getPageCount());
-            resultVO.setPageSize(resp.getPageSize());
-            resultVO.setTotal(resp.getTotal());
-            if (resp.getData() != null && !CollectionUtils.isEmpty(resp.getData())) {
-                for (OTAUpgradePackageListDeviceTaskByJobDTO source : resp.getData()) {
-                    OTAUpgradePackageListDeviceTaskByJobVO target = new OTAUpgradePackageListDeviceTaskByJobVO();
-                    BeanUtils.copyProperties(source, target);
-                    list.add(target);
-                }
+            PagingResult<OTAUpgradePackageListDeviceTaskByJobVO> result = new PagingResult<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
             }
-            resultVO.setData(list);
-            return ActionResult.ok(resultVO);
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> resp = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
+                result.setPage(resp.getPage());
+                result.setPageCount(resp.getPageCount());
+                result.setPageSize(resp.getPageSize());
+                result.setTotal(resp.getTotal());
+                if (resp.getData() != null && !CollectionUtils.isEmpty(resp.getData())) {
+                    for (OTAUpgradePackageListDeviceTaskByJobDTO jobDTO : resp.getData()) {
+                        OTAUpgradePackageListDeviceTaskByJobVO target = new OTAUpgradePackageListDeviceTaskByJobVO();
+                        BeanUtils.copyProperties(jobDTO, target);
+                        list.add(target);
+                    }
+                }
+                result.setData(list);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -133,7 +165,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             if (StringUtils.isBlank(filter.getFirmwareId())) {
                 throw new BusinessException("升级包ID不能为空");
             }
-            PagingResult<OTAUpgradePackageJobBatchListVO> result = aliOTAUpgradePackageFeignClient.queryJobByFirmware(getTenantId(), filter);
+
+            PagingResult<OTAUpgradePackageJobBatchListVO> result = new PagingResult<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.queryJobByFirmware(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -149,10 +192,19 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
-            OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
-            OTAUpgradePackageInfoVO target = new OTAUpgradePackageInfoVO();
-            BeanUtils.copyProperties(infoDTO, target);
-            return ActionResult.ok(target);
+            OTAUpgradePackageInfoVO result = new OTAUpgradePackageInfoVO();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
+                BeanUtils.copyProperties(infoDTO, result);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -167,8 +219,21 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
-            OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
-            return ActionResult.ok(infoDTO.getVerifyProgress());
+            Integer result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                OTAUpgradePackageInfoDTO infoDTO = aliOTAUpgradePackageFeignClient.getInfo(getTenantId(), id, iotInstanceId);
+                if (infoDTO != null) {
+                    result = infoDTO.getVerifyProgress();
+                }
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -179,10 +244,19 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<OTAUpgradePackageGenerateUrlInfoVO> generateOTAUploadURL(@ApiParam(required = true, value = "id") @RequestBody OTAUpgradePackageGenerateUrlRq generateUrlRq) throws Exception {
         try {
-            OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(generateUrlRq, getUserName());
-            OTAUpgradePackageGenerateUrlInfoVO vo = new OTAUpgradePackageGenerateUrlInfoVO();
-            BeanUtils.copyProperties(urlInfoDTO, vo);
-            return ActionResult.ok(vo);
+            OTAUpgradePackageGenerateUrlInfoVO result = new OTAUpgradePackageGenerateUrlInfoVO();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(generateUrlRq, getUserName());
+                BeanUtils.copyProperties(urlInfoDTO, result);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -202,45 +276,55 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             filter.setJobId(jobId);
             filter.setPage(1);
             filter.setPageSize(100);
-            PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
-            if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
-                return ActionResult.ok(new OTAUpgradePackageListBatchDeviceTaskByJobVO());
-            }
-            List<OTAUpgradePackageListDeviceTaskByJobDTO> batchDeviceList = new ArrayList<>();
-            batchDeviceList.addAll(result.getData());
-            Long forCount = (result.getTotal() + 100 - 1) / 100; //总数不止一页的情况
-            for (int i = 0; i < forCount - 1; i++) {
-                filter.setPage(filter.getPage() + 1);
-                result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
-                if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
-                    continue;
-                }
-                batchDeviceList.addAll(result.getData());
-            }
-            Map<OTAUpgradePackageTaskStatusType, Long> statusTypeCountMap = batchDeviceList.parallelStream().map(OTAUpgradePackageListDeviceTaskByJobDTO::getTaskStatus).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
             OTAUpgradePackageListBatchDeviceTaskByJobVO vo = new OTAUpgradePackageListBatchDeviceTaskByJobVO();
-            vo.setTotal(Long.valueOf(batchDeviceList.size()));
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM) != null) {
-                vo.setConfirmTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM));
+
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED) != null) {
-                vo.setFailedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED));
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                PagingResult<OTAUpgradePackageListDeviceTaskByJobDTO> result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
+                if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
+                    return ActionResult.ok(new OTAUpgradePackageListBatchDeviceTaskByJobVO());
+                }
+                List<OTAUpgradePackageListDeviceTaskByJobDTO> batchDeviceList = new ArrayList<>();
+                batchDeviceList.addAll(result.getData());
+                Long forCount = (result.getTotal() + 100 - 1) / 100; //总数不止一页的情况
+                for (int i = 0; i < forCount - 1; i++) {
+                    filter.setPage(filter.getPage() + 1);
+                    result = aliOTAUpgradePackageFeignClient.queryEquipment(getTenantId(), filter);
+                    if (result == null || result.getData() == null || result.getTotal() == 0 || CollectionUtils.isEmpty(result.getData())) {
+                        continue;
+                    }
+                    batchDeviceList.addAll(result.getData());
+                }
+                Map<OTAUpgradePackageTaskStatusType, Long> statusTypeCountMap = batchDeviceList.parallelStream().map(OTAUpgradePackageListDeviceTaskByJobDTO::getTaskStatus).collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+                vo.setTotal(Long.valueOf(batchDeviceList.size()));
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM) != null) {
+                    vo.setConfirmTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CONFIRM));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED) != null) {
+                    vo.setFailedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.FAILED));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED) != null) {
+                    vo.setQueuedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED) != null) {
+                    vo.setNotifiedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED) != null) {
+                    vo.setSuccessTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED) != null) {
+                    vo.setCanceledTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED));
+                }
+                if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS) != null) {
+                    vo.setUpgradingTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS));
+                }
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
             }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED) != null) {
-                vo.setQueuedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.QUEUED));
-            }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED) != null) {
-                vo.setNotifiedTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.NOTIFIED));
-            }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED) != null) {
-                vo.setSuccessTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.SUCCEEDED));
-            }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED) != null) {
-                vo.setCanceledTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.CANCELED));
-            }
-            if (statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS) != null) {
-                vo.setUpgradingTotal(statusTypeCountMap.get(OTAUpgradePackageTaskStatusType.IN_PROGRESS));
-            }
+
             return ActionResult.ok(vo);
         } catch (Exception e) {
             return dealWithError(e);
@@ -256,8 +340,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("升级批次ID不能为空");
         }
         try {
-            OTAUpgradePackageJobBatchInfoVO otaUpgradePackageJobBatchInfoVO = aliOTAUpgradePackageFeignClient.getJobBatchInfo(getTenantId(), jobId, iotInstanceId);
-            return ActionResult.ok(otaUpgradePackageJobBatchInfoVO);
+            OTAUpgradePackageJobBatchInfoVO result = new OTAUpgradePackageJobBatchInfoVO();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.getJobBatchInfo(getTenantId(), jobId, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -272,8 +366,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("OTA升级包ID不能为空");
         }
         try {
-            OTAUpgradePackageVO otaUpgradePackageVO = aliOTAUpgradePackageFeignClient.get(getTenantId(), id, iotInstanceId);
-            return ActionResult.ok(otaUpgradePackageVO);
+            OTAUpgradePackageVO result = new OTAUpgradePackageVO();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.get(getTenantId(), id, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -290,7 +394,16 @@ public class SysWebOTAUpgradePackageController extends BaseController {
             throw new BusinessException("升级包名称不能为空");
         }
         try {
-            aliOTAUpgradePackageFeignClient.create(getTenantId(), createRq, getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliOTAUpgradePackageFeignClient.create(getTenantId(), createRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -302,7 +415,16 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<Void> delete(@RequestBody OTAUpgradePackageDeleteRq deleteRq) throws BusinessException {
         try {
-            aliOTAUpgradePackageFeignClient.delete(deleteRq, getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliOTAUpgradePackageFeignClient.delete(deleteRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -314,8 +436,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<Boolean> cancelOTATaskByDevice(@RequestBody OTAUpgradePackageCancelTaskByDeviceRq cancelTaskByDeviceRq) throws BusinessException {
         try {
-            Boolean flag = aliOTAUpgradePackageFeignClient.cancelOTATaskByDevice(cancelTaskByDeviceRq, getUserName());
-            return ActionResult.ok(flag);
+            Boolean result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.cancelOTATaskByDevice(cancelTaskByDeviceRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -326,7 +458,16 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<Void> reUpgradeOTATaskByDevice(@RequestBody OTAUpgradePackageReupgradeTaskRq reupgradeTaskRq) throws BusinessException {
         try {
-            aliOTAUpgradePackageFeignClient.reupgradeOTATask(reupgradeTaskRq, getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliOTAUpgradePackageFeignClient.reupgradeOTATask(reupgradeTaskRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -338,8 +479,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<String> createOTAVerifyJob(@RequestBody OTAUpgradePackageVerifyJobCreateRq verifyJobCreateRq) throws BusinessException {
         try {
-            String otaVerifyJob = aliOTAUpgradePackageFeignClient.createOTAVerifyJob(verifyJobCreateRq, getUserName());
-            return ActionResult.ok(otaVerifyJob);
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.createOTAVerifyJob(verifyJobCreateRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -350,8 +501,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<String> createOTADynamicUpgradeJob(@RequestBody OTAUpgradePackageDynamicUpgradeJobCreateRq dynamicUpgradeJobCreateRq) throws BusinessException {
         try {
-            String jobId = aliOTAUpgradePackageFeignClient.createOTADynamicUpgradeJob(dynamicUpgradeJobCreateRq, getUserName());
-            return ActionResult.ok(jobId);
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.createOTADynamicUpgradeJob(dynamicUpgradeJobCreateRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -362,8 +523,18 @@ public class SysWebOTAUpgradePackageController extends BaseController {
     @ResponseBody
     public ActionResult<String> createOTAStaticUpgradeJob(@RequestBody OTAUpgradePackageStaticUpgradeJobCreateRq staticUpgradeJobCreateRq) throws BusinessException {
         try {
-            String jobId = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
-            return ActionResult.ok(jobId);
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+
+            return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -378,13 +549,19 @@ public class SysWebOTAUpgradePackageController extends BaseController {
         }
         Map<String, String> uploadMap = new HashMap<>();
         try {
-//            String jobId = aliOTAUpgradePackageFeignClient.createOTAStaticUpgradeJob(staticUpgradeJobCreateRq, getUserName());
-//            return ActionResult.ok(jobId);
-            OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), getUserName());
-            File file = multipartFileToFile(multipartFile);
-            String strFile = fileToString(file);
-            postObject(urlInfoDTO.getKey(), urlInfoDTO.getHost(), urlInfoDTO.getPolicy(), urlInfoDTO.getAccessKeyId(), urlInfoDTO.getSignature(), strFile);
-            uploadMap.put(file.getName(), urlInfoDTO.getUrl());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                OTAUpgradePackageGenerateUrlInfoDTO urlInfoDTO = aliOTAUpgradePackageFeignClient.generateOTAUploadURL(new OTAUpgradePackageGenerateUrlRq(), getUserName());
+                File file = multipartFileToFile(multipartFile);
+                String strFile = fileToString(file);
+                postObject(urlInfoDTO.getKey(), urlInfoDTO.getHost(), urlInfoDTO.getPolicy(), urlInfoDTO.getAccessKeyId(), urlInfoDTO.getSignature(), strFile);
+                uploadMap.put(file.getName(), urlInfoDTO.getUrl());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
         } catch (Exception e) {
             return dealWithError(e);
         }

@@ -7,8 +7,11 @@ import com.jike.wlw.service.product.topic.Topic;
 import com.jike.wlw.service.product.topic.TopicCreateRq;
 import com.jike.wlw.service.product.topic.TopicFilter;
 import com.jike.wlw.service.product.topic.TopicModifyRq;
+import com.jike.wlw.service.source.Source;
+import com.jike.wlw.service.source.SourceTypes;
 import com.jike.wlw.sys.web.config.fegin.AliTopicFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.source.SysWebSourceController;
 import com.jike.wlw.sys.web.sso.AppContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -21,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Api(value = "Topic服务", tags = {"Topic服务"})
@@ -30,6 +34,8 @@ public class SysWebTopicController extends BaseController {
 
     @Autowired
     private AliTopicFeignClient aliTopicFeignClient;
+    @Autowired
+    private SysWebSourceController sourceController;
 
     @ApiOperation(value = "新增Topic信息")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
@@ -37,7 +43,17 @@ public class SysWebTopicController extends BaseController {
     public ActionResult<String> create(@ApiParam(required = true, value = "新增Topic请求参数") @RequestBody TopicCreateRq createRq) throws BusinessException {
         try {
             Assert.assertArgumentNotNull(createRq, "createRq");
-            String result = aliTopicFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+
+            String result = null;
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliTopicFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -51,7 +67,15 @@ public class SysWebTopicController extends BaseController {
         try {
             Assert.assertArgumentNotNull(modifyRq, "modifyRq");
 
-            aliTopicFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliTopicFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -66,7 +90,16 @@ public class SysWebTopicController extends BaseController {
             @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws Exception {
         try {
             Assert.assertArgumentNotNull(topicId, "topicId");
-            aliTopicFeignClient.delete(getTenantId(), topicId, iotInstanceId, AppContext.getContext().getUserName());
+
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliTopicFeignClient.delete(getTenantId(), topicId, iotInstanceId, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -78,7 +111,16 @@ public class SysWebTopicController extends BaseController {
     @ResponseBody
     public ActionResult<List<Topic>> query(@ApiParam(required = true, value = "查询Topic请求参数") @RequestBody TopicFilter filter) throws BusinessException {
         try {
-            List<Topic> result = aliTopicFeignClient.query(getTenantId(), filter);
+            List<Topic> result = new ArrayList<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliTopicFeignClient.query(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);

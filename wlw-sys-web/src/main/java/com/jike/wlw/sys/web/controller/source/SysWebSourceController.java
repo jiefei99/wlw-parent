@@ -132,7 +132,7 @@ public class SysWebSourceController extends BaseController {
     @ApiOperation(value = "获取当前租户已连接的资源")
     @RequestMapping(value = "/getConnectedSource", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Source> getConnectedSource() throws Exception {
+    public ActionResult<Source> getConnectedSource() throws BusinessException {
         try {
             SourceFilter filter = new SourceFilter();
             filter.setStatusEq(SourceStatus.CONNECTED);

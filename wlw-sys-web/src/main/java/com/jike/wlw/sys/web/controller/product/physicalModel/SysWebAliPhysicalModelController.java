@@ -2,6 +2,7 @@ package com.jike.wlw.sys.web.controller.product.physicalModel;
 
 import com.geeker123.rumba.commons.api.response.ActionResult;
 import com.geeker123.rumba.commons.exception.BusinessException;
+import com.jike.wlw.service.physicalmodel.ModelVersion;
 import com.jike.wlw.service.physicalmodel.PhysicalModel;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCopyRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelCreateRq;
@@ -13,8 +14,11 @@ import com.jike.wlw.service.physicalmodel.PhysicalModelPublishQueryRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelPublishRq;
 import com.jike.wlw.service.physicalmodel.PhysicalModelTsl;
 import com.jike.wlw.service.physicalmodel.PhysicalModelTslGetRq;
+import com.jike.wlw.service.source.Source;
+import com.jike.wlw.service.source.SourceTypes;
 import com.jike.wlw.sys.web.config.fegin.AliPhysicalModelFeignClient;
 import com.jike.wlw.sys.web.controller.BaseController;
+import com.jike.wlw.sys.web.controller.source.SysWebSourceController;
 import com.jike.wlw.sys.web.sso.AppContext;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,13 +48,23 @@ public class SysWebAliPhysicalModelController extends BaseController {
 
     @Autowired
     private AliPhysicalModelFeignClient aliPhysicalModelFeignClient;
+    @Autowired
+    private SysWebSourceController sourceController;
 
     @ApiOperation(value = "新增物模型信息")
     @RequestMapping(value = "/create", method = RequestMethod.POST)
     @ResponseBody
     public ActionResult<Void> create(@ApiParam(required = true, value = "新增物模型请求参数") @RequestBody PhysicalModelCreateRq createRq) throws BusinessException {
         try {
-            aliPhysicalModelFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliPhysicalModelFeignClient.create(getTenantId(), createRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -59,11 +74,20 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ApiOperation(value = "获取指定产品的物模型版本")
     @RequestMapping(value = "/getVersion", method = RequestMethod.GET)
     @ResponseBody
-    public ActionResult<Void> getVersion(@ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
-                                         @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException {
+    public ActionResult<List<ModelVersion>> getVersion(@ApiParam(required = true, value = "productKey") @RequestParam(value = "productKey") String productKey,
+                                                       @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException {
         try {
-            aliPhysicalModelFeignClient.getVersion(getTenantId(), productKey, iotInstanceId);
-            return ActionResult.ok();
+            List<ModelVersion> versionList = new ArrayList<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                versionList = aliPhysicalModelFeignClient.getVersion(getTenantId(), productKey, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
+            return ActionResult.ok(versionList);
         } catch (Exception e) {
             return dealWithError(e);
         }
@@ -74,7 +98,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<PhysicalModelTsl> getTslPublished(@ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelPubTslGetRq modelGetRq) throws BusinessException {
         try {
-            PhysicalModelTsl result = aliPhysicalModelFeignClient.getTslPublished(getTenantId(), modelGetRq);
+            PhysicalModelTsl result = new PhysicalModelTsl();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.getTslPublished(getTenantId(), modelGetRq);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -86,7 +119,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<PhysicalModelTsl> getTsl(@ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelTslGetRq modelGetRq) throws BusinessException {
         try {
-            PhysicalModelTsl result = aliPhysicalModelFeignClient.getTsl(getTenantId(), modelGetRq);
+            PhysicalModelTsl result = new PhysicalModelTsl();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.getTsl(getTenantId(), modelGetRq);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -102,7 +144,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
             @ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException {
         try {
 
-            PhysicalModel result = aliPhysicalModelFeignClient.getCategory(getTenantId(), categoryKey, resourceGroupId, iotInstanceId);
+            PhysicalModel result = new PhysicalModel();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.getCategory(getTenantId(), categoryKey, resourceGroupId, iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -114,7 +165,15 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<Void> modify(@ApiParam(required = true, value = "编辑请求参数") @RequestBody PhysicalModelModifyRq modifyRq) throws BusinessException {
         try {
-            aliPhysicalModelFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliPhysicalModelFeignClient.modify(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -127,7 +186,15 @@ public class SysWebAliPhysicalModelController extends BaseController {
     public ActionResult<Void> delete(
             @ApiParam(required = true, value = "删除请求参数") @RequestBody PhysicalModelDelRq modelDelRq) throws Exception {
         try {
-            aliPhysicalModelFeignClient.delete(getTenantId(), modelDelRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliPhysicalModelFeignClient.delete(getTenantId(), modelDelRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -139,7 +206,15 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<Void> copy(@ApiParam(required = true, value = "复制请求参数") @RequestBody PhysicalModelCopyRq modifyRq) throws BusinessException {
         try {
-            aliPhysicalModelFeignClient.copy(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliPhysicalModelFeignClient.copy(getTenantId(), modifyRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -151,7 +226,15 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<Void> publish(@ApiParam(required = true, value = "发布请求参数") @RequestBody PhysicalModelPublishRq publishRq) throws BusinessException {
         try {
-            aliPhysicalModelFeignClient.publish(getTenantId(), publishRq, AppContext.getContext().getUserName());
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                aliPhysicalModelFeignClient.publish(getTenantId(), publishRq, AppContext.getContext().getUserName());
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok();
         } catch (Exception e) {
             return dealWithError(e);
@@ -163,7 +246,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<List<Map<String, String>>> queryTemplates(@ApiParam(required = false, value = "实例Id") @RequestParam(value = "iotInstanceId") String iotInstanceId) throws BusinessException {
         try {
-            List<Map<String, String>> result = aliPhysicalModelFeignClient.queryTemplates(getTenantId(), iotInstanceId);
+            List<Map<String, String>> result = new ArrayList<>();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.queryTemplates(getTenantId(), iotInstanceId);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -175,7 +267,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<PhysicalModel> queryPublish(@ApiParam(required = true, value = "查询物模型请求参数") @RequestBody PhysicalModelPublishQueryRq filter) throws BusinessException {
         try {
-            PhysicalModel result = aliPhysicalModelFeignClient.queryPublish(getTenantId(), filter);
+            PhysicalModel result = new PhysicalModel();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.queryPublish(getTenantId(), filter);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
@@ -187,7 +288,16 @@ public class SysWebAliPhysicalModelController extends BaseController {
     @ResponseBody
     public ActionResult<PhysicalModel> get(@ApiParam(required = true, value = "查询请求参数") @RequestBody PhysicalModelGetRq modelGetRq) throws Exception {
         try {
-            PhysicalModel result = aliPhysicalModelFeignClient.get(getTenantId(), modelGetRq);
+            PhysicalModel result = new PhysicalModel();
+            ActionResult<Source> source = sourceController.getConnectedSource();
+            if (source == null || source.getData() == null) {
+                return ActionResult.fail("未找到指定连接资源");
+            }
+            if (SourceTypes.ALIYUN.equals(source.getData().getType())) {
+                result = aliPhysicalModelFeignClient.get(getTenantId(), modelGetRq);
+            } else {
+                return ActionResult.fail("暂时只支持阿里云资源");
+            }
             return ActionResult.ok(result);
         } catch (Exception e) {
             return dealWithError(e);
