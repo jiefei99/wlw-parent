@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -96,7 +97,10 @@ public class IemProductManager {
     }
 
     public CreateProductResponseBody registerProduct(ProductCreateRq registerRq) throws Exception {
-//        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        if (StringUtils.isBlank(registerRq.getName()) || !Pattern.matches("^[a-zA-Z0-9@()_-\\u4e00-\\u9fa5\\u3040-\\u30FF]{4,15}$", registerRq.getName())) {
+            throw new BusinessException("产品名称只支持中文、英文字母、日文、数字、和特殊字符_-@()，长度限制 4~15个字符");
+        }
+
         CreateProductRequest createProductRequest = new CreateProductRequest();
         BeanUtils.copyProperties(registerRq, createProductRequest);
         createProductRequest.setProductName(registerRq.getName());
@@ -133,7 +137,10 @@ public class IemProductManager {
         if (StringUtils.isBlank(modifyRq.getName())) {
             throw new BusinessException("产品名称不能为空");
         }
-        //        Client client = createClient("LTAIZOpGhq6KtGqU", "xi2neJPmjJqDOmtjzTL9pBq8yLXogZ");
+        if (StringUtils.isBlank(modifyRq.getName()) || !Pattern.matches("^[a-zA-Z0-9@()_-\\u4e00-\\u9fa5\\u3040-\\u30FF]{4,15}$", modifyRq.getName())) {
+            throw new BusinessException("产品名称只支持中文、英文字母、日文、数字、和特殊字符_-@()，长度限制 4~15个字符");
+        }
+
         UpdateProductRequest updateProductRequest = new UpdateProductRequest();
         BeanUtils.copyProperties(modifyRq, updateProductRequest);
         updateProductRequest.setProductName(modifyRq.getName());

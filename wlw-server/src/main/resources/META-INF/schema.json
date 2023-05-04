@@ -1,0 +1,408 @@
+{
+  "id": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "description": "Core schema meta-schema",
+  "definitions": {
+    "nameDefinition": {
+      "type": "string",
+      "pattern": "^[\\u3005\\u300C-\\u300F\\u3040-\\u30FF\\u31F0-\\u31FF\\u4E00-\\u9fa5\\uFF0D\\uFF10-\\uFF19\\uFF21-\\uFF3A\\uFF41-\\uFF5Aa-zA-Z0-9][\\u3005\\u300C-\\u300F\\u3040-\\u30FF\\u31F0-\\u31FF\\u4E00-\\u9fa5\\uFF0D\\uFF10-\\uFF19\\uFF21-\\uFF3A\\uFF41-\\uFF5Aa-zA-Z0-9_\\-()\\uFF08\\uFF09\\u0020\\s\\./]{0,39}$"
+    },
+    "dataTypeDefinition": {
+      "enum": [
+        "ARRAY",
+        "STRUCT",
+        "INT",
+        "FLOAT",
+        "DOUBLE",
+        "TEXT",
+        "DATE",
+        "ENUM",
+        "BOOL"
+      ]
+    },
+    "identifierDefinition": {
+      "type": "string",
+      "pattern": "^[_a-zA-Z0-9]{1,50}$"
+    },
+    "descriptionDefinition": {
+      "type": "string",
+      "pattern": "^.{1,2048}$"
+    },
+    "rwFlagDefinition": {
+      "type": "string",
+      "pattern": "(READ_WRITE|READ_ONLY)"
+    },
+    "callTypeDefinition": {
+      "type": "string",
+      "pattern": "(ASYNC|SYNC)"
+    },
+    "eventTypeDefinition": {
+      "type": "string",
+      "pattern": "(INFO_EVENT_TYPE|ALERT_EVENT_TYPE|ERROR_EVENT_TYPE)"
+    },
+    "requiredDefinition": {
+      "type": "boolean"
+    },
+    "customDefinition": {
+      "type": "boolean"
+    },
+    "directionDefinition": {
+      "type": "string",
+      "pattern": "(PARAM_INPUT|PARAM_OUTPUT)"
+    },
+    "dataSpecsDefintion":{
+      "anyOf": [
+        {
+          "$ref": "#/definitions/digitalDefinition"
+        },
+        {
+          "$ref": "#/definitions/textDefinition"
+        },
+        {
+          "$ref": "#/definitions/arrayDefinition"
+        }
+      ]
+    },
+    "dataSpecsListDefintion":{
+      "anyOf": [
+        {
+          "$ref": "#/definitions/boolDefinition"
+        },
+        {
+          "$ref": "#/definitions/enumDefinition"
+        },
+        {
+          "$ref": "#/definitions/structDefinition"
+        }
+      ]
+    },
+    "argumentDefinition": {
+      "required": [
+        "identifier",
+        "name",
+        "dataType",
+        "custom",
+        "direction",
+        "paraOrder"
+      ],
+      "properties": {
+        "direction": {
+          "$ref": "#/definitions/directionDefinition"
+        },
+        "paraOrder": {
+          "type": "integer"
+        },
+        "identifier": {
+          "$ref": "#/definitions/identifierDefinition"
+        },
+        "name": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "description": {
+          "$ref": "#/definitions/descriptionDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        },
+        "dataSpecs": {
+          "$ref":"#/definitions/dataSpecsDefintion"
+        },
+        "dataSpecsList": {
+          "$ref":"#/definitions/dataSpecsListDefintion"
+        }
+      }
+    },
+    "propertyDefinition": {
+      "required": [
+        "identifier",
+        "name",
+        "dataType",
+        "productKey",
+        "rwFlag",
+        "custom",
+        "required"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/identifierDefinition"
+        },
+        "name": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "rwFlag": {
+          "$ref": "#/definitions/rwFlagDefinition"
+        },
+        "required": {
+          "$ref": "#/definitions/requiredDefinition"
+        },
+        "description": {
+          "$ref": "#/definitions/descriptionDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        },
+        "dataSpecs": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/digitalDefinition"
+            },
+            {
+              "$ref": "#/definitions/textDefinition"
+            },
+            {
+              "$ref": "#/definitions/arrayDefinition"
+            }
+          ]
+        },
+        "dataSpecsList": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/boolDefinition"
+            },
+            {
+              "$ref": "#/definitions/enumDefinition"
+            },
+            {
+              "$ref": "#/definitions/structDefinition"
+            }
+          ]
+        }
+      }
+    },
+    "serviceDefinition": {
+      "required": [
+        "identifier",
+        "serviceName",
+        "productKey",
+        "callType",
+        "custom",
+        "required"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/identifierDefinition"
+        },
+        "serviceName": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "callType": {
+          "$ref": "#/definitions/callTypeDefinition"
+        },
+        "required": {
+          "$ref": "#/definitions/requiredDefinition"
+        },
+        "description": {
+          "$ref": "#/definitions/descriptionDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        },
+        "inputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/argumentDefinition"
+          }
+        },
+        "outputParams": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/argumentDefinition"
+          }
+        }
+      }
+    },
+    "eventDefinition": {
+      "required": [
+        "identifier",
+        "eventName",
+        "eventType",
+        "productKey",
+        "custom",
+        "required"
+      ],
+      "properties": {
+        "identifier": {
+          "$ref": "#/definitions/identifierDefinition"
+        },
+        "eventName": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "eventType": {
+          "$ref": "#/definitions/eventTypeDefinition"
+        },
+        "required": {
+          "$ref": "#/definitions/requiredDefinition"
+        },
+        "description": {
+          "$ref": "#/definitions/descriptionDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        },
+        "outputData": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/argumentDefinition"
+          }
+        }
+      }
+    },
+    "digitalDefinition": {
+      "type": "object",
+      "required": [
+        "dataType"
+      ],
+      "properties": {
+        "max": {
+          "type": "string"
+        },
+        "min": {
+          "type": "string"
+        },
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        }
+      }
+    },
+    "textDefinition": {
+      "type": "object",
+      "required": [
+        "dataType",
+        "length"
+      ],
+      "properties": {
+        "length": {
+          "type": "integer"
+        },
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "custom": {
+          "$ref": "#/definitions/customDefinition"
+        }
+      }
+    },
+    "boolDefinition": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/enumItemDefinition"
+      }
+    },
+    "enumItemDefinition": {
+      "type": "object",
+      "required": [
+        "dataType",
+        "name",
+        "value"
+      ],
+      "properties": {
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "integer"
+        }
+      }
+    },
+    "enumDefinition": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/enumItemDefinition"
+      }
+    },
+    "structDefinition": {
+      "type": "array",
+      "required": [
+        "identifier",
+        "dataType",
+        "name",
+        "childDataType",
+        "childName"
+      ],
+      "properties": {
+        "childName": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "childDataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "identifier": {
+          "$ref": "#/definitions/identifierDefinition"
+        },
+        "name": {
+          "$ref": "#/definitions/nameDefinition"
+        },
+        "dataSpecs": {
+          "$ref":"#/definitions/dataSpecsDefintion"
+        },
+        "dataSpecsList": {
+          "$ref":"#/definitions/dataSpecsListDefintion"
+        }
+      }
+    },
+    "arrayDefinition": {
+      "type": "object",
+      "required": [
+        "dataType",
+        "size",
+        "childDataType"
+      ],
+      "properties": {
+        "dataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "childDataType": {
+          "$ref": "#/definitions/dataTypeDefinition"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "dataSpecs": {
+          "$ref":"#/definitions/dataSpecsDefintion"
+        },
+        "dataSpecsList": {
+          "$ref":"#/definitions/dataSpecsListDefintion"
+        }
+      }
+    }
+  },
+  "type": "object",
+  "properties": {
+    "productKey": {
+      "type": "string"
+    },
+    "properties": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/propertyDefinition"
+      }
+    },
+    "services": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/serviceDefinition"
+      }
+    },
+    "events": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/eventDefinition"
+      }
+    }
+  }
+}

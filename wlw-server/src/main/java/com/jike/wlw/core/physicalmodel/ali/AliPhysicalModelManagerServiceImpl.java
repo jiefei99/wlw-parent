@@ -31,11 +31,16 @@ import com.jike.wlw.service.physicalmodel.ali.AliPhysicalModelManagerService;
 import io.micrometer.core.instrument.util.StringUtils;
 import io.swagger.annotations.ApiModel;
 import lombok.extern.slf4j.Slf4j;
+import org.everit.json.schema.Schema;
+import org.everit.json.schema.ValidationException;
+import org.everit.json.schema.loader.SchemaLoader;
+import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -193,6 +198,18 @@ public class AliPhysicalModelManagerServiceImpl implements AliPhysicalModelManag
             manager.updateThingModel(modifyRq);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void testJsonSchema(String jsonStr) {
+        InputStream inputStream = AliPhysicalModelManagerServiceImpl.class.getResourceAsStream("/META-INF/schema.json");
+        org.json.JSONObject jsonSchema = new org.json.JSONObject(new JSONTokener(inputStream));
+        org.json.JSONObject data = new org.json.JSONObject(jsonStr);
+        Schema schema = SchemaLoader.load(jsonSchema);
+        try {
+            schema.validate(data);
+        } catch (ValidationException e) {
+            System.out.println(e.getMessage());
         }
     }
 

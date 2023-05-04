@@ -14,6 +14,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Service
@@ -67,6 +68,13 @@ public class IemEquipmentManager {
      * 注册设备
      */
     public RegisterDeviceResponseBody registerDevice(EquipmentCreateRq createRq) {
+        if (StringUtils.isBlank(createRq.getDeviceName()) || !Pattern.matches("^[a-zA-Z0-9_\\-\\.\\:\\@]{4,32}$", createRq.getDeviceName())) {
+            throw new BusinessException("设备名称只支持英文字母、数字、下划线（_）、中划线（-）、点号（.）、半角冒号（:）和特殊字符@，长度限制为4~32个字符");
+        }
+        if (StringUtils.isBlank(createRq.getNickname()) || !Pattern.matches("^[A-Za-z0-9_\\u4E00-\\u9FA5\\u3040-\\u30FF\\u31F0-\\u31FF]{4,32}$", createRq.getNickname())) {
+            throw new BusinessException("备注名称只支持中文、英文字母、日文、数字和下划线（_），长度限制为 4 ~ 32 个字符");
+        }
+
         RegisterDeviceRequest request = new RegisterDeviceRequest();
         BeanUtils.copyProperties(createRq, request);
 
